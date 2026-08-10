@@ -37,14 +37,17 @@ Codegen CLI for Hightouch Events
 
 Options:
   -V, --version        output the version number
-  -c, --config <path>  path to the config file (default: "./htevents.config.json")
-  --token <token>      Hightouch workspace API token (overrides HIGHTOUCH_API_TOKEN)
+  -c, --config <path>  path to the config file (default:
+                       "./htevents.config.json")
+  --token <token>      Hightouch workspace API token (overrides
+                       HIGHTOUCH_API_TOKEN)
   --debug              print stack traces for errors
   -h, --help           display help for command
 
 Commands:
   init                 create a htevents.config.json for this project
-  generate             fetch event contracts and emit typed SDK wrappers and docs
+  generate             fetch event contracts and emit typed SDK wrappers and
+                       docs
   check                verify generated code is up to date with contracts
   help [command]       display help for command
 "
