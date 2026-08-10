@@ -1,0 +1,38 @@
+{
+  "name": "@ht-sdks/events-cli",
+  "version": "0.1.0",
+  "description": "Codegen CLI for Hightouch Events",
+  "private": true,
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "bin": {
+    "htevents": "dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "pretest": "pnpm run build",
+    "test": "jest"
+  },
+  "packageManager": "pnpm@10.33.2",
+  "dependencies": {
+    "commander": "^13"
+  },
+  "devDependencies": {
+    "@types/jest": "^30.0.0",
+    "@types/node": "^26.2.0",
+    "eslint": "^10.8.1",
+    "eslint-config-prettier": "^10.1.8",
+    "jest": "^30.4.2",
+    "prettier": "^3.9.6",
+    "ts-jest": "^29.4.12",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.67.0"
+  }
+}
