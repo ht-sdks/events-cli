@@ -18,4 +18,25 @@ describe('htevents cli (e2e)', () => {
     expect(result.status).toBe(0);
     expect(result.stdout.trim()).toMatch(/^\d+\.\d+\.\d+$/);
   });
+
+  it.each(['init', 'generate', 'check'])(
+    '%s exits 1 with a not-implemented notice',
+    (name) => {
+      const result = runCli(name);
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('not implemented');
+    },
+  );
+
+  it('exits 1 for unknown commands', () => {
+    const result = runCli('bogus');
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('unknown command');
+  });
+
+  it('prints a stack trace with --debug', () => {
+    const result = runCli('--debug', 'generate');
+    expect(result.status).toBe(1);
+    expect(result.stderr).toContain('CliError');
+  });
 });
