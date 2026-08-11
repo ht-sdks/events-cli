@@ -1,0 +1,5 @@
+{
+  "source": "my-write-key",
+  "input": { "type": "git-sync", "path": "./events" },
+  "outputs": [{ "sdk": "browser-ts", "path": "./generated.ts" }]
+}

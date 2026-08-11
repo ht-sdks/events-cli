@@ -25,4 +25,6 @@ jobs:
 
       - run: pnpm run lint
 
+      - run: pnpm run check:schema
+
       - run: pnpm test

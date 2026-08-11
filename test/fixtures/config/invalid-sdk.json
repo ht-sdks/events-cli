@@ -1,0 +1,6 @@
+{
+  "$schema": "../../../schemas/config.schema.json",
+  "source": "my-write-key",
+  "input": { "type": "api" },
+  "outputs": [{ "sdk": "lolcode", "path": "./src/analytics/generated.ts" }]
+}
