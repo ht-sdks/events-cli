@@ -1,6 +1,8 @@
 import { spawnSync } from 'child_process';
 import { join } from 'path';
 const CLI = join(__dirname, '..', 'dist', 'cli.js');
+import { mkdtempSync, readFileSync } from 'fs';
+import { tmpdir } from 'os';
 
 function runCli(args: string[], env?: NodeJS.ProcessEnv) {
   return spawnSync(process.execPath, [CLI, ...args], {
@@ -26,10 +28,10 @@ describe('htevents cli (e2e)', () => {
     expect(result.stdout.trim()).toMatch(/^\d+\.\d+\.\d+$/);
   });
 
-  it('init exits 1 with a not-implemented notice', () => {
+  it('init without flags exits 1 in non-interactive mode with missing flags', () => {
     const result = runCli(['init']);
     expect(result.status).toBe(1);
-    expect(result.stderr).toContain('not implemented');
+    expect(result.stderr).toContain('Non-interactive init requires');
   });
 
   it.each(['generate', 'check'])(
@@ -93,5 +95,57 @@ describe('htevents cli (e2e)', () => {
     expect(result.status).toBe(1);
     expect(result.stderr).toContain('Loaded config');
     expect(result.stderr).toContain('not implemented');
+  });
+
+  it('roundtrips through check/generate stubs', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'htevents-e2e-'));
+    const config = join(dir, 'htevents.config.json');
+    const init = runCli([
+      'init',
+      '--config',
+      config,
+      '--source',
+      'demo-key',
+      '--input',
+      'git-sync',
+      '--git-sync-path',
+      './events',
+      '--output',
+      './generated.ts',
+    ]);
+
+    expect(init.status).toBe(0);
+    expect(readFileSync(config, 'utf-8')).toContain('demo-key');
+
+    const check = runCli(['check', '--config', config]);
+    expect(check.status).toBe(1);
+    expect(check.stderr).toContain('Loaded config');
+    expect(check.stderr).toContain('not implemented');
+
+    const generate = runCli(['generate', '--config', config]);
+    expect(generate.status).toBe(1);
+    expect(generate.stderr).toContain('not implemented');
+  });
+
+  it('init refuses to overwrite without --force', () => {
+    const dir = mkdtempSync(join(tmpdir(), 'htevents-e2e-'));
+    const config = join(dir, 'htevents.config.json');
+    const args = [
+      'init',
+      '--config',
+      config,
+      '--source',
+      'a',
+      '--input',
+      'api',
+      '--output',
+      './out.ts',
+    ];
+
+    expect(runCli(args, { HIGHTOUCH_API_TOKEN: '' }).status).toBe(0);
+
+    const again = runCli(args, { HIGHTOUCH_API_TOKEN: '' });
+    expect(again.status).toBe(1);
+    expect(again.stderr).toContain('already exists');
   });
 });

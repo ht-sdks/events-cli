@@ -28,3 +28,5 @@ jobs:
       - run: pnpm run check:schema
 
       - run: pnpm test
+
+      - run: pnpm pack --dry-run

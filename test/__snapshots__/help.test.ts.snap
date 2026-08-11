@@ -26,7 +26,13 @@ exports[`help output init --help 1`] = `
 create a htevents.config.json for this project
 
 Options:
-  -h, --help  display help for command
+  --source <source>       write key or source slug
+  --input <type>          api | git-sync
+  --git-sync-path <path>  local git-sync directory (for git-sync)
+  --sdk <sdk>             target SDK (browser-ts) (default: "browser-ts")
+  --output <path>         path for generated code
+  --force                 overwrite an existing config file
+  -h, --help              display help for command
 "
 `;
 
@@ -45,7 +51,7 @@ Options:
   -h, --help           display help for command
 
 Commands:
-  init                 create a htevents.config.json for this project
+  init [options]       create a htevents.config.json for this project
   generate             fetch event contracts and emit typed SDK wrappers and
                        docs
   check                verify generated code is up to date with contracts
