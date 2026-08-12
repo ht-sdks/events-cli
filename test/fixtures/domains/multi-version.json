@@ -1,0 +1,37 @@
+{
+  "name": "Orders",
+  "slug": "orders",
+  "events": [
+    {
+      "type": "track",
+      "name": "Order Completed",
+      "version": "v1",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "properties": {
+            "type": "object",
+            "properties": { "orderId": { "type": "string" } }
+          }
+        }
+      }
+    },
+    {
+      "type": "track",
+      "name": "Order Completed",
+      "version": "v2",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "properties": {
+            "type": "object",
+            "properties": {
+              "orderId": { "type": "string" },
+              "total": { "type": "number" }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
