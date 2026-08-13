@@ -1,0 +1,63 @@
+{
+  "name": "Checkout",
+  "slug": "checkout",
+  "events": [
+    {
+      "type": "track",
+      "name": "Cart Viewed",
+      "version": "default",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "properties": {
+            "type": "object",
+            "allOf": [{ "$ref": "#/definitions/components/cart" }]
+          }
+        }
+      }
+    },
+    {
+      "type": "identify",
+      "version": "default",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "traits": {
+            "type": "object",
+            "properties": {
+              "email": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "components": [
+    {
+      "name": "Money",
+      "slug": "money",
+      "version": "default",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "amount": { "type": "number" },
+          "currency": { "type": "string" }
+        },
+        "required": ["amount", "currency"]
+      }
+    },
+    {
+      "name": "Cart",
+      "slug": "cart",
+      "version": "default",
+      "imports": ["money"],
+      "schema": {
+        "type": "object",
+        "allOf": [{ "$ref": "#/definitions/components/money" }],
+        "properties": {
+          "itemCount": { "type": "number" }
+        }
+      }
+    }
+  ]
+}
