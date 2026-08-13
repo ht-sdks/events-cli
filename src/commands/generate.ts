@@ -1,25 +1,27 @@
 import { Command } from 'commander';
-import { CliError } from '../lib/errors';
-import { info, result } from '../lib/output';
+import { info } from '../lib/output';
+import { writeFileAtomic } from '../lib/write';
 import {
   printResolvedConfigSummary,
   resolveConfig,
   type ResolvedConfig,
 } from '../config/resolve';
-import { loadContracts } from '../input/load';
-import { normalize } from '../normalize';
-import type { NormalizedEvent } from '../normalize/types';
+import { buildArtifacts, type Artifacts } from '../pipeline/artifacts';
 
 export async function runGenerate(
   resolvedConfig: ResolvedConfig,
-): Promise<NormalizedEvent[]> {
+): Promise<Artifacts> {
   printResolvedConfigSummary(resolvedConfig);
+  const artifacts = await buildArtifacts(resolvedConfig);
 
-  const bundle = await loadContracts(resolvedConfig);
-  const events = normalize(bundle);
-  result(JSON.stringify(events, null, 2));
-  info(`Normalized ${events.length} event(s).`);
-  return events;
+  for (const file of artifacts.files) {
+    writeFileAtomic(file.path, file.contents);
+    info(`Wrote ${file.path}`);
+  }
+  writeFileAtomic(artifacts.lockfilePath, artifacts.lockfileContents);
+  info(`Wrote ${artifacts.lockfilePath}`);
+
+  return artifacts;
 }
 
 export function generateCommand(): Command {
@@ -27,8 +29,5 @@ export function generateCommand(): Command {
     .description('fetch event contracts and emit typed SDK wrappers and docs')
     .action(async (_opts, command: Command) => {
       await runGenerate(resolveConfig(command));
-      throw new CliError(
-        'Code generation is not implemented yet; printed normalized events only.',
-      );
     });
 }
