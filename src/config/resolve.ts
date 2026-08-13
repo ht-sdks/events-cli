@@ -16,7 +16,7 @@ export type ResolvedConfig = {
   token?: string;
 };
 
-export function resolveFromCommand(command: Command): ResolvedConfig {
+export function resolveConfig(command: Command): ResolvedConfig {
   const opts = command.optsWithGlobals() as GlobalOpts;
   const config = loadConfig(opts.config);
   const token = requireTokenIfApi(config, opts.token);
@@ -24,13 +24,13 @@ export function resolveFromCommand(command: Command): ResolvedConfig {
 }
 
 /** Human-readable summary for stubs / debugging. Never prints the token. */
-export function printResolvedSummary(resolved: ResolvedConfig): void {
+export function printResolvedConfigSummary(resolved: ResolvedConfig): void {
   const { config, configPath, token } = resolved;
   info(`Loaded config: ${configPath}`);
   result(
     JSON.stringify(
       {
-        source: config.source,
+        source: config.writeKey,
         input: config.input,
         outputs: config.outputs,
         token: token ? '(set)' : '(not required)',

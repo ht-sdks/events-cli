@@ -11,7 +11,7 @@ import { loadPrompter } from './prompter';
 export function initCommand(): Command {
   return new Command('init')
     .description('create a htevents.config.json for this project')
-    .option('--source <source>', 'write key or source slug')
+    .option('--write-key <write key>', 'event source write key')
     .option('--input <type>', 'api | git-sync')
     .option('--git-sync-path <path>', 'local git-sync directory (for git-sync)')
     .option(
@@ -24,7 +24,7 @@ export function initCommand(): Command {
     .action(async (opts, command: Command) => {
       const globals = command.optsWithGlobals() as { config: string };
       const flags: InitFlags = {
-        source: opts.source,
+        writeKey: opts.writeKey,
         input: opts.input,
         gitSyncPath: opts.gitSyncPath,
         sdk: opts.sdk as SupportedSdk,
@@ -56,7 +56,7 @@ export function initCommand(): Command {
       }
 
       const config = buildConfig({
-        source: answers.source,
+        writeKey: answers.writeKey,
         inputType: answers.inputType,
         gitSyncPath: answers.gitSyncPath,
         sdk: answers.sdk,

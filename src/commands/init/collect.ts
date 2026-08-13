@@ -3,7 +3,7 @@ import { SUPPORTED_SDKS, type SupportedSdk } from '../../config/schema';
 import { loadPrompter, Prompter } from './prompter';
 
 export type InitFlags = {
-  source?: string;
+  writeKey?: string;
   input?: 'api' | 'git-sync';
   gitSyncPath?: string;
   sdk?: SupportedSdk;
@@ -12,7 +12,7 @@ export type InitFlags = {
 };
 
 export type InitAnswers = {
-  source: string;
+  writeKey: string;
   inputType: 'api' | 'git-sync';
   gitSyncPath?: string;
   sdk: SupportedSdk;
@@ -21,15 +21,15 @@ export type InitAnswers = {
 };
 
 function hasAllFlags(flags: InitFlags): boolean {
-  if (!flags.source || !flags.input || !flags.output) return false;
+  if (!flags.writeKey || !flags.input || !flags.output) return false;
   if (flags.input === 'git-sync' && !flags.gitSyncPath) return false;
   return true;
 }
 
 function fromFlags(flags: InitFlags): InitAnswers {
-  if (!flags.source || !flags.input || !flags.output) {
+  if (!flags.writeKey || !flags.input || !flags.output) {
     throw new CliError(
-      'Non-interactive init requires --source, --input, and --output' +
+      'Non-interactive init requires --write-key, --input, and --output' +
         (flags.input === 'git-sync' ? ', plus --git-sync-path' : '') +
         '.',
     );
@@ -38,7 +38,7 @@ function fromFlags(flags: InitFlags): InitAnswers {
     throw new CliError('`--input git-sync` requires --git-sync-path.');
   }
   return {
-    source: flags.source,
+    writeKey: flags.writeKey,
     inputType: flags.input,
     gitSyncPath: flags.gitSyncPath,
     sdk: flags.sdk ?? 'browser-ts',
@@ -58,10 +58,10 @@ export async function collectInitAnswers(
 
   const p = prompter ?? (await loadPrompter());
 
-  const source =
-    flags.source ??
+  const writeKey =
+    flags.writeKey ??
     (await p.input({
-      message: 'Source (write key or source slug)',
+      message: 'Source write key',
       validate: (v) => (v.trim() ? true : 'Required'),
     }));
 
@@ -106,7 +106,7 @@ export async function collectInitAnswers(
     false; /* overwrite is handled later via exists check + --force / confirm */
 
   return {
-    source: source.trim(),
+    writeKey: writeKey.trim(),
     inputType,
     gitSyncPath: gitSyncPath?.trim(),
     sdk,
