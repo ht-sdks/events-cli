@@ -2,7 +2,7 @@
   "name": "Commerce",
   "slug": "commerce",
   "schemaVersionPath": ["context", "protocols", "schemaVersion"],
-  "eventSources": [{ "id": "src-1", "name": "Web App" }],
+  "eventSources": [{ "id": "src-1", "name": "web-app" }],
   "events": [
     {
       "type": "track",
