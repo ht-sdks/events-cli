@@ -1,8 +1,15 @@
 import { spawnSync } from 'child_process';
 import { join } from 'path';
-const CLI = join(__dirname, '..', 'dist', 'cli.js');
 import { mkdtempSync, readFileSync } from 'fs';
 import { tmpdir } from 'os';
+import { loadConfig } from '../src/config/load';
+import { runGenerate } from '../src/commands/generate';
+import { EVENT_SOURCE_WRITE_KEY_HEADER } from '../src/input/api';
+import type { ResolvedConfig } from '../src/config/resolve';
+
+const CLI = join(__dirname, '..', 'dist', 'cli.js');
+const configFixtures = join(__dirname, 'fixtures', 'config');
+const domainFixtures = join(__dirname, 'fixtures', 'domains');
 
 function runCli(args: string[], env?: NodeJS.ProcessEnv) {
   return spawnSync(process.execPath, [CLI, ...args], {
@@ -12,6 +19,22 @@ function runCli(args: string[], env?: NodeJS.ProcessEnv) {
       ...env,
       HIGHTOUCH_API_TOKEN: env?.HIGHTOUCH_API_TOKEN,
     },
+  });
+}
+
+function resolvedApi(token = 'tok'): ResolvedConfig {
+  const configPath = join(configFixtures, 'valid-api.json');
+  return {
+    configPath,
+    config: loadConfig(configPath),
+    token,
+  };
+}
+
+function jsonResponse(status: number, body: unknown): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
   });
 }
 
@@ -55,10 +78,9 @@ describe('htevents cli (e2e)', () => {
     expect(result.stderr).toContain('CliError');
   });
 
-  it('generate loads config and prints a summary', () => {
-    const config = join(__dirname, 'fixtures', 'config', 'valid-git-sync.json');
+  it('generate with git-sync reports not implemented', () => {
+    const config = join(configFixtures, 'valid-git-sync.json');
     const result = runCli(['generate', '--config', config]);
-    // still exits 1 because generation is stubbed
     expect(result.status).toBe(1);
     expect(result.stdout).toContain('"type": "git-sync"');
     expect(result.stderr).toContain('Loaded config');
@@ -66,7 +88,7 @@ describe('htevents cli (e2e)', () => {
   });
 
   it('generate with api input fails without a token', () => {
-    const config = join(__dirname, 'fixtures', 'config', 'valid-api.json');
+    const config = join(configFixtures, 'valid-api.json');
     const result = runCli(['generate', '--config', config], {
       HIGHTOUCH_API_TOKEN: '',
     });
@@ -74,30 +96,66 @@ describe('htevents cli (e2e)', () => {
     expect(result.stderr).toContain('requires a token');
   });
 
-  it('generate with api input succeeds with a token in the env', () => {
-    const config = join(__dirname, 'fixtures', 'config', 'valid-api.json');
-    const result = runCli(['generate', '--config', config], {
-      HIGHTOUCH_API_TOKEN: 'secret',
-    });
-    expect(result.status).toBe(1);
-    expect(result.stderr).toContain('Loaded config');
-    expect(result.stderr).toContain('not implemented');
-  });
-
-  it('generate with api input succeeds with a token in the flag', () => {
-    const config = join(__dirname, 'fixtures', 'config', 'valid-api.json');
-    const result = runCli(
-      ['generate', '--config', config, '--token', 'secret'],
-      {
-        HIGHTOUCH_API_TOKEN: undefined,
-      },
+  it('generate prints normalized events with wrappers', async () => {
+    const domain = JSON.parse(
+      readFileSync(join(domainFixtures, 'with-refs.json'), 'utf-8'),
     );
-    expect(result.status).toBe(1);
-    expect(result.stderr).toContain('Loaded config');
-    expect(result.stderr).toContain('not implemented');
+    const multi = JSON.parse(
+      readFileSync(join(domainFixtures, 'multi-version.json'), 'utf-8'),
+    );
+    const fetchSpy = jest
+      .spyOn(globalThis, 'fetch')
+      .mockImplementation(async (_input, init) => {
+        const headers = new Headers(init?.headers);
+        expect(headers.get('Authorization')).toBe('Bearer secret');
+        expect(headers.get(EVENT_SOURCE_WRITE_KEY_HEADER)).toBe('my-write-key');
+        return jsonResponse(200, { data: [domain, multi], hasMore: false });
+      });
+
+    try {
+      const events = await runGenerate(resolvedApi('secret'));
+
+      expect(events.map((e) => e.wrapperName)).toEqual(
+        expect.arrayContaining([
+          'trackCartViewedDefault',
+          'identifyDefault',
+          'trackOrderCompletedV1',
+          'trackOrderCompletedV2',
+        ]),
+      );
+      const cart = events.find(
+        (e) => e.wrapperName === 'trackCartViewedDefault',
+      );
+      expect(
+        Object.keys(
+          (cart?.schema as { properties?: Record<string, unknown> })
+            .properties ?? {},
+        ),
+      ).toEqual(expect.arrayContaining(['amount', 'currency', 'itemCount']));
+      expect(
+        events.find((e) => e.wrapperName === 'trackOrderCompletedV2')
+          ?.latestAlias,
+      ).toBe('trackOrderCompleted');
+    } finally {
+      fetchSpy.mockRestore();
+    }
   });
 
-  it('roundtrips through check/generate stubs', () => {
+  it('generate surfaces API 401 as CliError', async () => {
+    const fetchSpy = jest
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(jsonResponse(401, { message: 'unauthorized' }));
+
+    try {
+      await expect(runGenerate(resolvedApi('bad'))).rejects.toThrow(
+        /401|Authentication/i,
+      );
+    } finally {
+      fetchSpy.mockRestore();
+    }
+  });
+
+  it('roundtrips through check/generate stubs for git-sync', () => {
     const dir = mkdtempSync(join(tmpdir(), 'htevents-e2e-'));
     const config = join(dir, 'htevents.config.json');
     const init = runCli([

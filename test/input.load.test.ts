@@ -15,11 +15,28 @@ function resolved(configFile: string, token?: string): ResolvedConfig {
   };
 }
 
+function jsonResponse(status: number, body: unknown): Response {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
 describe('loadContracts', () => {
-  it('rejects api input as not implemented', async () => {
+  let fetchSpy: jest.SpyInstance;
+
+  afterEach(() => {
+    fetchSpy?.mockRestore();
+  });
+
+  it('loads api input via mocked fetch', async () => {
+    fetchSpy = jest
+      .spyOn(globalThis, 'fetch')
+      .mockResolvedValue(jsonResponse(200, { data: [], hasMore: false }));
+
     await expect(
       loadContracts(resolved('valid-api.json', 'tok')),
-    ).rejects.toThrow(/API contract input is not implemented/i);
+    ).resolves.toEqual({ writeKey: 'my-write-key', domains: [] });
   });
 
   it('rejects git-sync input as not implemented', async () => {
@@ -28,9 +45,9 @@ describe('loadContracts', () => {
     ).rejects.toThrow(/Git-sync contract input is not implemented/i);
   });
 
-  it('throws CliError (not a generic Error)', async () => {
+  it('throws CliError (not a generic Error) for git-sync', async () => {
     await expect(
-      loadContracts(resolved('valid-api.json', 'tok')),
+      loadContracts(resolved('valid-git-sync.json')),
     ).rejects.toBeInstanceOf(CliError);
   });
 });
