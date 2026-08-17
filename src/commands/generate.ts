@@ -1,21 +1,25 @@
 import { Command } from 'commander';
 import { CliError } from '../lib/errors';
-import { info } from '../lib/output';
+import { info, result } from '../lib/output';
 import {
   printResolvedConfigSummary,
   resolveConfig,
   type ResolvedConfig,
 } from '../config/resolve';
 import { loadContracts } from '../input/load';
-import type { ContractBundle } from '../input/types';
+import { normalize } from '../normalize';
+import type { NormalizedEvent } from '../normalize/types';
 
 export async function runGenerate(
   resolvedConfig: ResolvedConfig,
-): Promise<ContractBundle> {
+): Promise<NormalizedEvent[]> {
   printResolvedConfigSummary(resolvedConfig);
+
   const bundle = await loadContracts(resolvedConfig);
-  info(`Loaded ${bundle.domains.length} domain(s).`);
-  return bundle;
+  const events = normalize(bundle);
+  result(JSON.stringify(events, null, 2));
+  info(`Normalized ${events.length} event(s).`);
+  return events;
 }
 
 export function generateCommand(): Command {
@@ -24,7 +28,7 @@ export function generateCommand(): Command {
     .action(async (_opts, command: Command) => {
       await runGenerate(resolveConfig(command));
       throw new CliError(
-        '`generate` loaded contracts successfully, but code generation is not implemented yet.',
+        'Code generation is not implemented yet; printed normalized events only.',
       );
     });
 }

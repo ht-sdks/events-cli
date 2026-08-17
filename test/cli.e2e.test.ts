@@ -96,7 +96,7 @@ describe('htevents cli (e2e)', () => {
     expect(result.stderr).toContain('requires a token');
   });
 
-  it('generate loads contracts from the API', async () => {
+  it('generate prints normalized events with wrappers', async () => {
     const domain = JSON.parse(
       readFileSync(join(domainFixtures, 'with-refs.json'), 'utf-8'),
     );
@@ -113,9 +113,29 @@ describe('htevents cli (e2e)', () => {
       });
 
     try {
-      const bundle = await runGenerate(resolvedApi('secret'));
-      expect(bundle.writeKey).toBe('my-write-key');
-      expect(bundle.domains.map((d) => d.name)).toEqual(['Checkout', 'Orders']);
+      const events = await runGenerate(resolvedApi('secret'));
+
+      expect(events.map((e) => e.wrapperName)).toEqual(
+        expect.arrayContaining([
+          'trackCartViewedDefault',
+          'identifyDefault',
+          'trackOrderCompletedV1',
+          'trackOrderCompletedV2',
+        ]),
+      );
+      const cart = events.find(
+        (e) => e.wrapperName === 'trackCartViewedDefault',
+      );
+      expect(
+        Object.keys(
+          (cart?.schema as { properties?: Record<string, unknown> })
+            .properties ?? {},
+        ),
+      ).toEqual(expect.arrayContaining(['amount', 'currency', 'itemCount']));
+      expect(
+        events.find((e) => e.wrapperName === 'trackOrderCompletedV2')
+          ?.latestAlias,
+      ).toBe('trackOrderCompleted');
     } finally {
       fetchSpy.mockRestore();
     }

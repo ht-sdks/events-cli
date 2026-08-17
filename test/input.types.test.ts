@@ -42,6 +42,25 @@ describe('parseDomain', () => {
       CliError,
     );
   });
+
+  it.each(['identify', 'page', 'screen', 'group'] as const)(
+    'allows a null name on %s events',
+    (type) => {
+      const domain = parseDomain({
+        name: 'My domain',
+        events: [
+          {
+            type,
+            name: null,
+            schema: { type: 'object' },
+          },
+        ],
+      });
+      expect(domain.events).toHaveLength(1);
+      expect(domain.events?.[0]?.type).toBe(type);
+      expect(domain.events?.[0]?.name).toBeUndefined();
+    },
+  );
 });
 
 describe('parseContractBundle', () => {
