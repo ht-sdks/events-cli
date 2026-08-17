@@ -4,6 +4,7 @@ import {
   MIN_SDK_VERSION,
 } from '../src/render/browser-ts';
 import { eventsFromFixture } from './helpers/fixtures';
+import type { NormalizedEvent } from '../src/normalize/types';
 
 describe('renderBrowserTs', () => {
   it.each(['simple-track.json', 'multi-version.json', 'with-refs.json'])(
@@ -38,5 +39,24 @@ describe('renderBrowserTs', () => {
     expect(v1).toBeGreaterThan(-1);
     expect(v2).toBeGreaterThan(-1);
     expect(v1).toBeLessThan(v2);
+  });
+
+  it('pins quicktype title to the wrapper type name', async () => {
+    const event: NormalizedEvent = {
+      type: 'track',
+      name: 'Order Completed',
+      version: 'v1',
+      domainName: 'Orders',
+      envelopeKey: 'properties',
+      schema: {
+        type: 'object',
+        title: 'WrongTitle',
+        properties: { orderId: { type: 'string' } },
+      },
+      wrapperName: 'trackOrderCompletedV1',
+    };
+    const ts = await renderBrowserTs([event]);
+    expect(ts).toMatch(/export interface TrackOrderCompletedV1/);
+    expect(ts).not.toMatch(/export interface WrongTitle/);
   });
 });

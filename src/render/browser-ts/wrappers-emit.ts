@@ -23,9 +23,11 @@ function jsStringArray(values: readonly string[]): string {
  * Version injection follows event-router `getCacheKey` in
  * hightouchio/hightouch packages/backend/core/events/event-router/schemas/cache-key.ts,
  * which walks the full Segment payload at `schema_version_path`:
- *   properties.* / traits.* → the props/traits argument
+ *   properties.* → properties argument (track/page/screen only)
+ *   traits.* → traits argument (identify/group only)
  *   context.* → options.context
- *   empty/absent → no injection (router uses default_schema_version)
+ *   empty/absent, or a head that is not this event's envelope / context
+ *     → no injection (router uses default_schema_version)
  */
 export function renderWrappers(events: NormalizedEvent[]): string {
   const lines: string[] = [
@@ -69,12 +71,13 @@ export function renderWrappers(events: NormalizedEvent[]): string {
     '  options: Options | undefined,',
     '  path: readonly string[] | undefined,',
     '  version: string,',
+    '  envelopeKey: "properties" | "traits",',
     '): { data: T; options: Options | undefined } {',
     '  if (path === undefined || path.length === 0) {',
     '    return { data, options };',
     '  }',
     '  const [head, ...rest] = path;',
-    '  if (head === "properties" || head === "traits") {',
+    '  if (head === envelopeKey) {',
     '    return {',
     '      data: setAtPath(data, rest, version) as T,',
     '      options,',
@@ -114,9 +117,43 @@ function renderEventWrappers(event: NormalizedEvent): string[] {
     event.schemaVersionPath && event.schemaVersionPath.length > 0
       ? jsStringArray(event.schemaVersionPath)
       : 'undefined';
-  const call = sdkCall(event, method);
+  const envelopeLiteral = jsString(event.envelopeKey);
 
-  const fn = [
+  const fn =
+    method === 'identify' || method === 'group'
+      ? renderIdWrappers(
+          event,
+          typeName,
+          dataParam,
+          method,
+          pathLiteral,
+          envelopeLiteral,
+        )
+      : renderDataWrappers(
+          event,
+          typeName,
+          dataParam,
+          method,
+          pathLiteral,
+          envelopeLiteral,
+        );
+
+  if (event.latestAlias !== undefined) {
+    fn.push('', `export const ${event.latestAlias} = ${event.wrapperName};`);
+  }
+
+  return fn;
+}
+
+function renderDataWrappers(
+  event: NormalizedEvent,
+  typeName: string,
+  dataParam: 'properties' | 'traits',
+  method: string,
+  pathLiteral: string,
+  envelopeLiteral: string,
+): string[] {
+  return [
     `export function ${event.wrapperName}(`,
     `  ${dataParam}: ${typeName},`,
     '  options?: Options,',
@@ -127,25 +164,74 @@ function renderEventWrappers(event: NormalizedEvent): string[] {
     '    options,',
     `    ${pathLiteral},`,
     `    ${jsString(event.version)},`,
+    `    ${envelopeLiteral},`,
     '  );',
-    `  return ${call}`,
+    `  return ${sdkCall(event, method)}`,
     '}',
   ];
+}
 
-  if (event.latestAlias !== undefined) {
-    fn.push('', `export const ${event.latestAlias} = ${event.wrapperName};`);
-  }
-
-  return fn;
+function renderIdWrappers(
+  event: NormalizedEvent,
+  typeName: string,
+  dataParam: 'properties' | 'traits',
+  method: string,
+  pathLiteral: string,
+  envelopeLiteral: string,
+): string[] {
+  const idParam = method === 'group' ? 'groupId' : 'userId';
+  const returnType = `ReturnType<HtEventsBrowser['${method}']>`;
+  const inject = (
+    indent: string,
+    dataExpr: string,
+    optionsExpr: string,
+  ): string[] => [
+    `${indent}const injected = withSchemaVersion(`,
+    `${indent}  ${dataExpr},`,
+    `${indent}  ${optionsExpr},`,
+    `${indent}  ${pathLiteral},`,
+    `${indent}  ${jsString(event.version)},`,
+    `${indent}  ${envelopeLiteral},`,
+    `${indent});`,
+  ];
+  return [
+    `export function ${event.wrapperName}(`,
+    `  ${idParam}: string | number,`,
+    `  ${dataParam}?: ${typeName},`,
+    '  options?: Options,',
+    `): ${returnType};`,
+    `export function ${event.wrapperName}(`,
+    `  ${dataParam}?: ${typeName},`,
+    '  options?: Options,',
+    `): ${returnType};`,
+    `export function ${event.wrapperName}(`,
+    `  idOrTraits?: string | number | ${typeName},`,
+    `  traitsOrOptions?: ${typeName} | Options,`,
+    '  maybeOptions?: Options,',
+    `): ${returnType} {`,
+    '  const htevents = requireAnalytics();',
+    '  if (typeof idOrTraits === "string" || typeof idOrTraits === "number") {',
+    ...inject(
+      '    ',
+      `((traitsOrOptions as ${typeName} | undefined) ?? {}) as Record<string, unknown>`,
+      'maybeOptions',
+    ),
+    `    return htevents.${method}(idOrTraits, injected.data, injected.options);`,
+    '  }',
+    ...inject(
+      '  ',
+      '(idOrTraits ?? {}) as Record<string, unknown>',
+      'traitsOrOptions as Options | undefined',
+    ),
+    `  return htevents.${method}(injected.data, injected.options);`,
+    '}',
+  ];
 }
 
 function sdkCall(event: NormalizedEvent, method: string): string {
   if (method === 'track') {
     const eventName = event.name ?? event.type;
     return `htevents.track(${jsString(eventName)}, injected.data, injected.options);`;
-  }
-  if (method === 'identify' || method === 'group') {
-    return `htevents.${method}(injected.data, injected.options);`;
   }
   if (event.name !== undefined && event.name.trim() !== '') {
     return `htevents.${method}(undefined, ${jsString(event.name)}, injected.data, injected.options);`;

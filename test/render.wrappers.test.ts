@@ -125,7 +125,27 @@ describe('generated SDK wrappers', () => {
     );
   });
 
-  it('calls identify with traits', async () => {
+  it('calls identify with userId and traits', async () => {
+    const source = await renderBrowserTs(eventsFromFixture('with-refs.json'));
+    const generated = loadGenerated(source);
+    const analytics = mockAnalytics();
+    (generated.setHtEvents as (instance: MockAnalytics) => void)(analytics);
+
+    await (
+      generated.identifyDefault as (
+        userId: string,
+        traits: object,
+      ) => Promise<unknown>
+    )('user_1', { email: 'a@b.c' });
+
+    expect(analytics.identify).toHaveBeenCalledWith(
+      'user_1',
+      { email: 'a@b.c' },
+      undefined,
+    );
+  });
+
+  it('calls identify with traits only when no userId is passed', async () => {
     const source = await renderBrowserTs(eventsFromFixture('with-refs.json'));
     const generated = loadGenerated(source);
     const analytics = mockAnalytics();
@@ -137,6 +157,133 @@ describe('generated SDK wrappers', () => {
 
     expect(analytics.identify).toHaveBeenCalledWith(
       { email: 'a@b.c' },
+      undefined,
+    );
+  });
+
+  it('calls group with groupId and traits', async () => {
+    const event: NormalizedEvent = {
+      type: 'group',
+      version: 'default',
+      domainName: 'Accounts',
+      envelopeKey: 'traits',
+      schema: {
+        type: 'object',
+        properties: { name: { type: 'string' } },
+      },
+      wrapperName: 'groupDefault',
+    };
+    const source = await renderBrowserTs([event]);
+    const generated = loadGenerated(source);
+    const analytics = mockAnalytics();
+    (generated.setHtEvents as (instance: MockAnalytics) => void)(analytics);
+
+    await (
+      generated.groupDefault as (
+        groupId: string,
+        traits: object,
+      ) => Promise<unknown>
+    )('grp_1', { name: 'Acme' });
+
+    expect(analytics.group).toHaveBeenCalledWith(
+      'grp_1',
+      { name: 'Acme' },
+      undefined,
+    );
+  });
+
+  it('does not inject a properties.* version into identify traits', async () => {
+    const event: NormalizedEvent = {
+      type: 'identify',
+      version: 'v1',
+      domainName: 'Users',
+      envelopeKey: 'traits',
+      schemaVersionPath: ['properties', 'apiVersion'],
+      schema: {
+        type: 'object',
+        properties: { email: { type: 'string' } },
+      },
+      wrapperName: 'identifyV1',
+    };
+    const source = await renderBrowserTs([event]);
+    const generated = loadGenerated(source);
+    const analytics = mockAnalytics();
+    (generated.setHtEvents as (instance: MockAnalytics) => void)(analytics);
+
+    await (
+      generated.identifyV1 as (
+        userId: string,
+        traits: Record<string, unknown>,
+      ) => Promise<unknown>
+    )('user_1', { email: 'a@b.c' });
+
+    expect(analytics.identify).toHaveBeenCalledWith(
+      'user_1',
+      { email: 'a@b.c' },
+      undefined,
+    );
+  });
+
+  it('injects version into traits when schemaVersionPath starts with traits', async () => {
+    const event: NormalizedEvent = {
+      type: 'identify',
+      version: 'v1',
+      domainName: 'Users',
+      envelopeKey: 'traits',
+      schemaVersionPath: ['traits', 'apiVersion'],
+      schema: {
+        type: 'object',
+        properties: { email: { type: 'string' } },
+      },
+      wrapperName: 'identifyV1',
+    };
+    const source = await renderBrowserTs([event]);
+    const generated = loadGenerated(source);
+    const analytics = mockAnalytics();
+    (generated.setHtEvents as (instance: MockAnalytics) => void)(analytics);
+
+    await (
+      generated.identifyV1 as (
+        userId: string,
+        traits: Record<string, unknown>,
+      ) => Promise<unknown>
+    )('user_1', { email: 'a@b.c' });
+
+    expect(analytics.identify).toHaveBeenCalledWith(
+      'user_1',
+      { email: 'a@b.c', apiVersion: 'v1' },
+      undefined,
+    );
+  });
+
+  it('does not inject a traits.* version into track properties', async () => {
+    const event: NormalizedEvent = {
+      type: 'track',
+      name: 'Order Completed',
+      version: 'v1',
+      domainName: 'Orders',
+      envelopeKey: 'properties',
+      schemaVersionPath: ['traits', 'apiVersion'],
+      schema: {
+        type: 'object',
+        properties: { orderId: { type: 'string' } },
+      },
+      wrapperName: 'trackOrderCompletedV1',
+    };
+    const source = await renderBrowserTs([event]);
+    const generated = loadGenerated(source);
+    const analytics = mockAnalytics();
+    (generated.setHtEvents as (instance: MockAnalytics) => void)(analytics);
+
+    await (
+      generated.trackOrderCompletedV1 as (
+        props: Record<string, unknown>,
+      ) => Promise<unknown>
+    )({ orderId: '1' });
+
+    expect(analytics.track).toHaveBeenCalledWith(
+      'Order Completed',
+      { orderId: '1' },
       undefined,
     );
   });

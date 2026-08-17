@@ -20,9 +20,9 @@ export async function renderTypes(events: NormalizedEvent[]): Promise<string> {
   for (const event of events) {
     const typeName = typeNameFor(event);
     const schema = {
+      ...event.schema,
       $schema: 'http://json-schema.org/draft-07/schema#',
       title: typeName,
-      ...event.schema,
     };
     await schemaInput.addSource({
       name: typeName,
