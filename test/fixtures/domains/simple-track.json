@@ -1,0 +1,28 @@
+{
+  "name": "Commerce",
+  "slug": "commerce",
+  "schemaVersionPath": ["context", "protocols", "schemaVersion"],
+  "eventSources": [{ "id": "src-1", "name": "web-app" }],
+  "events": [
+    {
+      "type": "track",
+      "name": "Order Completed",
+      "slug": "order-completed",
+      "version": "default",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "properties": {
+            "type": "object",
+            "properties": {
+              "orderId": { "type": "string" },
+              "total": { "type": "number" }
+            },
+            "required": ["orderId"]
+          }
+        }
+      }
+    }
+  ],
+  "components": []
+}
