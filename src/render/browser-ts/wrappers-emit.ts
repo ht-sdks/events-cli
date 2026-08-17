@@ -196,7 +196,7 @@ function renderIdWrappers(
   ];
   return [
     `export function ${event.wrapperName}(`,
-    `  ${idParam}: string | number,`,
+    `  ${idParam}: string,`,
     `  ${dataParam}?: ${typeName},`,
     '  options?: Options,',
     `): ${returnType};`,
@@ -205,12 +205,12 @@ function renderIdWrappers(
     '  options?: Options,',
     `): ${returnType};`,
     `export function ${event.wrapperName}(`,
-    `  idOrTraits?: string | number | ${typeName},`,
+    `  idOrTraits?: string | ${typeName},`,
     `  traitsOrOptions?: ${typeName} | Options,`,
     '  maybeOptions?: Options,',
     `): ${returnType} {`,
     '  const htevents = requireAnalytics();',
-    '  if (typeof idOrTraits === "string" || typeof idOrTraits === "number") {',
+    '  if (typeof idOrTraits === "string") {',
     ...inject(
       '    ',
       `((traitsOrOptions as ${typeName} | undefined) ?? {}) as Record<string, unknown>`,

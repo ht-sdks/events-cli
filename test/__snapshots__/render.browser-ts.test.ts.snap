@@ -317,7 +317,7 @@ function withSchemaVersion<T extends Record<string, unknown>>(
 }
 
 export function identifyDefault(
-  userId: string | number,
+  userId: string,
   traits?: IdentifyDefault,
   options?: Options,
 ): ReturnType<HtEventsBrowser['identify']>;
@@ -326,12 +326,12 @@ export function identifyDefault(
   options?: Options,
 ): ReturnType<HtEventsBrowser['identify']>;
 export function identifyDefault(
-  idOrTraits?: string | number | IdentifyDefault,
+  idOrTraits?: string | IdentifyDefault,
   traitsOrOptions?: IdentifyDefault | Options,
   maybeOptions?: Options,
 ): ReturnType<HtEventsBrowser['identify']> {
   const htevents = requireAnalytics();
-  if (typeof idOrTraits === "string" || typeof idOrTraits === "number") {
+  if (typeof idOrTraits === "string") {
     const injected = withSchemaVersion(
       ((traitsOrOptions as IdentifyDefault | undefined) ?? {}) as Record<string, unknown>,
       maybeOptions,
