@@ -1,13 +1,15 @@
 import { z } from 'zod';
 
-/** Canonical component `$ref` prefix used in stored event/component schemas. */
 export const COMPONENT_REF_PREFIX = '#/definitions/components/';
 
 const jsonSchemaSchema = z.record(z.unknown());
 
 export const domainEventSchema = z.object({
   type: z.enum(['track', 'identify', 'page', 'screen', 'group', 'alias']),
-  name: z.string().optional(),
+  name: z
+    .string()
+    .nullish()
+    .transform((value) => value ?? undefined),
   slug: z.string().optional(),
   version: z.string().optional(),
   onSchemaViolation: z.enum(['ALLOW_EVENT', 'BLOCK_EVENT']).optional(),
