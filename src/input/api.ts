@@ -63,8 +63,8 @@ async function fetchPage(
 }
 
 async function readJsonBody(response: Response): Promise<unknown> {
-  const text = await response.text();
   try {
+    const text = await response.text();
     return text.length ? JSON.parse(text) : {};
   } catch {
     throw new CliError('Hightouch API returned a non-JSON response body.');
@@ -89,7 +89,9 @@ export async function loadFromApi(
   }
 
   if (typeof fetch !== 'function') {
-    throw new CliError('fetch is not available in this runtime.');
+    throw new CliError(
+      'fetch is not available in this runtime. Please use Node 18 or later.',
+    );
   }
 
   const baseUrl = resolveBaseUrl();
