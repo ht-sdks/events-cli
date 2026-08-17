@@ -1,17 +1,12 @@
 import { Command } from 'commander';
 import { info } from '../lib/output';
 import { writeFileAtomic } from '../lib/write';
-import {
-  printResolvedConfigSummary,
-  resolveConfig,
-  type ResolvedConfig,
-} from '../config/resolve';
+import { resolveConfig, type ResolvedConfig } from '../config/resolve';
 import { buildArtifacts, type Artifacts } from '../pipeline/artifacts';
 
 export async function runGenerate(
   resolvedConfig: ResolvedConfig,
 ): Promise<Artifacts> {
-  printResolvedConfigSummary(resolvedConfig);
   const artifacts = await buildArtifacts(resolvedConfig);
 
   for (const file of artifacts.files) {

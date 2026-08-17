@@ -2,15 +2,10 @@ import { existsSync, readFileSync } from 'fs';
 import { Command } from 'commander';
 import { CliError, EXIT_DRIFT } from '../lib/errors';
 import { info } from '../lib/output';
-import {
-  printResolvedConfigSummary,
-  resolveConfig,
-  type ResolvedConfig,
-} from '../config/resolve';
+import { resolveConfig, type ResolvedConfig } from '../config/resolve';
 import { buildArtifacts } from '../pipeline/artifacts';
 
 export async function runCheck(resolvedConfig: ResolvedConfig): Promise<void> {
-  printResolvedConfigSummary(resolvedConfig);
   const artifacts = await buildArtifacts(resolvedConfig);
 
   const expected = [
