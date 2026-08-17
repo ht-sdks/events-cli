@@ -6,7 +6,7 @@ export const COMPONENT_REF_PREFIX = '#/definitions/components/';
 const jsonSchemaSchema = z.record(z.unknown());
 
 export const domainEventSchema = z.object({
-  type: z.enum(['track', 'identify', 'page', 'screen', 'group']),
+  type: z.enum(['track', 'identify', 'page', 'screen', 'group', 'alias']),
   name: z.string().optional(),
   slug: z.string().optional(),
   version: z.string().optional(),
