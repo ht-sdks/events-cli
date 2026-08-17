@@ -9,6 +9,7 @@ type MockAnalytics = {
   page: jest.Mock;
   screen: jest.Mock;
   group: jest.Mock;
+  alias: jest.Mock;
 };
 
 function mockAnalytics(): MockAnalytics {
@@ -18,6 +19,19 @@ function mockAnalytics(): MockAnalytics {
     page: jest.fn().mockResolvedValue(undefined),
     screen: jest.fn().mockResolvedValue(undefined),
     group: jest.fn().mockResolvedValue(undefined),
+    alias: jest.fn().mockResolvedValue(undefined),
+  };
+}
+
+function aliasEvent(overrides: Partial<NormalizedEvent> = {}): NormalizedEvent {
+  return {
+    type: 'alias',
+    version: 'default',
+    domainName: 'Users',
+    envelopeKey: 'properties',
+    schema: { type: 'object' },
+    wrapperName: 'aliasDefault',
+    ...overrides,
   };
 }
 
@@ -284,6 +298,96 @@ describe('generated SDK wrappers', () => {
     expect(analytics.track).toHaveBeenCalledWith(
       'Order Completed',
       { orderId: '1' },
+      undefined,
+    );
+  });
+
+  it('calls alias with to and optional from', async () => {
+    const source = await renderBrowserTs([aliasEvent()]);
+    const generated = loadGenerated(source);
+    const analytics = mockAnalytics();
+    (generated.setHtEvents as (instance: MockAnalytics) => void)(analytics);
+
+    await (
+      generated.aliasDefault as (
+        to: string,
+        from?: string,
+        options?: object,
+      ) => Promise<unknown>
+    )('user_new', 'user_old');
+
+    expect(analytics.alias).toHaveBeenCalledWith(
+      'user_new',
+      'user_old',
+      undefined,
+    );
+  });
+
+  it('calls alias with to and options when from is omitted', async () => {
+    const source = await renderBrowserTs([aliasEvent()]);
+    const generated = loadGenerated(source);
+    const analytics = mockAnalytics();
+    (generated.setHtEvents as (instance: MockAnalytics) => void)(analytics);
+
+    await (
+      generated.aliasDefault as (
+        to: string,
+        options?: object,
+      ) => Promise<unknown>
+    )('user_new', { anonymousId: 'anon_1' });
+
+    expect(analytics.alias).toHaveBeenCalledWith('user_new', undefined, {
+      anonymousId: 'anon_1',
+    });
+  });
+
+  it('injects alias schema version into options.context, not a properties payload', async () => {
+    const source = await renderBrowserTs([
+      aliasEvent({
+        version: 'v1',
+        wrapperName: 'aliasV1',
+        schemaVersionPath: ['context', 'protocols', 'schemaVersion'],
+      }),
+    ]);
+    const generated = loadGenerated(source);
+    const analytics = mockAnalytics();
+    (generated.setHtEvents as (instance: MockAnalytics) => void)(analytics);
+
+    await (
+      generated.aliasV1 as (
+        to: string,
+        from?: string,
+        options?: { context?: Record<string, unknown> },
+      ) => Promise<unknown>
+    )('user_new', 'user_old', { context: { ip: '1.1.1.1' } });
+
+    expect(analytics.alias).toHaveBeenCalledWith('user_new', 'user_old', {
+      context: {
+        ip: '1.1.1.1',
+        protocols: { schemaVersion: 'v1' },
+      },
+    });
+  });
+
+  it('does not pass a properties object to alias', async () => {
+    const source = await renderBrowserTs([
+      aliasEvent({
+        version: 'v1',
+        wrapperName: 'aliasV1',
+        schemaVersionPath: ['properties', 'apiVersion'],
+      }),
+    ]);
+    const generated = loadGenerated(source);
+    const analytics = mockAnalytics();
+    (generated.setHtEvents as (instance: MockAnalytics) => void)(analytics);
+
+    await (
+      generated.aliasV1 as (to: string, from?: string) => Promise<unknown>
+    )('user_new', 'user_old');
+
+    expect(analytics.alias).toHaveBeenCalledWith(
+      'user_new',
+      'user_old',
       undefined,
     );
   });

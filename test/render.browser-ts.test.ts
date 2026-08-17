@@ -59,4 +59,19 @@ describe('renderBrowserTs', () => {
     expect(ts).toMatch(/export interface TrackOrderCompletedV1/);
     expect(ts).not.toMatch(/export interface WrongTitle/);
   });
+
+  it('emits alias wrappers with to/from ids, not a properties payload', async () => {
+    const event: NormalizedEvent = {
+      type: 'alias',
+      version: 'default',
+      domainName: 'Users',
+      envelopeKey: 'properties',
+      schema: { type: 'object' },
+      wrapperName: 'aliasDefault',
+    };
+    const ts = await renderBrowserTs([event]);
+    expect(ts).toMatch(/export function aliasDefault\(\n {2}to: string,/);
+    expect(ts).toContain('return htevents.alias(to, from, injected.options);');
+    expect(ts).not.toMatch(/aliasDefault\(\n {2}properties:/);
+  });
 });

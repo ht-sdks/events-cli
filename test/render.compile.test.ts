@@ -65,4 +65,22 @@ describe('renderBrowserTs compile harness', () => {
     });
     expect(text).toBe('');
   });
+
+  it('typechecks generated alias wrappers against the browser SDK', async () => {
+    const event: NormalizedEvent = {
+      type: 'alias',
+      version: 'default',
+      domainName: 'Users',
+      envelopeKey: 'properties',
+      schema: { type: 'object' },
+      wrapperName: 'aliasDefault',
+    };
+    const diagnostics = compileGenerated(await renderBrowserTs([event]));
+    const text = ts.formatDiagnostics(diagnostics, {
+      getCanonicalFileName: (name) => name,
+      getCurrentDirectory: () => packageRoot,
+      getNewLine: () => '\n',
+    });
+    expect(text).toBe('');
+  });
 });

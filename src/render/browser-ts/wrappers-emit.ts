@@ -26,6 +26,7 @@ function jsStringArray(values: readonly string[]): string {
  *   properties.* → properties argument (track/page/screen only)
  *   traits.* → traits argument (identify/group only)
  *   context.* → options.context
+ *   alias has no properties/traits argument; only context.* is injected
  *   empty/absent, or a head that is not this event's envelope / context
  *     → no injection (router uses default_schema_version)
  */
@@ -119,24 +120,28 @@ function renderEventWrappers(event: NormalizedEvent): string[] {
       : 'undefined';
   const envelopeLiteral = jsString(event.envelopeKey);
 
-  const fn =
-    method === 'identify' || method === 'group'
-      ? renderIdWrappers(
-          event,
-          typeName,
-          dataParam,
-          method,
-          pathLiteral,
-          envelopeLiteral,
-        )
-      : renderDataWrappers(
-          event,
-          typeName,
-          dataParam,
-          method,
-          pathLiteral,
-          envelopeLiteral,
-        );
+  let fn: string[];
+  if (method === 'identify' || method === 'group') {
+    fn = renderIdWrappers(
+      event,
+      typeName,
+      dataParam,
+      method,
+      pathLiteral,
+      envelopeLiteral,
+    );
+  } else if (method === 'alias') {
+    fn = renderAliasWrappers(event, method, pathLiteral, envelopeLiteral);
+  } else {
+    fn = renderDataWrappers(
+      event,
+      typeName,
+      dataParam,
+      method,
+      pathLiteral,
+      envelopeLiteral,
+    );
+  }
 
   if (event.latestAlias !== undefined) {
     fn.push('', `export const ${event.latestAlias} = ${event.wrapperName};`);
@@ -167,6 +172,43 @@ function renderDataWrappers(
     `    ${envelopeLiteral},`,
     '  );',
     `  return ${sdkCall(event, method)}`,
+    '}',
+  ];
+}
+
+function renderAliasWrappers(
+  event: NormalizedEvent,
+  method: string,
+  pathLiteral: string,
+  envelopeLiteral: string,
+): string[] {
+  const returnType = `ReturnType<HtEventsBrowser['${method}']>`;
+  return [
+    `export function ${event.wrapperName}(`,
+    '  to: string,',
+    '  options?: Options,',
+    `): ${returnType};`,
+    `export function ${event.wrapperName}(`,
+    '  to: string,',
+    '  from?: string,',
+    '  options?: Options,',
+    `): ${returnType};`,
+    `export function ${event.wrapperName}(`,
+    '  to: string,',
+    '  fromOrOptions?: string | Options,',
+    '  maybeOptions?: Options,',
+    `): ${returnType} {`,
+    '  const htevents = requireAnalytics();',
+    '  const from = typeof fromOrOptions === "string" ? fromOrOptions : undefined;',
+    '  const options = typeof fromOrOptions === "string" ? maybeOptions : fromOrOptions;',
+    '  const injected = withSchemaVersion(',
+    '    {},',
+    '    options,',
+    `    ${pathLiteral},`,
+    `    ${jsString(event.version)},`,
+    `    ${envelopeLiteral},`,
+    '  );',
+    '  return htevents.alias(to, from, injected.options);',
     '}',
   ];
 }
