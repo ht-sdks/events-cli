@@ -128,9 +128,9 @@ describe('htevents cli (e2e)', () => {
     const config = join(configFixtures, 'valid-git-sync.json');
     const result = runCli(['generate', '--config', config]);
     expect(result.status).toBe(1);
-    expect(result.stdout).toContain('"type": "git-sync"');
-    expect(result.stderr).toContain('Loaded config');
-    expect(result.stderr).toContain('not implemented');
+    expect(result.stderr).toContain(
+      'Git-sync contract input is not implemented',
+    );
   });
 
   it('generate with api input fails without a token', () => {
@@ -249,7 +249,7 @@ describe('htevents cli (e2e)', () => {
     }
   });
 
-  it('roundtrips through check/generate stubs for git-sync', () => {
+  it('init git-sync config then check/generate report not implemented', () => {
     const dir = mkdtempSync(join(tmpdir(), 'htevents-e2e-'));
     const config = join(dir, 'htevents.config.json');
     const init = runCli([
@@ -271,12 +271,15 @@ describe('htevents cli (e2e)', () => {
 
     const check = runCli(['check', '--config', config]);
     expect(check.status).toBe(1);
-    expect(check.stderr).toContain('Loaded config');
-    expect(check.stderr).toContain('not implemented');
+    expect(check.stderr).toContain(
+      'Git-sync contract input is not implemented',
+    );
 
     const generate = runCli(['generate', '--config', config]);
     expect(generate.status).toBe(1);
-    expect(generate.stderr).toContain('not implemented');
+    expect(generate.stderr).toContain(
+      'Git-sync contract input is not implemented',
+    );
   });
 
   it('init refuses to overwrite without --force', () => {
