@@ -4,7 +4,7 @@ import { loadContracts } from '../input/load';
 import { normalize } from '../normalize';
 import type { NormalizedEvent } from '../normalize/types';
 import { LOCKFILE_NAME, buildLockfile, serializeLockfile } from '../lockfile';
-import { renderBrowserTs } from '../render/browser-ts';
+import { renderSdk } from '../render';
 
 export type ArtifactFile = {
   path: string;
@@ -43,7 +43,7 @@ export async function buildArtifacts(
 
   const files: ArtifactFile[] = [];
   for (const output of resolvedConfig.config.outputs) {
-    const contents = await renderBrowserTs(events);
+    const contents = await renderSdk(output.sdk, events);
     files.push({
       path: resolve(dir, output.path),
       contents,
