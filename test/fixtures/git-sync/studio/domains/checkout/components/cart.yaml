@@ -1,0 +1,9 @@
+name: Cart
+version: default
+schema:
+  type: object
+  allOf:
+    - $ref: "#/definitions/components/money"
+  properties:
+    itemCount:
+      type: number

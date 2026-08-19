@@ -2,6 +2,7 @@ import { CliError } from '../lib/errors';
 import type { ResolvedConfig } from '../config/resolve';
 import type { ContractBundle } from './types';
 import { loadFromApi } from './api';
+import { loadFromGitSync } from './git-sync/load';
 
 export async function loadContracts(
   resolvedConfig: ResolvedConfig,
@@ -12,9 +13,7 @@ export async function loadContracts(
     case 'api':
       return loadFromApi(resolvedConfig);
     case 'git-sync':
-      throw new CliError(
-        'Git-sync contract input is not implemented yet. Use `input.type: "api"` for now, or wait for the git-sync execution item.',
-      );
+      return loadFromGitSync(resolvedConfig);
     default: {
       const _exhaustive: never = input;
       throw new CliError(

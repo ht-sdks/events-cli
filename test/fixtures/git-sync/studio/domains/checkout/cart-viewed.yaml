@@ -1,0 +1,10 @@
+type: track
+name: Cart Viewed
+version: default
+schema:
+  type: object
+  properties:
+    properties:
+      type: object
+      allOf:
+        - $ref: "#/definitions/components/cart"

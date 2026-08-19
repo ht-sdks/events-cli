@@ -39,15 +39,28 @@ describe('loadContracts', () => {
     ).resolves.toEqual({ source: 'web-app', domains: [] });
   });
 
-  it('rejects git-sync input as not implemented', async () => {
-    await expect(
-      loadContracts(resolved('valid-git-sync.json')),
-    ).rejects.toThrow(/Git-sync contract input is not implemented/i);
+  it('loads git-sync input from a local events directory', async () => {
+    const studio = join(__dirname, 'fixtures', 'git-sync', 'studio');
+    const resolvedGitSync: ResolvedConfig = {
+      configPath: join(studio, 'htevents.config.json'),
+      config: {
+        ...loadConfig(join(fixtures, 'valid-git-sync.json')),
+        input: { type: 'git-sync', path: studio },
+      },
+    };
+
+    const bundle = await loadContracts(resolvedGitSync);
+    expect(bundle.writeKey).toBe('my-write-key');
+    expect(bundle.domains).toHaveLength(1);
+    expect(bundle.domains[0]?.slug).toBe('checkout');
   });
 
-  it('throws CliError (not a generic Error) for git-sync', async () => {
+  it('throws CliError when the git-sync path is missing', async () => {
     await expect(
       loadContracts(resolved('valid-git-sync.json')),
     ).rejects.toBeInstanceOf(CliError);
+    await expect(
+      loadContracts(resolved('valid-git-sync.json')),
+    ).rejects.toThrow(/Git-sync path not found/);
   });
 });
