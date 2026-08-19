@@ -30,6 +30,10 @@ export function lockfilePathFor(resolvedConfig: ResolvedConfig): string {
   return resolve(configDir(resolvedConfig), LOCKFILE_NAME);
 }
 
+/**
+ * Load contracts, render expected outputs and the lockfile in memory, and
+ * return them. Does not write anything to disk.
+ */
 export async function buildArtifacts(
   resolvedConfig: ResolvedConfig,
 ): Promise<Artifacts> {
