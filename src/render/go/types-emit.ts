@@ -1,10 +1,10 @@
 import { quicktype } from 'quicktype-core';
-import { toPascalCase } from '../../normalize/names';
 import type { NormalizedEvent } from '../../normalize/types';
 import { buildQuicktypeInput } from '../shared/quicktype-input';
+import { typeNameFor } from './names';
 
-export function typeNameFor(event: NormalizedEvent): string {
-  return toPascalCase(event.wrapperName);
+function stripPackageDecl(source: string): string {
+  return source.replace(/^package \w+[ \t]*\n+/, '').trimEnd();
 }
 
 export async function renderTypes(events: NormalizedEvent[]): Promise<string> {
@@ -13,12 +13,13 @@ export async function renderTypes(events: NormalizedEvent[]): Promise<string> {
   const inputData = await buildQuicktypeInput(events, typeNameFor);
   const { lines } = await quicktype({
     inputData,
-    lang: 'typescript',
+    lang: 'go',
     rendererOptions: {
       'just-types': 'true',
-      'nice-property-names': 'false',
+      package: 'analytics',
+      'field-tags': 'json',
     },
   });
 
-  return lines.join('\n').trimEnd();
+  return stripPackageDecl(lines.join('\n'));
 }

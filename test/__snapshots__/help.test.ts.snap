@@ -29,7 +29,7 @@ Options:
   --write-key <write key>  event source write key
   --input <type>           api | git-sync
   --git-sync-path <path>   local git-sync directory (for git-sync)
-  --sdk <sdk>              target SDK (browser-ts) (default: "browser-ts")
+  --sdk <sdk>              target SDK (browser-ts, go) (default: "browser-ts")
   --output <path>          path for generated code
   --force                  overwrite an existing config file
   -h, --help               display help for command

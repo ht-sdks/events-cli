@@ -54,7 +54,8 @@
               "sdk": {
                 "type": "string",
                 "enum": [
-                  "browser-ts"
+                  "browser-ts",
+                  "go"
                 ]
               },
               "path": {

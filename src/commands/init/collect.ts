@@ -20,6 +20,19 @@ export type InitAnswers = {
   force: boolean;
 };
 
+export function defaultOutputPath(sdk: SupportedSdk): string {
+  switch (sdk) {
+    case 'browser-ts':
+      return './src/analytics/generated.ts';
+    case 'go':
+      return './analytics/generated.go';
+    default: {
+      const exhaustive: never = sdk;
+      return exhaustive;
+    }
+  }
+}
+
 function hasAllFlags(flags: InitFlags): boolean {
   if (!flags.writeKey || !flags.input || !flags.output) return false;
   if (flags.input === 'git-sync' && !flags.gitSyncPath) return false;
@@ -97,7 +110,7 @@ export async function collectInitAnswers(
     flags.output ??
     (await p.input({
       message: 'Output path for generated code',
-      default: './src/analytics/generated.ts',
+      default: defaultOutputPath(sdk),
       validate: (v) => (v.trim() ? true : 'Required'),
     }));
 

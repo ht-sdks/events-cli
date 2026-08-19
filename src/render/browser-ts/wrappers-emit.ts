@@ -1,4 +1,5 @@
 import type { NormalizedEvent } from '../../normalize/types';
+import { injectableSchemaVersionPath } from '../shared/injection';
 import { typeNameFor } from './types-emit';
 
 function sdkMethod(event: NormalizedEvent): string {
@@ -20,15 +21,9 @@ function jsStringArray(values: readonly string[]): string {
 /**
  * Emit helpers + per-event wrappers.
  *
- * Version injection follows event-router `getCacheKey` in
- * hightouchio/hightouch packages/backend/core/events/event-router/schemas/cache-key.ts,
- * which walks the full Segment payload at `schema_version_path`:
- *   properties.* → properties argument (track/page/screen only)
- *   traits.* → traits argument (identify/group only)
- *   context.* → options.context
- *   alias has no properties/traits argument; only context.* is injected
- *   empty/absent, or a head that is not this event's envelope / context
- *     → no injection (router uses default_schema_version)
+ * Version-injection *policy* lives in `src/render/shared/injection.ts`.
+ * This file only prints TypeScript that implements it for the browser SDK.
+ * Do not fold SDK call shapes into a shared IR until a third renderer needs it.
  */
 export function renderWrappers(events: NormalizedEvent[]): string {
   const lines: string[] = [
@@ -114,9 +109,10 @@ function renderEventWrappers(event: NormalizedEvent): string[] {
   const typeName = typeNameFor(event);
   const dataParam = dataParamName(event);
   const method = sdkMethod(event);
+  const injectablePath = injectableSchemaVersionPath(event);
   const pathLiteral =
-    event.schemaVersionPath && event.schemaVersionPath.length > 0
-      ? jsStringArray(event.schemaVersionPath)
+    injectablePath && injectablePath.length > 0
+      ? jsStringArray(injectablePath)
       : 'undefined';
   const envelopeLiteral = jsString(event.envelopeKey);
 

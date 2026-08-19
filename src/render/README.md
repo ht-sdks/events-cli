@@ -4,24 +4,58 @@ This is the playbook for adding a new `outputs[].sdk` target. It is written so a
 
 The CLI is one Node/TS package (`@ht-sdks/events-cli`, binary `htevents`). Each renderer turns **already-normalized** event contracts into typed wrappers around a **peer** Hightouch SDK. Generated code never constructs, pins, or installs that SDK.
 
-**Reference implementation:** `src/render/browser-ts/`. Copy its file layout, invariants, and test split.
-
-**Share code as renderers accumulate.** If two renderers share logic (quicktype input setup, headers, sort order, version-injection policy, test helpers, etc.), extract it under `src/render/` and reuse it, rather than maintaining duplicate code. When adding a renderer, check for existing shared helpers first. Keep language-specific syntax and peer-SDK call shapes in the per-SDK package.
-
 **Do not touch** input loading, `$ref` flattening, envelope unwrap, wrapper naming, or the lockfile unless a renderer truly cannot work without a shared change. Those stages are SDK-agnostic on purpose.
+
+### References (copy the closer one)
+
+- JS/TS: `src/render/browser-ts/`
+- Non-JS: `src/render/go/` — Jest snapshots plus `test/harness/<id>/`
+
+### Shared helpers (`src/render/shared/`)
+
+Check here before copying. Add to this list when you extract something:
+
+- `sort.ts` — `byWrapperName`
+- `header.ts` — `headerLines` (CLI version + peer pin; wrap per language)
+- `quicktype-input.ts` — JSON Schema sources for quicktype
+- `injection.ts` — schema-version target policy (`data` / `context` / `none`)
+
+Keep language syntax and peer-SDK call shapes in `src/render/<sdk-id>/`. `wrappers-emit.ts` is per SDK on purpose (quicktype is types only). Do not invent a shared wrapper IR until a third renderer needs it.
+
+---
+
+## Shipped
+
+Append a bullet when a renderer lands:
+
+- `browser-ts`
+- `go`
+
+## Harness (non-JS)
+
+Append one of each when a non-JS renderer lands. Separate files so PRs do not all edit `ci.yml`:
+
+- `test/harness/<id>/` — package-manager pin + committed language tests; generated output gitignored
+- `case` in `scripts/run-harness.ts`
+- `.github/workflows/<id>-harness.yml` — reuse `.github/actions/setup-cli`; do not add the language to the Node 18–24 matrix
+
+```sh
+pnpm test:harness <id>
+# CI sets RUN_HARNESS=1 (fail if the toolchain is missing).
+# Locally skip if the binary is absent, unless RUN_HARNESS=1.
+# The Node job (`pnpm test`) never runs this.
+```
 
 ---
 
 ## Done when
 
-A renderer is complete when all of the following hold:
-
 1. `htevents init --sdk <id>` and `htevents.config.json` accept the new SDK identifier.
 2. `htevents generate` writes idiomatic wrappers that call the real peer SDK.
 3. Snapshot tests cover `simple-track.json`, `multi-version.json`, and `with-refs.json`.
-4. Behavioral tests prove SDK method calls and schema-version injection (see [Invariants](#invariants)).
-5. Generated output typechecks against the peer SDK, or the PR explains why the toolchain cannot run in this package's CI and still includes a harness.
-6. `pnpm test` and `pnpm run check:schema` pass.
+4. Behavioral tests prove SDK method calls and schema-version injection (see [Invariants](#invariants)). For non-JS, that lives in `test/harness/<id>/`, not in Jest.
+5. Generated output typechecks against the peer SDK. JS/TS: `ts.createProgram` in this package. Other languages: `test/harness/<id>/` with a package-manager pin.
+6. `pnpm test` and `pnpm run check:schema` pass. Non-JS: `pnpm test:harness <id>` passes in that language's workflow.
 
 ---
 
@@ -73,20 +107,23 @@ Do these in order.
 
 Choose a kebab-case id (`swift`, `kotlin`, `go`, `node`, …). Then **read the peer SDK's public API** from its repo in [`ht-sdks`](https://github.com/orgs/ht-sdks/repositories) before writing wrappers. Match real method names, parameter order, and options/context types. Do not copy Segment Typewriter signatures or guess.
 
-Do not target archived repos: `events-sdk-js` (use `events-sdk-js-mono`), `events-sdk-node` (use `events-sdk-js-mono` `packages/node`), `events-sdk-ios` (use `events-sdk-swift`).
+Do not target archived repos:
+
+- `events-sdk-js` → `events-sdk-js-mono`
+- `events-sdk-node` → `events-sdk-js-mono` `packages/node`
+- `events-sdk-ios` → `events-sdk-swift`
 
 | Planned id     | quicktype `lang` | Peer SDK                                                                                         | Notes                                                                                    |
 | -------------- | ---------------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| `browser-ts`   | `typescript`     | [`ht-sdks/events-sdk-js-mono`](https://github.com/ht-sdks/events-sdk-js-mono) `packages/browser` | Shipped. Reference.                                                                      |
+| `browser-ts`   | `typescript`     | [`ht-sdks/events-sdk-js-mono`](https://github.com/ht-sdks/events-sdk-js-mono) `packages/browser` | Shipped. JS/TS reference.                                                                |
+| `go`           | `go`             | [`ht-sdks/events-sdk-go`](https://github.com/ht-sdks/events-sdk-go)                              | Shipped. `client.Enqueue(htevents.Track{…})`; structs + `json` tags; `just-types: true`. |
 | `swift`        | `swift`          | [`ht-sdks/events-sdk-swift`](https://github.com/ht-sdks/events-sdk-swift)                        | Next. Mobile: `screen`, not `page`. Codable types.                                       |
 | `kotlin`       | `kotlin`         | [`ht-sdks/events-sdk-kotlin`](https://github.com/ht-sdks/events-sdk-kotlin)                      | Next. Android/JVM Kotlin SDK (not the Java Android SDK). `screen`, not `page`.           |
-| `go`           | `go`             | [`ht-sdks/events-sdk-go`](https://github.com/ht-sdks/events-sdk-go)                              | Next. `client.Enqueue(htevents.Track{…})` typed structs, not `Track()` methods.          |
 | `node`         | `typescript`     | [`ht-sdks/events-sdk-js-mono`](https://github.com/ht-sdks/events-sdk-js-mono) `packages/node`    | Object-style methods (`track({ event, properties, … })`), not positional.                |
 | `react-native` | `typescript`     | [`ht-sdks/events-sdk-react-native`](https://github.com/ht-sdks/events-sdk-react-native)          | Likely `.tsx` if JSX is required; otherwise `.ts`.                                       |
 | `android`      | `java`           | [`ht-sdks/events-sdk-android`](https://github.com/ht-sdks/events-sdk-android)                    | Java Android SDK. Distinct from `kotlin` and server `java`. `screen`, not `page`.        |
 | `flutter`      | `dart`           | [`ht-sdks/events-sdk-flutter`](https://github.com/ht-sdks/events-sdk-flutter)                    | Mobile: `screen`, not `page`.                                                            |
 | `python`       | `python`         | [`ht-sdks/events-sdk-python`](https://github.com/ht-sdks/events-sdk-python)                      | `htevents.track(user_id, event, properties)` (user id is required on server calls).      |
-| `ruby`         | `ruby`           | [`ht-sdks/events-sdk-ruby`](https://github.com/ht-sdks/events-sdk-ruby)                          | Keyword args: `analytics.track(user_id:, event:, properties:)`.                          |
 | `php`          | `php`            | [`ht-sdks/events-sdk-php`](https://github.com/ht-sdks/events-sdk-php)                            | Array payloads: `Hightouch::track(['event' => …, 'userId' => …])`.                       |
 | `csharp`       | `csharp`         | [`ht-sdks/events-sdk-csharp`](https://github.com/ht-sdks/events-sdk-csharp)                      |                                                                                          |
 | `java`         | `java`           | [`ht-sdks/events-sdk-java`](https://github.com/ht-sdks/events-sdk-java)                          | Server JVM SDK. Not Android (`events-sdk-android`) and not Kotlin (`events-sdk-kotlin`). |
@@ -95,29 +132,23 @@ Do not target archived repos: `events-sdk-js` (use `events-sdk-js-mono`), `event
 
 ### 2. Add the id to the config enum
 
-In `src/config/schema.ts`, append to `SUPPORTED_SDKS`.
+- Append to `SUPPORTED_SDKS` in `src/config/schema.ts`.
+- Add a `defaultOutputPath` case (`./src/analytics/generated.ts` for TS; a package directory + file for Go-like languages).
+- Extend `DEFAULT_OUTPUT_PATHS` in `test/init.collect.test.ts` (`satisfies Record<SupportedSdk, string>`).
+- `pnpm run generate:schema` (required; CI checks this).
+- Refresh `test/__snapshots__/help.test.ts.snap` by running tests.
 
-Regenerate the committed JSON Schema (required; CI checks this):
+### 3. Mimic the package layout
 
-```sh
-pnpm run generate:schema
-```
-
-`init --sdk` help text and the init prompt are derived from `SUPPORTED_SDKS`. After adding an id, update `test/__snapshots__/help.test.ts.snap` by running tests.
-
-If the language is not TypeScript, change the init default output path in `src/commands/init/collect.ts` (today: `./src/analytics/generated.ts`) so `init` suggests a sensible path for that SDK.
-
-### 3. Mimic the browser-ts package layout
-
-Create `src/render/<sdk-id>/`. Reuse shared helpers if they already exist; do not copy `types-emit` / header / injection logic that has already been extracted.
+Create `src/render/<sdk-id>/`. Reuse `src/render/shared/` first.
 
 | File               | Responsibility                                                                            |
 | ------------------ | ----------------------------------------------------------------------------------------- |
 | `index.ts`         | `render<Id>(events): Promise<string>` — sort, stitch header + types + wrappers            |
 | `constants.ts`     | `MIN_SDK_PACKAGE`, `MIN_SDK_VERSION` (documented minimum, never pinned in generated code) |
-| `header.ts`        | `Generated by @ht-sdks/events-cli@<ver> — do not edit.` plus peer SDK requirement         |
-| `types-emit.ts`    | quicktype over `event.schema`                                                             |
-| `wrappers-emit.ts` | instance binding + per-event wrappers + version injection                                 |
+| `header.ts`        | Wrap `headerLines` in language comment syntax                                             |
+| `types-emit.ts`    | `buildQuicktypeInput` + `quicktype({ lang, rendererOptions })`                            |
+| `wrappers-emit.ts` | instance binding + per-event SDK calls + `injectableSchemaVersionPath`                    |
 
 Register it in `src/render/index.ts`:
 
@@ -138,13 +169,11 @@ Keep the `default` / `never` branch. TypeScript will fail the build if `SUPPORTE
 
 ### 4. Emit types with quicktype
 
-Follow `src/render/browser-ts/types-emit.ts`:
+Follow `src/render/browser-ts/types-emit.ts` / `src/render/go/types-emit.ts`:
 
-- One `JSONSchemaInput` source per event.
-- Set `schema.title` to the language type name derived from `wrapperName` (browser-ts: `toPascalCase(wrapperName)`). This overrides leftover titles on the contract schema.
-- Pass `$schema: 'http://json-schema.org/draft-07/schema#'`.
-- Call `quicktype({ inputData, lang: '<lang>', rendererOptions })`.
-- Preserve JSON property names (`nice-property-names: false` in TypeScript). Do not camelCase keys that the payload will send as-is.
+- `buildQuicktypeInput(events, typeNameFor)` (sets `schema.title` and `$schema`).
+- `quicktype({ inputData, lang: '<lang>', rendererOptions })`.
+- Preserve JSON property names (`nice-property-names: false` in TypeScript; Go `json` tags).
 - Prefer `just-types: true` when the language can express types separately from marshaling. Swift is the exception: Typewriter forces full types + `Codable` because `just-types` breaks JSON compatibility. If you subclass a quicktype renderer, do it only for this kind of language constraint.
 
 `event.schema` is already flattened (`src/normalize/flatten.ts`) and envelope-unwrapped (`src/normalize/envelope.ts`). Nested `$ref`s to components will not appear. `FetchingJSONSchemaStore` is still required by `JSONSchemaInput`.
@@ -153,45 +182,50 @@ Identifier helpers: reuse `toPascalCase` from `src/normalize/names.ts`. Add a la
 
 ### 5. Emit wrappers
 
-Follow `src/render/browser-ts/wrappers-emit.ts` and the [invariants](#invariants) below.
+Follow the closer `wrappers-emit.ts` and the [invariants](#invariants) below. Quicktype does **not** emit these.
 
-Pattern, shared by every SDK:
+- Bind to an **already-configured** analytics instance (write key, plugins, consent live in the app).
+- For each event, emit `wrapperName` and, when set, `latestAlias = wrapperName`.
+- Call the peer SDK method for `event.type` (after page/screen mapping).
+- Inject `event.version` using `injectableSchemaVersionPath` / `schemaVersionTarget`.
+- Sort events by `wrapperName` before emitting (stable diffs).
 
-1. Bind to an **already-configured** analytics instance (write key, plugins, consent live in the app).
-2. For each event, emit `wrapperName` and, when set, `latestAlias = wrapperName`.
-3. Call the peer SDK method for `event.type` (after page/screen mapping).
-4. Inject `event.version` at `schemaVersionPath` using the rules below.
-5. Sort events by `wrapperName` before emitting (stable diffs).
+### 6. Tests
 
-### 6. Tests (copy the three-file split)
+Jest snapshots prove **string drift**. They do not prove compile or SDK behavior.
 
-| File                                    | What it proves                                                                 |
-| --------------------------------------- | ------------------------------------------------------------------------------ |
-| `test/render.<sdk-id>.test.ts`          | Snapshots + header + type names + sort order + alias has no properties payload |
-| `test/render.<sdk-id>.wrappers.test.ts` | Runtime: SDK methods receive the right arguments; version injection matrix     |
-| `test/render.<sdk-id>.compile.test.ts`  | Generated source typechecks against the peer SDK                               |
+**JS/TS** (`browser-ts`, later `node` / `react-native`):
 
-Use `eventsFromFixture` in `test/helpers/fixtures.ts`. Do not invent parallel fixtures unless a language needs an extra event type (e.g. `group` / `alias` are already inlined in the browser-ts tests).
+- `test/render.<sdk-id>.test.ts` — snapshots, header, type names, sort, alias has no properties payload
+- `test/render.<sdk-id>.wrappers.test.ts` — SDK args + version-injection matrix
+- `test/render.<sdk-id>.compile.test.ts` — `ts.createProgram` against the npm `devDependency`
 
-**Snapshots:** `it.each(['simple-track.json', 'multi-version.json', 'with-refs.json'])`.
+**Non-JS** (copy `test/harness/go/`):
 
-**Behavioral tests** (browser-ts loads generated TS via `typescript.transpileModule` and a mock analytics object). Replicate that: generate source → evaluate or compile a thin test driver → assert calls. Cover at least:
+- `test/render.<sdk-id>.test.ts` — same three domain-fixture snapshots
+- `test/harness/<id>/` — real client + httptest (or equivalent); generated source gitignored
+- Fixture generator (Go: `scripts/emit-go-harness.ts`) — runs the renderer, not quicktype directly; extra event types live here if the domain fixtures omit them
 
-- Throws / no-ops until the analytics instance is bound.
-- `track` with event name + properties.
-- `latestAlias` hits the same path as the versioned wrapper.
-- `identify` with id + traits, and traits-only if the SDK allows it.
-- `group` with group id + traits.
-- `alias` with to / optional from; **never** a properties object.
-- The [version-injection matrix](#schema-version-injection).
+Snapshots: `it.each(['simple-track.json', 'multi-version.json', 'with-refs.json'])`.
 
-**Compile harness** is CLI test infrastructure, not something `htevents generate` does for customers. Write generated code to a temp dir and typecheck it against the real peer SDK on disk. The published CLI never ships that SDK; generated output only _documents_ the peer requirement (see [Header](#header)). Customers already installed the SDK in their app.
+Behavioral coverage:
 
-- **JS/TS targets** (`browser-ts`, `node`, `react-native`): add the published npm package as a **CLI `devDependency`** (see `package.json`) and typecheck with `ts.createProgram`, as browser-ts does with `@ht-sdks/events-sdk-js-browser`.
-- **Every other language:** do **not** put the SDK in `package.json`. An npm git dependency only dumps source into `node_modules`; it is not a Swift / Kotlin / Go / Python package. Clone the `ht-sdks` repo listed above (sibling checkout, submodule, or CI step) into the layout that language's compiler expects (SPM, Gradle, `go.mod`, …).
-- If the compiler is not available in this package's Node CI, still commit the harness and skip at runtime when the binary is missing (`process.env.CI` must not silently skip if the toolchain is supposed to be installed). Call that out in the PR.
+- Throws / no-ops until bound (JS `setHtEvents`; skip if wrappers take the client as an argument)
+- `track` with event name + properties
+- `latestAlias` hits the same path as the versioned wrapper
+- `identify` with id + traits (traits-only if the SDK allows it)
+- `group` with group id + traits
+- `alias` with to / optional from; **never** a properties object
+- The [version-injection matrix](#schema-version-injection)
 
-Minimum SDK version belongs in `constants.ts` and the generated header, matching the version you compile against.
+Compile harness is CLI test infrastructure, not something `htevents generate` does for customers.
+
+- JS/TS: npm `devDependency` + `ts.createProgram`
+- Package-manager languages: pin in `test/harness/<id>/` (`go.mod`, `requirements.txt`, …). Do not put them in this package's `package.json`.
+- Clone-from-GitHub: Swift SPM, Android AAR, and similar — not the default when a registry pin exists
+- Assert parsed fields, not byte-equal SDK fixtures (`messageId` / `timestamp` / `sentAt` / library)
+
+Minimum SDK version belongs in `constants.ts` and the generated header.
 
 ### 7. Run
 
@@ -199,6 +233,7 @@ Minimum SDK version belongs in `constants.ts` and the generated header, matching
 pnpm test
 pnpm run lint
 pnpm run check:schema
+pnpm test:harness <id>
 ```
 
 ---
@@ -217,12 +252,11 @@ These are product rules, not TypeScript-isms. Port them faithfully.
 
 Generated code is a wrapper, not a new SDK. The app already constructed the client.
 
-Browser-ts uses module-level `setHtEvents(instance)`. Other languages should pick the idiomatic equivalent and document it in the generated header:
-
-- Swift: `extension Analytics` methods, or a small type that holds `Analytics`.
-- Kotlin/Android: methods on a class constructed with `Analytics`.
-- Go: functions that take the client, or methods on a wrapper struct.
-- Node: `setHtEvents` like browser, or a factory `withAnalytics(client)`.
+- Browser-ts: module-level `setHtEvents(instance)`
+- Go: functions that take the client, or methods on a wrapper struct
+- Swift: `extension Analytics` methods, or a small type that holds `Analytics`
+- Kotlin/Android: methods on a class constructed with `Analytics`
+- Node: `setHtEvents` like browser, or a factory `withAnalytics(client)`
 
 Never call `new Analytics(writeKey)` inside generated code. Never add a dependency manifest that pins the SDK (that fights the app's own install).
 
@@ -233,7 +267,7 @@ Never call `new Analytics(writeKey)` inside generated code. Never add a dependen
 | `track`      | `properties`  | `track(<event.name>, properties, options)`                                                                                   |
 | `page`       | `properties`  | Browser/node: `page(...)`. Mobile: map to `screen` if the SDK has no `page`.                                                 |
 | `screen`     | `properties`  | `screen(...)`. Browser: SDK has `screen` as well; still emit `screen` for `type: screen`.                                    |
-| `identify`   | `traits`      | Overloads: `(userId, traits?, options?)` and `(traits?, options?)` when the SDK allows traits-only.                          |
+| `identify`   | `traits`      | Overloads: `(userId, traits?, options?)` and `(traits?, options?)` when the SDK allows it.                                   |
 | `group`      | `traits`      | `(groupId, traits?, options?)`.                                                                                              |
 | `alias`      | **none**      | `(to, from?, options?)`. Do not emit a properties/traits parameter. `schema` may be an empty object; ignore it as a payload. |
 
@@ -243,7 +277,7 @@ For named `page` / `screen`, browser-ts calls `htevents.page(undefined, name, da
 
 ### Schema version injection
 
-Port of event-router `getCacheKey` (see the comment at the top of `wrappers-emit.ts`). The router walks the **full Segment payload** at `schemaVersionPath`. Wrappers must write `event.version` onto the object the SDK will send, using only the arguments that SDK method has:
+Policy helper: `src/render/shared/injection.ts`. Port of event-router `getCacheKey`. The router walks the **full Segment payload** at `schemaVersionPath`. Wrappers must write `event.version` onto the object the SDK will send, using only the arguments that SDK method has:
 
 | Path head                                             | Applies to                   | Where to write                                                   |
 | ----------------------------------------------------- | ---------------------------- | ---------------------------------------------------------------- |
@@ -254,9 +288,9 @@ Port of event-router `getCacheKey` (see the comment at the top of `wrappers-emit
 | `traits.*` on track/page/screen                       | —                            | **no injection**                                                 |
 | `properties.*` on alias                               | —                            | **no injection** (alias has no properties argument)              |
 
-Clone-on-write: do not mutate the caller's objects. Browser-ts implements this with `setAtPath` + `withSchemaVersion`. Port the behavior, not necessarily the helpers.
+Clone-on-write: do not mutate the caller's objects. Browser-ts implements this with `setAtPath` + `withSchemaVersion`. Go writes `context.*` into a cloned `Context.Extra` map (inlined on marshal). Port the behavior, not necessarily the helpers.
 
-Required behavioral cases (already in `test/render.wrappers.test.ts`):
+Required behavioral cases (`test/render.wrappers.test.ts`, `test/render.injection.test.ts`, `test/harness/go/analytics/wrappers_test.go`):
 
 1. `context.protocols.schemaVersion` on track → options.context.
 2. `properties.apiVersion` on track → properties.
@@ -273,7 +307,7 @@ Generated by @ht-sdks/events-cli@<cli version> — do not edit.
 Requires peer <package>@^<min version> or later.
 ```
 
-Use `cliPackage()` from `src/lib/package-info.ts`. Do not hardcode the CLI version. `<package>` is the name the target language uses for the peer (npm package, SPM URL, Maven coordinate, Go module path) — documentation, not an install step.
+Use `headerLines` from `src/render/shared/header.ts` (calls `cliPackage()`). Do not hardcode the CLI version. `<package>` is the name the target language uses for the peer (npm package, SPM URL, Maven coordinate, Go module path) — documentation, not an install step.
 
 ### Constraints quicktype cannot express
 
@@ -302,20 +336,23 @@ Markdown API docs are a **separate** renderer (not part of an SDK PR).
 - Do not change `wrapperName` / `latestAlias` in `src/normalize/names.ts` for one language.
 - Do not put API tokens, write keys, or workspace ids in generated code.
 - Do not `npm install` / pin the peer SDK from generated output, and do not auto-install it during `generate` / `check`. The customer's app owns that dependency.
-- Do not add non-JS SDKs to this package's `devDependencies`. npm cannot express Swift / Kotlin / Go / Python packages.
-- Do not subclass quicktype's renderer unless the language requires it (Swift `Codable` is the known case). Prefer `quicktype()` + string-concatenated wrappers, like browser-ts.
+- Do not add non-JS SDKs to this package's `devDependencies`. Pin them in `test/harness/<id>/` instead.
+- Do not add a new `package.json` script per SDK; extend `scripts/run-harness.ts`.
+- Do not put a non-JS toolchain on the Node version matrix; add `.github/workflows/<id>-harness.yml`.
+- Do not subclass quicktype's renderer unless the language requires it (Swift `Codable` is the known case). Prefer `quicktype()` + string-concatenated wrappers.
 - Do not copy Typewriter Handlebars templates verbatim. Use them as a hint for call shape, then match **our** SDKs and **our** version-injection rules.
-- Do not leave duplicated renderer logic in place once a second copy exists. Extract the shared piece and switch both call sites over in the same PR.
+- Do not leave duplicated renderer logic in place once a second copy exists. Extract into `src/render/shared/` and switch both call sites in the same PR.
+- Do not unify `wrappers-emit.ts` across languages until a third renderer forces a shared IR.
 
 ---
 
 ## Agent workflow (copy this)
 
-1. Read this file and `src/render/browser-ts/**`.
+1. Read this file, then `src/render/shared/` and the closer of `src/render/browser-ts/**` or `src/render/go/**`.
 2. Read the peer SDK's public `track` / `identify` / `page|screen` / `group` / `alias` signatures.
-3. Add the id to `SUPPORTED_SDKS`; run `pnpm run generate:schema`.
-4. Scaffold `src/render/<sdk-id>/` from browser-ts (or existing shared helpers); register in `src/render/index.ts`.
-5. Implement `types-emit` (quicktype) and `wrappers-emit` (invariants above). If you duplicated a helper that another renderer already has, extract it instead.
-6. Add the three test files, and any others that are necessary; extend fixtures only if an event type is missing.
-7. Run `pnpm test && pnpm run lint && pnpm run check:schema`.
-8. In the PR: peer SDK + min version, page vs screen mapping, how instance binding works, any compile-harness gap.
+3. Add the id to `SUPPORTED_SDKS` and `defaultOutputPath`; run `pnpm run generate:schema`.
+4. Scaffold `src/render/<sdk-id>/`; register in `src/render/index.ts`.
+5. Implement `types-emit` (shared quicktype input) and `wrappers-emit` (invariants above). Extract if you duplicated a shared helper.
+6. Add Jest snapshots. For non-JS: `test/harness/<id>/`, a `run-harness.ts` case, and `.github/workflows/<id>-harness.yml`.
+7. Run `pnpm test && pnpm run lint && pnpm run check:schema && pnpm test:harness <id>`.
+8. In the PR: peer SDK + min version, page vs screen mapping, instance binding, harness location.

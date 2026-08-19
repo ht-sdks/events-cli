@@ -1,0 +1,24 @@
+name: Go harness
+
+on:
+  push:
+
+jobs:
+  go-harness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-cli
+        with:
+          node-version: '22'
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache-dependency-path: test/harness/go/go.sum
+
+      - name: Generate wrappers and test against events-sdk-go
+        run: pnpm test:harness go
+        env:
+          RUN_HARNESS: '1'
