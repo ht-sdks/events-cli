@@ -1,5 +1,4 @@
 import type { Command } from 'commander';
-import { info, result } from '../lib/output';
 import { loadConfig, requireTokenIfApi } from './load';
 import type { EventsConfig } from './schema';
 
@@ -21,22 +20,4 @@ export function resolveConfig(command: Command): ResolvedConfig {
   const config = loadConfig(opts.config);
   const token = requireTokenIfApi(config, opts.token);
   return { configPath: opts.config, config, token };
-}
-
-/** Human-readable summary for stubs / debugging. Never prints the token. */
-export function printResolvedConfigSummary(resolved: ResolvedConfig): void {
-  const { config, configPath, token } = resolved;
-  info(`Loaded config: ${configPath}`);
-  result(
-    JSON.stringify(
-      {
-        source: config.writeKey,
-        input: config.input,
-        outputs: config.outputs,
-        token: token ? '(set)' : '(not required)',
-      },
-      null,
-      2,
-    ),
-  );
 }

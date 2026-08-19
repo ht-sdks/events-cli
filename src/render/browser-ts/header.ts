@@ -1,5 +1,5 @@
 import { MIN_SDK_PACKAGE, MIN_SDK_VERSION } from './constants';
-import { cliPackage } from './package-info';
+import { cliPackage } from '../../lib/package-info';
 
 export function renderHeader(): string {
   const { name, version } = cliPackage();

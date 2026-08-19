@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`lockfile matches a stable snapshot for fixture events 1`] = `
+{
+  "events": [
+    {
+      "domainSlug": "commerce",
+      "eventVersion": "default",
+      "latestAlias": "trackOrderCompleted",
+      "name": "Order Completed",
+      "schemaHash": "1a6aecb7a6ed01e1474e7785a87f47b211e2c3011086a5e1bb120b8d88dee625",
+      "type": "track",
+      "wrapperName": "trackOrderCompletedDefault",
+    },
+  ],
+  "generator": {
+    "name": "@ht-sdks/events-cli",
+    "version": "0.1.0",
+  },
+  "version": 1,
+  "writeKey": "wk",
+}
+`;
