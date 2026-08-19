@@ -1,13 +1,14 @@
 /**
  * Language-native compile harness. Usage:
  *
- *   pnpm test:harness go
+ *   pnpm test:harness <sdk>
  *
  * Add a `case` here when a new `test/harness/<id>/` lands. Do not add a new
  * package.json script per SDK.
  */
 import { spawnSync } from 'child_process';
 import { join } from 'path';
+import { emitBrowserTsHarness } from './emit-browser-ts-harness';
 import { emitGoHarness } from './emit-go-harness';
 
 const ROOT = join(__dirname, '..');
@@ -55,6 +56,21 @@ async function runGo(emitOnly: boolean): Promise<void> {
   process.exit(run('go', ['test', '-count=1', './...'], harness));
 }
 
+async function runBrowserTs(emitOnly: boolean): Promise<void> {
+  await emitBrowserTsHarness();
+  if (emitOnly) {
+    return;
+  }
+  process.exit(
+    run('pnpm', [
+      'exec',
+      'tsx',
+      '--test',
+      'test/harness/browser-ts/wrappers.test.ts',
+    ]),
+  );
+}
+
 async function main(): Promise<void> {
   const id = process.argv[2];
   const emitOnly = process.argv.includes('--emit-only');
@@ -66,6 +82,9 @@ async function main(): Promise<void> {
   switch (id) {
     case 'go':
       await runGo(emitOnly);
+      break;
+    case 'browser-ts':
+      await runBrowserTs(emitOnly);
       break;
     default:
       console.error(`unknown harness: ${id}`);

@@ -1,8 +1,5 @@
 import type { NormalizedEvent } from '../../normalize/types';
-import { injectableSchemaVersionPath } from '../shared/injection';
 import { assertNoExportedCollisions, exportedName, typeNameFor } from './names';
-
-/** SDK call shape for Go. Injection policy: `src/render/shared/injection.ts`. */
 
 function goString(value: string): string {
   return JSON.stringify(value);
@@ -23,6 +20,7 @@ function eventNameLiteral(event: NormalizedEvent): string {
   return goString(event.name ?? event.type);
 }
 
+/** Generated helpers. Duplicate per SDK — see `src/render/README.md` §5. */
 function renderHelpers(): string {
   return [
     'type CallOptions struct {',
@@ -112,7 +110,7 @@ function renderHelpers(): string {
 /** Alias in events-sdk-go has UserId + PreviousId, not AnonymousId. */
 function renderAliasWrapper(event: NormalizedEvent): string[] {
   const fn = exportedName(event.wrapperName);
-  const pathLiteral = goStringSlice(injectableSchemaVersionPath(event));
+  const pathLiteral = goStringSlice(event.schemaVersionPath);
   const version = goString(event.version);
   const envelope = goString(event.envelopeKey);
   const lines = [
@@ -144,7 +142,7 @@ function renderAliasWrapper(event: NormalizedEvent): string[] {
 function renderGroupWrapper(event: NormalizedEvent): string[] {
   const fn = exportedName(event.wrapperName);
   const typeName = typeNameFor(event);
-  const pathLiteral = goStringSlice(injectableSchemaVersionPath(event));
+  const pathLiteral = goStringSlice(event.schemaVersionPath);
   const version = goString(event.version);
   const envelope = goString(event.envelopeKey);
   const lines = [
@@ -182,7 +180,7 @@ function renderGroupWrapper(event: NormalizedEvent): string[] {
 function renderDataWrapper(event: NormalizedEvent): string[] {
   const fn = exportedName(event.wrapperName);
   const typeName = typeNameFor(event);
-  const pathLiteral = goStringSlice(injectableSchemaVersionPath(event));
+  const pathLiteral = goStringSlice(event.schemaVersionPath);
   const version = goString(event.version);
   const envelope = goString(event.envelopeKey);
   const messageType = sdkMessageType(event);

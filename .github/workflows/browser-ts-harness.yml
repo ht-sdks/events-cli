@@ -1,0 +1,20 @@
+name: Browser-ts harness
+
+on:
+  push:
+
+jobs:
+  browser-ts-harness:
+    name: test generated wrappers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-cli
+        with:
+          node-version: '22'
+
+      - name: Generate wrappers and test against events-sdk-js-browser
+        run: pnpm test:harness browser-ts
+        env:
+          RUN_HARNESS: '1'
