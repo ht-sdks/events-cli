@@ -5,6 +5,7 @@ on:
 
 jobs:
   go-harness:
+    name: test generated wrappers
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
