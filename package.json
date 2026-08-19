@@ -31,6 +31,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@ht-sdks/events-sdk-js-browser": "1.4.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.2.0",
     "eslint": "^10.8.1",
