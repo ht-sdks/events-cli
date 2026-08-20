@@ -36,7 +36,7 @@ describe('loadContracts', () => {
 
     await expect(
       loadContracts(resolved('valid-api.json', 'tok')),
-    ).resolves.toEqual({ writeKey: 'my-write-key', domains: [] });
+    ).resolves.toEqual({ source: 'web-app', domains: [] });
   });
 
   it('rejects git-sync input as not implemented', async () => {

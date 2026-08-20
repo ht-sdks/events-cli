@@ -16,7 +16,7 @@ const fixtures = join(__dirname, 'fixtures', 'domains');
 
 function bundleFromDomain(file: string): ContractBundle {
   return {
-    writeKey: 'wk',
+    source: 'wk',
     domains: [
       parseDomain(JSON.parse(readFileSync(join(fixtures, file), 'utf-8'))),
     ],
@@ -106,10 +106,10 @@ describe('quicktype smoke', () => {
       },
     ];
 
-    expect(() => normalize({ writeKey: 'wk', domains: [domain] })).toThrow(
+    expect(() => normalize({ source: 'wk', domains: [domain] })).toThrow(
       CliError,
     );
-    expect(() => normalize({ writeKey: 'wk', domains: [domain] })).toThrow(
+    expect(() => normalize({ source: 'wk', domains: [domain] })).toThrow(
       /cycle/i,
     );
   });

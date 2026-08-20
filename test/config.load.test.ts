@@ -11,7 +11,7 @@ const fixtures = join(__dirname, 'fixtures', 'config');
 describe('loadConfig', () => {
   it('loads a valid api config', () => {
     const config = loadConfig(join(fixtures, 'valid-api.json'));
-    expect(config.writeKey).toBe('my-write-key');
+    expect(config.source).toBe('web-app');
     expect(config.input).toEqual({ type: 'api' });
   });
 

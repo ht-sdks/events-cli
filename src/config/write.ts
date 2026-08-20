@@ -29,7 +29,7 @@ export function writeConfigFile(
  * Build a config object from init answers. Always sets $schema.
  */
 export function buildConfig(input: {
-  writeKey: string;
+  source: string;
   inputType: 'api' | 'git-sync';
   gitSyncPath?: string;
   sdk: EventsConfig['outputs'][number]['sdk'];
@@ -38,7 +38,7 @@ export function buildConfig(input: {
 }): EventsConfig {
   const config: EventsConfig = {
     $schema: input.$schema ?? DEFAULT_SCHEMA_REF,
-    writeKey: input.writeKey,
+    source: input.source,
     input:
       input.inputType === 'api'
         ? { type: 'api' }

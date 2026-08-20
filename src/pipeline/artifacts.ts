@@ -55,7 +55,7 @@ export async function buildArtifacts(
     files,
     lockfilePath: lockfilePathFor(resolvedConfig),
     lockfileContents: serializeLockfile(
-      buildLockfile(resolvedConfig.config.writeKey, events),
+      buildLockfile(resolvedConfig.config.source, events),
     ),
   };
 }

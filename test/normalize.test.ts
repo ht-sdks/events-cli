@@ -13,7 +13,7 @@ function domainFixture(name: string) {
 describe('normalize', () => {
   it('unwraps a simple track event and assigns wrapper + latest alias', () => {
     const bundle: ContractBundle = {
-      writeKey: 'wk',
+      source: 'wk',
       domains: [domainFixture('simple-track.json')],
     };
     const events = normalize(bundle);
@@ -38,7 +38,7 @@ describe('normalize', () => {
 
   it('emits all versions with default-preferring latest alias', () => {
     const bundle: ContractBundle = {
-      writeKey: 'wk',
+      source: 'wk',
       domains: [domainFixture('multi-version.json')],
     };
     const events = normalize(bundle);
@@ -52,7 +52,7 @@ describe('normalize', () => {
 
   it('flattens component refs then unwraps', () => {
     const bundle: ContractBundle = {
-      writeKey: 'wk',
+      source: 'wk',
       domains: [domainFixture('with-refs.json')],
     };
     const events = normalize(bundle);
