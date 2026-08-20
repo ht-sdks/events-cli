@@ -3,3 +3,5 @@ coverage/
 pnpm-lock.yaml
 schemas/config.schema.json
 test/fixtures/config/malformed.json
+*.go
+test/harness/go/

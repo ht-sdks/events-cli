@@ -5,6 +5,7 @@ Codegen CLI for Hightouch Events (`htevents`). Fetches event contracts and emits
 ```sh
 pnpm install
 pnpm test
+pnpm test:harness:all
 htevents init
 htevents generate
 htevents check
@@ -13,7 +14,5 @@ htevents check
 Config lives in committed `htevents.config.json` (JSON Schema in `schemas/config.schema.json`). Tokens are never stored there — use `HIGHTOUCH_API_TOKEN` or `--token` when the input is the API.
 
 ## Adding an SDK renderer
-
-The first target is `browser-ts` (`src/render/browser-ts/`). Further SDKs (Swift, Kotlin, Go, …) are new packages under `src/render/` plus one `switch` case.
 
 **Playbook for humans and agents:** [`src/render/README.md`](src/render/README.md).

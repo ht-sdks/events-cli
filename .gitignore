@@ -40,6 +40,11 @@ build/Release
 # Compile-harness temp dirs
 .tmp-render-*
 
+# Generated harness output (rewritten by scripts/emit-*-harness.ts)
+test/harness/go/analytics/generated.go
+test/harness/go/tmp/
+test/harness/browser-ts/generated.ts
+
 # Dependency directories
 node_modules/
 jspm_packages/

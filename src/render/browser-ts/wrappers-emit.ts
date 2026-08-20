@@ -20,6 +20,9 @@ function jsStringArray(values: readonly string[]): string {
 /**
  * Emit helpers + per-event wrappers.
  *
+ * Each SDK must emit its own bind / setAtPath / withSchemaVersion (see
+ * `src/render/README.md` §5). Do not import those from `src/render/shared/`.
+ *
  * Version injection follows event-router `getCacheKey` in
  * hightouchio/hightouch packages/backend/core/events/event-router/schemas/cache-key.ts,
  * which walks the full Segment payload at `schema_version_path`:
