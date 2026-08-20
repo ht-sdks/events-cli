@@ -8,9 +8,9 @@ import type { EventsConfig } from '../src/config/schema';
 
 const fixtures = join(__dirname, 'fixtures', 'git-sync');
 
-function resolved(eventsDir: string): ResolvedConfig {
+function resolved(eventsDir: string, source = 'web-app'): ResolvedConfig {
   const config: EventsConfig = {
-    writeKey: 'my-write-key',
+    source,
     input: { type: 'git-sync', path: eventsDir },
     outputs: [{ sdk: 'browser-ts', path: './generated.ts' }],
   };
@@ -23,7 +23,7 @@ function resolved(eventsDir: string): ResolvedConfig {
 describe('loadFromGitSync', () => {
   it('assembles an Event Studio domains tree into a ContractBundle', async () => {
     const bundle = await loadFromGitSync(resolved(join(fixtures, 'studio')));
-    expect(bundle.writeKey).toBe('my-write-key');
+    expect(bundle.source).toBe('web-app');
     expect(bundle.domains).toHaveLength(1);
 
     const domain = bundle.domains[0];
@@ -114,11 +114,50 @@ describe('loadFromGitSync', () => {
     const config: ResolvedConfig = {
       configPath: '/tmp/htevents.config.json',
       config: {
-        writeKey: 'wk',
+        source: 'wk',
         input: { type: 'api' },
         outputs: [{ sdk: 'browser-ts', path: './generated.ts' }],
       },
     };
     await expect(loadFromGitSync(config)).rejects.toBeInstanceOf(CliError);
+  });
+
+  it('filters domains and components by config source slug', async () => {
+    const scoped = join(fixtures, 'scoped');
+
+    const forWeb = await loadFromGitSync(resolved(scoped, 'web-app'));
+    expect(forWeb.domains.map((d) => d.slug).sort()).toEqual([
+      'unscoped',
+      'web',
+    ]);
+    const web = forWeb.domains.find((d) => d.slug === 'web');
+    expect(web?.components?.map((c) => c.slug).sort()).toEqual([
+      'shared',
+      'web-only',
+    ]);
+
+    const forMobile = await loadFromGitSync(resolved(scoped, 'mobile-app'));
+    expect(forMobile.domains.map((d) => d.slug).sort()).toEqual([
+      'mobile',
+      'unscoped',
+    ]);
+
+    const unknown = await loadFromGitSync(resolved(scoped, 'no-such-source'));
+    expect(unknown.domains.map((d) => d.slug)).toEqual(['unscoped']);
+  });
+
+  it('omits $refs to components filtered out for the source', async () => {
+    const bundle = await loadFromGitSync(
+      resolved(join(fixtures, 'scoped'), 'web-app'),
+    );
+    const webPing = normalize(bundle).find(
+      (e) => e.wrapperName === 'trackWebPingDefault',
+    );
+    const props = Object.keys(
+      (webPing?.schema as { properties?: Record<string, unknown> }).properties ??
+        {},
+    );
+    expect(props).toEqual(expect.arrayContaining(['shared', 'webOnly']));
+    expect(props).not.toContain('mobileOnly');
   });
 });

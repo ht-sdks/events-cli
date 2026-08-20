@@ -113,7 +113,7 @@ function tempGitSyncWorkspace(): {
     configPath,
     `${JSON.stringify(
       {
-        writeKey: 'my-write-key',
+        source: 'web-app',
         input: { type: 'git-sync', path: studio },
         outputs: [{ sdk: 'browser-ts', path: './generated.ts' }],
       },
@@ -205,8 +205,8 @@ describe('htevents cli (e2e)', () => {
 
     const lockfile = JSON.parse(
       readFileSync(join(dir, 'htevents.lock.json'), 'utf-8'),
-    ) as { writeKey: string; events: Array<{ wrapperName: string }> };
-    expect(lockfile.writeKey).toBe('my-write-key');
+    ) as { source: string; events: Array<{ wrapperName: string }> };
+    expect(lockfile.source).toBe('web-app');
     expect(lockfile.events.map((e) => e.wrapperName)).toEqual(
       expect.arrayContaining(['trackCartViewedDefault', 'identifyDefault']),
     );

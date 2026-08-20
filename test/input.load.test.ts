@@ -50,7 +50,7 @@ describe('loadContracts', () => {
     };
 
     const bundle = await loadContracts(resolvedGitSync);
-    expect(bundle.writeKey).toBe('my-write-key');
+    expect(bundle.source).toBe('web-app');
     expect(bundle.domains).toHaveLength(1);
     expect(bundle.domains[0]?.slug).toBe('checkout');
   });

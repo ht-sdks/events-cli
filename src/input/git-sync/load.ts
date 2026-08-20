@@ -48,14 +48,36 @@ const gitComponentSchema = z.object({
   schema: z.record(z.unknown()),
 });
 
+type DraftComponent = DomainComponent & {
+  /** YAML `sources` whitelist; undefined if the key was omitted. */
+  yamlSources?: string[];
+};
+
 type DomainDraft = {
   slug: string;
   meta?: z.infer<typeof gitDomainMetaSchema>;
   metaFile?: string;
   events: DomainEvent[];
-  components: DomainComponent[];
+  components: DraftComponent[];
   files: string[];
 };
+
+function domainAppliesToSource(
+  sources: string[] | undefined,
+  source: string,
+): boolean {
+  if (sources === undefined) return true;
+  if (sources.length === 0) return false;
+  return sources.includes(source);
+}
+
+function componentAppliesToSource(
+  sources: string[] | undefined,
+  source: string,
+): boolean {
+  if (sources === undefined || sources.length === 0) return true;
+  return sources.includes(source);
+}
 
 export async function loadFromGitSync(
   resolvedConfig: ResolvedConfig,
@@ -71,6 +93,11 @@ export async function loadFromGitSync(
     resolvedConfig.config.input.path,
   );
 
+  const source = resolvedConfig.config.source.trim();
+  if (!source) {
+    throw new CliError('Config "source" (event source slug) must not be empty.');
+  }
+
   const drafts = new Map<string, DomainDraft>();
   for (const file of listYamlFiles(layout.eventsRoot)) {
     const kind = classifyPath(layout.shape, layout.eventsRoot, file);
@@ -80,43 +107,53 @@ export async function loadFromGitSync(
 
   const domains: Domain[] = [...drafts.values()]
     .sort((a, b) => a.slug.localeCompare(b.slug))
-    .map((draft) => {
+    .flatMap((draft) => {
       if (!draft.meta) {
         throw new CliError(
           `No domain metadata file for slug "${draft.slug}". ` +
             `Referenced by: ${draft.files.join(', ')}`,
         );
       }
-      return parseDomain({
-        name: draft.meta.name,
-        slug: draft.slug,
-        ...(draft.meta.description !== undefined
-          ? { description: draft.meta.description }
-          : {}),
-        ...(draft.meta.onUndeclaredSchema !== undefined
-          ? { onUndeclaredSchema: draft.meta.onUndeclaredSchema }
-          : {}),
-        ...(draft.meta.sources !== undefined
-          ? {
-              eventSources: draft.meta.sources.map((slug) => ({
-                id: slug,
-                name: slug,
-              })),
-            }
-          : {}),
-        events: draft.events,
-        components: draft.components,
-      });
+      if (!domainAppliesToSource(draft.meta.sources, source)) {
+        return [];
+      }
+      const components = draft.components
+        .filter((component) =>
+          componentAppliesToSource(component.yamlSources, source),
+        )
+        .map(({ yamlSources: _yamlSources, ...component }) => component);
+      return [
+        parseDomain({
+          name: draft.meta.name,
+          slug: draft.slug,
+          ...(draft.meta.description !== undefined
+            ? { description: draft.meta.description }
+            : {}),
+          ...(draft.meta.onUndeclaredSchema !== undefined
+            ? { onUndeclaredSchema: draft.meta.onUndeclaredSchema }
+            : {}),
+          ...(draft.meta.sources !== undefined
+            ? {
+                eventSources: draft.meta.sources.map((slug) => ({
+                  id: slug,
+                  name: slug,
+                })),
+              }
+            : {}),
+          events: draft.events,
+          components,
+        }),
+      ];
     });
 
   info(
-    `Loaded ${domains.length} domain(s) from git-sync (${layout.shape} layout). ` +
-      'YAML `sources` lists event-source slugs on domains and components; ' +
-      'local git-sync loads every domain (source filtering requires the REST write-key path).',
+    `Loaded ${domains.length} domain(s) from git-sync (${layout.shape} layout) ` +
+      `for source "${source}". Domains/components without a YAML sources key ` +
+      'are included (layouts that predate source scoping).',
   );
 
   return parseContractBundle({
-    writeKey: resolvedConfig.config.writeKey,
+    source,
     domains,
   });
 }
@@ -184,6 +221,7 @@ function ingestFile(
       ...(parsed.description !== undefined
         ? { description: parsed.description }
         : {}),
+      ...(parsed.sources !== undefined ? { yamlSources: parsed.sources } : {}),
       schema: parsed.schema,
     });
   }

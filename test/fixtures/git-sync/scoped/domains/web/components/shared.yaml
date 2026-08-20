@@ -1,0 +1,6 @@
+name: Shared
+schema:
+  type: object
+  properties:
+    shared:
+      type: string

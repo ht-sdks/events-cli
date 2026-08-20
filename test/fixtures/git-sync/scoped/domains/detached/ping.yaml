@@ -1,0 +1,8 @@
+type: track
+name: Detached Ping
+version: default
+schema:
+  type: object
+  properties:
+    properties:
+      type: object
