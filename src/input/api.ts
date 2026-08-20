@@ -80,7 +80,9 @@ export async function loadFromApi(
 
   const source = resolved.config.source.trim();
   if (!source) {
-    throw new CliError('Config "source" (event source slug) must not be empty.');
+    throw new CliError(
+      'Config "source" (event source slug) must not be empty.',
+    );
   }
 
   if (typeof fetch !== 'function') {
