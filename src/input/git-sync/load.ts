@@ -48,9 +48,10 @@ const gitComponentSchema = z.object({
   schema: z.record(z.unknown()),
 });
 
-type DraftComponent = DomainComponent & {
+type DraftComponent = {
   /** YAML `sources` whitelist; undefined if the key was omitted. */
   yamlSources?: string[];
+  component: DomainComponent;
 };
 
 type DomainDraft = {
@@ -95,7 +96,9 @@ export async function loadFromGitSync(
 
   const source = resolvedConfig.config.source.trim();
   if (!source) {
-    throw new CliError('Config "source" (event source slug) must not be empty.');
+    throw new CliError(
+      'Config "source" (event source slug) must not be empty.',
+    );
   }
 
   const drafts = new Map<string, DomainDraft>();
@@ -118,10 +121,10 @@ export async function loadFromGitSync(
         return [];
       }
       const components = draft.components
-        .filter((component) =>
-          componentAppliesToSource(component.yamlSources, source),
+        .filter((draftComponent) =>
+          componentAppliesToSource(draftComponent.yamlSources, source),
         )
-        .map(({ yamlSources: _yamlSources, ...component }) => component);
+        .map((draftComponent) => draftComponent.component);
       return [
         parseDomain({
           name: draft.meta.name,
@@ -215,14 +218,16 @@ function ingestFile(
   } else {
     const parsed = parseYamlSchema(gitComponentSchema, raw, file);
     draft.components.push({
-      slug: resourceSlug,
-      name: parsed.name,
-      ...(parsed.version !== undefined ? { version: parsed.version } : {}),
-      ...(parsed.description !== undefined
-        ? { description: parsed.description }
-        : {}),
       ...(parsed.sources !== undefined ? { yamlSources: parsed.sources } : {}),
-      schema: parsed.schema,
+      component: {
+        slug: resourceSlug,
+        name: parsed.name,
+        ...(parsed.version !== undefined ? { version: parsed.version } : {}),
+        ...(parsed.description !== undefined
+          ? { description: parsed.description }
+          : {}),
+        schema: parsed.schema,
+      },
     });
   }
 
