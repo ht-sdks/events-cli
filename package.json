@@ -22,7 +22,8 @@
     "test": "jest",
     "generate:schema": "tsx scripts/emit-config-schema.ts",
     "check:schema": "tsx scripts/emit-config-schema.ts --check",
-    "test:harness": "tsx scripts/run-harness.ts"
+    "test:harness": "tsx scripts/run-harness.ts",
+    "test:harness:all": "tsx scripts/run-harness.ts --all"
   },
   "packageManager": "pnpm@10.33.2",
   "dependencies": {
