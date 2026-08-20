@@ -154,8 +154,8 @@ describe('loadFromGitSync', () => {
       (e) => e.wrapperName === 'trackWebPingDefault',
     );
     const props = Object.keys(
-      (webPing?.schema as { properties?: Record<string, unknown> }).properties ??
-        {},
+      (webPing?.schema as { properties?: Record<string, unknown> })
+        .properties ?? {},
     );
     expect(props).toEqual(expect.arrayContaining(['shared', 'webOnly']));
     expect(props).not.toContain('mobileOnly');

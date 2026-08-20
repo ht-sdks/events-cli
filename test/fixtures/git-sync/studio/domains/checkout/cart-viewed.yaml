@@ -7,4 +7,4 @@ schema:
     properties:
       type: object
       allOf:
-        - $ref: "#/definitions/components/cart"
+        - $ref: '#/definitions/components/cart'

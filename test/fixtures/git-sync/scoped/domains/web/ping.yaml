@@ -7,6 +7,6 @@ schema:
     properties:
       type: object
       allOf:
-        - $ref: "#/definitions/components/shared"
-        - $ref: "#/definitions/components/web-only"
-        - $ref: "#/definitions/components/mobile-only"
+        - $ref: '#/definitions/components/shared'
+        - $ref: '#/definitions/components/web-only'
+        - $ref: '#/definitions/components/mobile-only'
