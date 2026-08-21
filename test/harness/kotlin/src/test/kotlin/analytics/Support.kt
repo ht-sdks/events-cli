@@ -3,6 +3,7 @@ package analytics
 import com.hightouch.analytics.kotlin.core.Analytics
 import com.hightouch.analytics.kotlin.core.BaseEvent
 import com.hightouch.analytics.kotlin.core.IdentifyEvent
+import com.hightouch.analytics.kotlin.core.Settings
 import com.hightouch.analytics.kotlin.core.platform.Plugin
 import com.hightouch.analytics.kotlin.core.utilities.toContent
 import kotlinx.serialization.json.JsonObject
@@ -26,6 +27,11 @@ internal object Support {
                 trackApplicationLifecycleEvents = false
                 flushAt = Int.MAX_VALUE
                 flushInterval = Int.MAX_VALUE
+                // Settings fetch is required to flip System.running; point it at a
+                // closed port so CI does not sit on the CDN timeout (~10s).
+                apiHost = "127.0.0.1:1"
+                cdnHost = "127.0.0.1:1"
+                defaultSettings = Settings()
             }
         analytics.add(
             object : Plugin {
