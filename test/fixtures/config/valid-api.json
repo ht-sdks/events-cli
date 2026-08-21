@@ -1,6 +1,6 @@
 {
   "$schema": "../../../schemas/config.schema.json",
-  "writeKey": "my-write-key",
+  "source": "web-app",
   "input": { "type": "api" },
   "outputs": [{ "sdk": "browser-ts", "path": "./src/analytics/generated.ts" }]
 }

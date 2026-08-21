@@ -1,5 +1,5 @@
 {
-  "writeKey": "web-app",
+  "source": "web-app",
   "domains": [
     {
       "name": "Checkout",

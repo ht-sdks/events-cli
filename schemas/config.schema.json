@@ -7,7 +7,7 @@
         "$schema": {
           "type": "string"
         },
-        "writeKey": {
+        "source": {
           "type": "string",
           "minLength": 1
         },
@@ -74,7 +74,7 @@
         }
       },
       "required": [
-        "writeKey",
+        "source",
         "input",
         "outputs"
       ],

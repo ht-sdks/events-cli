@@ -66,7 +66,7 @@ describe('parseDomain', () => {
 describe('parseContractBundle', () => {
   it('parses a bundle fixture', () => {
     const bundle = parseContractBundle(readJson('bundle.json'));
-    expect(bundle.writeKey).toBe('web-app');
+    expect(bundle.source).toBe('web-app');
     expect(bundle.domains.length).toBeGreaterThan(0);
   });
 });

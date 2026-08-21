@@ -29,7 +29,7 @@ export const outputSchema = z.object({
 export const configSchema = z
   .object({
     $schema: z.string().optional(),
-    writeKey: z.string().min(1, 'write key is required'),
+    source: z.string().min(1, 'source slug is required'),
     input: inputSchema,
     outputs: z.array(outputSchema).min(1, 'at least one output is required'),
   })

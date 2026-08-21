@@ -15,7 +15,7 @@ describe('collectInitAnswers', () => {
   it('uses flags in non-TTY mode', async () => {
     const answers = await collectInitAnswers(
       {
-        writeKey: 'key',
+        source: 'key',
         input: 'api',
         output: './out.ts',
         sdk: 'browser-ts',
@@ -35,7 +35,7 @@ describe('collectInitAnswers', () => {
   it('prompts for missing fields when TTY', async () => {
     const prompter = {
       input: jest.fn(async ({ message }: { message: string }) => {
-        if (message.includes('Source write key')) return 'prompted-key';
+        if (message.includes('Event source slug')) return 'prompted-key';
         if (message.includes('Output')) return './gen.ts';
         if (message.includes('git-sync')) return './events';
         return '';
@@ -47,7 +47,7 @@ describe('collectInitAnswers', () => {
       confirm: jest.fn(),
     };
     const answers = await collectInitAnswers({}, prompter as never, true);
-    expect(answers.writeKey).toBe('prompted-key');
+    expect(answers.source).toBe('prompted-key');
     expect(answers.inputType).toBe('git-sync');
     expect(answers.gitSyncPath).toBe('./events');
   });
