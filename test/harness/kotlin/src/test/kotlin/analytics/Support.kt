@@ -4,6 +4,7 @@ import com.hightouch.analytics.kotlin.core.Analytics
 import com.hightouch.analytics.kotlin.core.BaseEvent
 import com.hightouch.analytics.kotlin.core.IdentifyEvent
 import com.hightouch.analytics.kotlin.core.Settings
+import com.hightouch.analytics.kotlin.core.TrackEvent
 import com.hightouch.analytics.kotlin.core.platform.Plugin
 import com.hightouch.analytics.kotlin.core.utilities.toContent
 import kotlinx.serialization.json.JsonObject
@@ -14,6 +15,44 @@ import java.util.concurrent.TimeUnit
 import kotlin.test.fail
 
 internal object Support {
+    /**
+     * Events sit in StartupQueue until settings fetch finishes. Use HTTP to a
+     * closed localhost port (the SDK only skips TLS for `localhost`) and wait
+     * for a warmup track so tests do not race the queue.
+     */
+    private fun awaitReady(analytics: Analytics) {
+        val ready = CountDownLatch(1)
+        val plugin =
+            object : Plugin {
+                override val type = Plugin.Type.After
+                override lateinit var analytics: Analytics
+
+                override fun execute(event: BaseEvent): BaseEvent {
+                    if (event is TrackEvent && event.event == "__ht_harness_ready") {
+                        ready.countDown()
+                    }
+                    return event
+                }
+            }
+        analytics.add(plugin)
+        try {
+            val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(10)
+            while (ready.count > 0L) {
+                val remaining = deadline - System.nanoTime()
+                if (remaining <= 0L) {
+                    fail("analytics never left StartupQueue")
+                }
+                analytics.track("__ht_harness_ready")
+                ready.await(
+                    remaining.coerceAtMost(TimeUnit.MILLISECONDS.toNanos(100)),
+                    TimeUnit.NANOSECONDS,
+                )
+            }
+        } finally {
+            analytics.remove(plugin)
+        }
+    }
+
     inline fun <reified T : BaseEvent> sendAndRead(
         crossinline block: (Analytics, HtEvents) -> Unit,
     ): T {
@@ -27,13 +66,11 @@ internal object Support {
                 trackApplicationLifecycleEvents = false
                 flushAt = Int.MAX_VALUE
                 flushInterval = Int.MAX_VALUE
-                // Settings fetch must fail before System.running flips. The SDK
-                // only uses HTTP (not 15s HTTPS) for hosts starting with
-                // "localhost"; a closed port then refuses immediately.
                 apiHost = "localhost:1"
                 cdnHost = "localhost:1"
                 defaultSettings = Settings()
             }
+        awaitReady(analytics)
         analytics.add(
             object : Plugin {
                 override val type = Plugin.Type.After
