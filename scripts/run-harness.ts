@@ -14,12 +14,13 @@ import { join } from 'path';
 import { emitAndroidHarness } from './emit-android-harness';
 import { emitBrowserTsHarness } from './emit-browser-ts-harness';
 import { emitGoHarness } from './emit-go-harness';
+import { emitKotlinHarness } from './emit-kotlin-harness';
 import { emitSwiftHarness } from './emit-swift-harness';
 
 const ROOT = join(__dirname, '..');
 const required = process.env.RUN_HARNESS === '1';
 
-const HARNESS_IDS = ['browser-ts', 'go', 'swift', 'android'] as const;
+const HARNESS_IDS = ['browser-ts', 'go', 'swift', 'android', 'kotlin'] as const;
 type HarnessId = (typeof HARNESS_IDS)[number];
 
 function run(
@@ -209,6 +210,44 @@ async function runAndroid(emitOnly: boolean): Promise<number> {
   return run('gradle', ['testDebugUnitTest', '--stacktrace'], harness, env);
 }
 
+async function runKotlin(emitOnly: boolean): Promise<number> {
+  const harness = join(ROOT, 'test', 'harness', 'kotlin');
+  await emitKotlinHarness();
+  if (emitOnly) {
+    return 0;
+  }
+
+  const wrapper = join(
+    harness,
+    process.platform === 'win32' ? 'gradlew.bat' : 'gradlew',
+  );
+  const hasWrapper = existsSync(wrapper);
+  const hasGradle =
+    hasWrapper ||
+    spawnSync('gradle', ['--version'], { encoding: 'utf-8' }).status === 0;
+  const jdkHome = resolveJdkHome();
+
+  if (!hasGradle || jdkHome === undefined) {
+    if (required) {
+      console.error('Gradle and JDK 17+ are required when RUN_HARNESS=1');
+      return 1;
+    }
+    console.error(
+      'skipping kotlin harness (Gradle or JDK 17+ not available; set RUN_HARNESS=1 to require it)',
+    );
+    return 0;
+  }
+
+  const env = {
+    ...process.env,
+    ...(jdkHome.length > 0 ? { JAVA_HOME: jdkHome } : {}),
+  };
+  if (hasWrapper) {
+    return run(wrapper, ['test', '--stacktrace'], harness, env);
+  }
+  return run('gradle', ['test', '--stacktrace'], harness, env);
+}
+
 async function runHarness(id: HarnessId, emitOnly: boolean): Promise<number> {
   switch (id) {
     case 'go':
@@ -219,6 +258,8 @@ async function runHarness(id: HarnessId, emitOnly: boolean): Promise<number> {
       return runSwift(emitOnly);
     case 'android':
       return runAndroid(emitOnly);
+    case 'kotlin':
+      return runKotlin(emitOnly);
     default: {
       const exhaustive: never = id;
       return exhaustive;

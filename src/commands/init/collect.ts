@@ -31,6 +31,8 @@ export function defaultOutputPath(sdk: SupportedSdk): string {
     case 'android':
       // Public class HtEvents must match the .java filename.
       return './src/main/java/analytics/HtEvents.java';
+    case 'kotlin':
+      return './src/main/kotlin/analytics/HtEvents.kt';
     default: {
       const exhaustive: never = sdk;
       return exhaustive;

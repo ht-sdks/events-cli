@@ -48,6 +48,14 @@ const GENERATED_SNIPPETS = {
     'public void trackOrderCompletedV2(',
     'analytics.track(',
   ],
+  kotlin: [
+    'package analytics',
+    'class HtEvents',
+    'fun trackCartViewedDefault(',
+    'fun identifyDefault(',
+    'fun trackOrderCompletedV2(',
+    'analytics.track(',
+  ],
 } as const satisfies Record<SupportedSdk, readonly string[]>;
 
 const CLI = join(__dirname, '..', 'dist', 'cli.js');

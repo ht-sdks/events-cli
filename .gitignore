@@ -51,6 +51,9 @@ test/harness/android/src/main/java/analytics/HtEvents.java
 test/harness/android/.gradle/
 test/harness/android/build/
 test/harness/android/local.properties
+test/harness/kotlin/src/main/kotlin/analytics/HtEvents.kt
+test/harness/kotlin/.gradle/
+test/harness/kotlin/build/
 
 # Dependency directories
 node_modules/

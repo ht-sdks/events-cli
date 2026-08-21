@@ -57,7 +57,8 @@
                   "browser-ts",
                   "go",
                   "swift",
-                  "android"
+                  "android",
+                  "kotlin"
                 ]
               },
               "path": {
