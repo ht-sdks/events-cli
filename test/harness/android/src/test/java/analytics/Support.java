@@ -1,6 +1,7 @@
 package analytics;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import android.Manifest;
 import android.app.Application;
@@ -22,7 +23,11 @@ final class Support {
         void invoke(Analytics analytics, HtEvents events);
     }
 
-    static BasePayload sendAndRead(Run run) throws Exception {
+    /**
+     * Run {@code run} and wait until a payload of {@code type} is captured. Earlier events
+     * (identify before alias, lifecycle) are skipped so CI cannot lose a race on a short drain.
+     */
+    static <T extends BasePayload> T sendAndRead(Class<T> type, Run run) throws Exception {
         BlockingQueue<BasePayload> queue = new LinkedBlockingQueue<>();
         String tag = UUID.randomUUID().toString();
         Application app = RuntimeEnvironment.getApplication();
@@ -42,13 +47,18 @@ final class Support {
                         .build();
         try {
             run.invoke(analytics, new HtEvents(analytics));
-            BasePayload last = queue.poll(5, TimeUnit.SECONDS);
-            assertNotNull("expected an event", last);
-            BasePayload more;
-            while ((more = queue.poll(250, TimeUnit.MILLISECONDS)) != null) {
-                last = more;
+            long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+            while (true) {
+                long remaining = deadline - System.nanoTime();
+                if (remaining <= 0) {
+                    fail("expected " + type.getSimpleName() + " within 5s");
+                }
+                BasePayload payload = queue.poll(remaining, TimeUnit.NANOSECONDS);
+                assertNotNull("expected " + type.getSimpleName(), payload);
+                if (type.isInstance(payload)) {
+                    return type.cast(payload);
+                }
             }
-            return last;
         } finally {
             analytics.shutdown();
         }

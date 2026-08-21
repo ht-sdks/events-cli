@@ -28,7 +28,9 @@ public class WrappersTest {
         properties.setOrderId("ord_1");
         properties.setTotal(2.0);
         TrackPayload track =
-                (TrackPayload) sendAndRead((analytics, events) -> events.trackOrderCompleted(properties));
+                sendAndRead(
+                        TrackPayload.class,
+                        (analytics, events) -> events.trackOrderCompleted(properties));
         assertEquals("track", track.type().toString());
         assertEquals("Order Completed", track.event());
         Map<String, Object> props = asMap(track.properties());
@@ -41,13 +43,15 @@ public class WrappersTest {
         HtEvents.TrackOrderCompletedV2 versionedProps = new HtEvents.TrackOrderCompletedV2();
         versionedProps.setOrderId("1");
         TrackPayload versioned =
-                (TrackPayload)
-                        sendAndRead((analytics, events) -> events.trackOrderCompletedV2(versionedProps));
+                sendAndRead(
+                        TrackPayload.class,
+                        (analytics, events) -> events.trackOrderCompletedV2(versionedProps));
         HtEvents.TrackOrderCompletedV2 aliasedProps = new HtEvents.TrackOrderCompletedV2();
         aliasedProps.setOrderId("1");
         TrackPayload aliased =
-                (TrackPayload)
-                        sendAndRead((analytics, events) -> events.trackOrderCompleted(aliasedProps));
+                sendAndRead(
+                        TrackPayload.class,
+                        (analytics, events) -> events.trackOrderCompleted(aliasedProps));
         assertEquals(versioned.event(), aliased.event());
     }
 
@@ -57,8 +61,9 @@ public class WrappersTest {
         properties.setPlan("pro");
         Options options = new Options().putContext("locale", "en-US");
         TrackPayload track =
-                (TrackPayload)
-                        sendAndRead((analytics, events) -> events.trackSignedUp(properties, options));
+                sendAndRead(
+                        TrackPayload.class,
+                        (analytics, events) -> events.trackSignedUp(properties, options));
         Map<String, Object> ctx = asMap(track.context());
         assertEquals("en-US", ctx.get("locale"));
         Map<String, Object> protocols = asMap(ctx.get("protocols"));
@@ -70,9 +75,9 @@ public class WrappersTest {
         HtEvents.TrackOrderCompletedPropsV1 properties = new HtEvents.TrackOrderCompletedPropsV1();
         properties.setOrderId("1");
         TrackPayload track =
-                (TrackPayload)
-                        sendAndRead(
-                                (analytics, events) -> events.trackOrderCompletedPropsV1(properties));
+                sendAndRead(
+                        TrackPayload.class,
+                        (analytics, events) -> events.trackOrderCompletedPropsV1(properties));
         Map<String, Object> props = asMap(track.properties());
         assertEquals("1", props.get("orderId"));
         assertEquals("v1", props.get("apiVersion"));
@@ -83,8 +88,9 @@ public class WrappersTest {
         HtEvents.IdentifyDefault traits = new HtEvents.IdentifyDefault();
         traits.setEmail("a@b.c");
         IdentifyPayload identify =
-                (IdentifyPayload)
-                        sendAndRead((analytics, events) -> events.identifyDefault("user_1", traits));
+                sendAndRead(
+                        IdentifyPayload.class,
+                        (analytics, events) -> events.identifyDefault("user_1", traits));
         assertEquals("identify", identify.type().toString());
         assertEquals("user_1", identify.userId());
         Map<String, Object> body = asMap(identify.traits());
@@ -96,8 +102,9 @@ public class WrappersTest {
         HtEvents.IdentifyTraitsV1 traits = new HtEvents.IdentifyTraitsV1();
         traits.setEmail("a@b.c");
         IdentifyPayload identify =
-                (IdentifyPayload)
-                        sendAndRead((analytics, events) -> events.identifyTraitsV1("user_1", traits));
+                sendAndRead(
+                        IdentifyPayload.class,
+                        (analytics, events) -> events.identifyTraitsV1("user_1", traits));
         Map<String, Object> body = asMap(identify.traits());
         assertEquals("v1", body.get("apiVersion"));
     }
@@ -107,9 +114,9 @@ public class WrappersTest {
         HtEvents.IdentifyWrongEnvelopeV1 traits = new HtEvents.IdentifyWrongEnvelopeV1();
         traits.setEmail("a@b.c");
         IdentifyPayload identify =
-                (IdentifyPayload)
-                        sendAndRead(
-                                (analytics, events) -> events.identifyWrongEnvelopeV1("user_1", traits));
+                sendAndRead(
+                        IdentifyPayload.class,
+                        (analytics, events) -> events.identifyWrongEnvelopeV1("user_1", traits));
         Map<String, Object> body = asMap(identify.traits());
         assertNull(body.get("apiVersion"));
     }
@@ -119,8 +126,9 @@ public class WrappersTest {
         HtEvents.TrackWrongEnvelopeV1 properties = new HtEvents.TrackWrongEnvelopeV1();
         properties.setOrderId("1");
         TrackPayload track =
-                (TrackPayload)
-                        sendAndRead((analytics, events) -> events.trackWrongEnvelopeV1(properties));
+                sendAndRead(
+                        TrackPayload.class,
+                        (analytics, events) -> events.trackWrongEnvelopeV1(properties));
         Map<String, Object> props = asMap(track.properties());
         assertNull(props.get("apiVersion"));
     }
@@ -130,7 +138,9 @@ public class WrappersTest {
         HtEvents.GroupDefault traits = new HtEvents.GroupDefault();
         traits.setName("Acme");
         GroupPayload group =
-                (GroupPayload) sendAndRead((analytics, events) -> events.groupDefault("grp_1", traits));
+                sendAndRead(
+                        GroupPayload.class,
+                        (analytics, events) -> events.groupDefault("grp_1", traits));
         assertEquals("group", group.type().toString());
         assertEquals("grp_1", group.groupId());
         Map<String, Object> body = asMap(group.traits());
@@ -142,14 +152,15 @@ public class WrappersTest {
         HtEvents.PageHomeDefault pageProps = new HtEvents.PageHomeDefault();
         pageProps.setPath("/");
         ScreenPayload page =
-                (ScreenPayload) sendAndRead((analytics, events) -> events.pageHome(pageProps));
+                sendAndRead(ScreenPayload.class, (analytics, events) -> events.pageHome(pageProps));
         assertEquals("screen", page.type().toString());
         assertEquals("Home", page.name());
 
         HtEvents.ScreenHomeDefault screenProps = new HtEvents.ScreenHomeDefault();
         screenProps.setPath("/");
         ScreenPayload screen =
-                (ScreenPayload) sendAndRead((analytics, events) -> events.screenHome(screenProps));
+                sendAndRead(
+                        ScreenPayload.class, (analytics, events) -> events.screenHome(screenProps));
         assertEquals("screen", screen.type().toString());
         assertEquals("Home", screen.name());
     }
@@ -157,12 +168,12 @@ public class WrappersTest {
     @Test
     public void aliasEnqueuesWithoutProperties() throws Exception {
         AliasPayload alias =
-                (AliasPayload)
-                        sendAndRead(
-                                (analytics, events) -> {
-                                    analytics.identify("user_old");
-                                    events.aliasDefault("user_new");
-                                });
+                sendAndRead(
+                        AliasPayload.class,
+                        (analytics, events) -> {
+                            analytics.identify("user_old");
+                            events.aliasDefault("user_new");
+                        });
         assertEquals("alias", alias.type().toString());
         assertEquals("user_new", alias.userId());
         assertEquals("user_old", alias.previousId());
@@ -173,12 +184,12 @@ public class WrappersTest {
     public void aliasInjectsContextSchemaVersion() throws Exception {
         Options options = new Options().putContext("locale", "en-US");
         AliasPayload alias =
-                (AliasPayload)
-                        sendAndRead(
-                                (analytics, events) -> {
-                                    analytics.identify("user_old");
-                                    events.aliasContextV1("user_new", options);
-                                });
+                sendAndRead(
+                        AliasPayload.class,
+                        (analytics, events) -> {
+                            analytics.identify("user_old");
+                            events.aliasContextV1("user_new", options);
+                        });
         assertEquals("alias", alias.type().toString());
         Map<String, Object> ctx = asMap(alias.context());
         Map<String, Object> protocols = asMap(ctx.get("protocols"));
@@ -188,12 +199,12 @@ public class WrappersTest {
     @Test
     public void aliasDoesNotInjectPropertiesPath() throws Exception {
         AliasPayload alias =
-                (AliasPayload)
-                        sendAndRead(
-                                (analytics, events) -> {
-                                    analytics.identify("user_old");
-                                    events.aliasPropsV1("user_new");
-                                });
+                sendAndRead(
+                        AliasPayload.class,
+                        (analytics, events) -> {
+                            analytics.identify("user_old");
+                            events.aliasPropsV1("user_new");
+                        });
         assertEquals("alias", alias.type().toString());
         assertEquals("user_new", alias.userId());
         assertNull(alias.get("properties"));
@@ -206,8 +217,9 @@ public class WrappersTest {
         properties.setCurrency("USD");
         properties.setItemCount(3.0);
         TrackPayload track =
-                (TrackPayload)
-                        sendAndRead((analytics, events) -> events.trackCartViewedDefault(properties));
+                sendAndRead(
+                        TrackPayload.class,
+                        (analytics, events) -> events.trackCartViewedDefault(properties));
         Map<String, Object> props = asMap(track.properties());
         assertEquals(Double.valueOf(3.0), asDouble(props.get("itemCount")));
     }
