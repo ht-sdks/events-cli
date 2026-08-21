@@ -26,6 +26,8 @@ export function defaultOutputPath(sdk: SupportedSdk): string {
       return './src/analytics/generated.ts';
     case 'go':
       return './analytics/generated.go';
+    case 'swift':
+      return './Sources/Analytics/Generated.swift';
     default: {
       const exhaustive: never = sdk;
       return exhaustive;

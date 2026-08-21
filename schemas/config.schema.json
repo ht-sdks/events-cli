@@ -55,7 +55,8 @@
                 "type": "string",
                 "enum": [
                   "browser-ts",
-                  "go"
+                  "go",
+                  "swift"
                 ]
               },
               "path": {

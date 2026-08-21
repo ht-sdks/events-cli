@@ -2,6 +2,7 @@ import type { SupportedSdk } from '../config/schema';
 import type { NormalizedEvent } from '../normalize/types';
 import { renderBrowserTs } from './browser-ts';
 import { renderGo } from './go';
+import { renderSwift } from './swift';
 
 /**
  * Emit generated source for one `outputs[].sdk` entry.
@@ -18,6 +19,8 @@ export async function renderSdk(
       return renderBrowserTs(events);
     case 'go':
       return renderGo(events);
+    case 'swift':
+      return renderSwift(events);
     default: {
       const exhaustive: never = sdk;
       throw new Error(`Unsupported SDK: ${String(exhaustive)}`);

@@ -8,6 +8,7 @@ import { CliError } from '../src/lib/errors';
 const DEFAULT_OUTPUT_PATHS = {
   'browser-ts': './src/analytics/generated.ts',
   go: './analytics/generated.go',
+  swift: './Sources/Analytics/Generated.swift',
 } as const satisfies Record<SupportedSdk, string>;
 
 describe('collectInitAnswers', () => {
