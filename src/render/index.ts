@@ -1,5 +1,6 @@
 import type { SupportedSdk } from '../config/schema';
 import type { NormalizedEvent } from '../normalize/types';
+import { renderAndroid } from './android';
 import { renderBrowserTs } from './browser-ts';
 import { renderGo } from './go';
 import { renderSwift } from './swift';
@@ -21,6 +22,8 @@ export async function renderSdk(
       return renderGo(events);
     case 'swift':
       return renderSwift(events);
+    case 'android':
+      return renderAndroid(events);
     default: {
       const exhaustive: never = sdk;
       throw new Error(`Unsupported SDK: ${String(exhaustive)}`);

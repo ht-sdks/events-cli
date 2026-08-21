@@ -40,6 +40,14 @@ const GENERATED_SNIPPETS = {
     'func trackOrderCompletedV2(',
     'self.track(name:',
   ],
+  android: [
+    'package analytics',
+    'public final class HtEvents',
+    'public void trackCartViewedDefault(',
+    'public void identifyDefault(',
+    'public void trackOrderCompletedV2(',
+    'analytics.track(',
+  ],
 } as const satisfies Record<SupportedSdk, readonly string[]>;
 
 const CLI = join(__dirname, '..', 'dist', 'cli.js');

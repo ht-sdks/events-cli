@@ -30,6 +30,7 @@ Append a bullet when a renderer lands:
 - `browser-ts`
 - `go`
 - `swift`
+- `android`
 
 ## Harness (real SDK)
 
@@ -43,7 +44,7 @@ Wire tests against the peer SDK. Separate workflow files so PRs do not all edit 
 Package pin:
 
 - JS/TS: the CLI `devDependency` (already on the Node job for `ts.createProgram`)
-- Other languages: pin in `test/harness/<id>/` (`go.mod`, `Package.swift`, `requirements.txt`, …)
+- Other languages: pin in `test/harness/<id>/` (`go.mod`, `Package.swift`, `build.gradle`, `requirements.txt`, …)
 
 ```sh
 pnpm test:harness <id>
@@ -120,21 +121,21 @@ Do not target archived repos:
 - `events-sdk-node` → `events-sdk-js-mono` `packages/node`
 - `events-sdk-ios` → `events-sdk-swift`
 
-| Planned id     | quicktype `lang` | Peer SDK                                                                                         | Notes                                                                                    |
-| -------------- | ---------------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
-| `browser-ts`   | `typescript`     | [`ht-sdks/events-sdk-js-mono`](https://github.com/ht-sdks/events-sdk-js-mono) `packages/browser` | Shipped. JS/TS reference.                                                                |
-| `go`           | `go`             | [`ht-sdks/events-sdk-go`](https://github.com/ht-sdks/events-sdk-go)                              | Shipped. `client.Enqueue(htevents.Track{…})`; structs + `json` tags; `just-types: true`. |
-| `swift`        | `swift`          | [`ht-sdks/events-sdk-swift`](https://github.com/ht-sdks/events-sdk-swift)                        | Shipped. `extension Analytics`; `page` → `screen`; Codable; context via enrichment.      |
-| `kotlin`       | `kotlin`         | [`ht-sdks/events-sdk-kotlin`](https://github.com/ht-sdks/events-sdk-kotlin)                      | Next. Android/JVM Kotlin SDK (not the Java Android SDK). `screen`, not `page`.           |
-| `node`         | `typescript`     | [`ht-sdks/events-sdk-js-mono`](https://github.com/ht-sdks/events-sdk-js-mono) `packages/node`    | Object-style methods (`track({ event, properties, … })`), not positional.                |
-| `react-native` | `typescript`     | [`ht-sdks/events-sdk-react-native`](https://github.com/ht-sdks/events-sdk-react-native)          | Likely `.tsx` if JSX is required; otherwise `.ts`.                                       |
-| `android`      | `java`           | [`ht-sdks/events-sdk-android`](https://github.com/ht-sdks/events-sdk-android)                    | Java Android SDK. Distinct from `kotlin` and server `java`. `screen`, not `page`.        |
-| `flutter`      | `dart`           | [`ht-sdks/events-sdk-flutter`](https://github.com/ht-sdks/events-sdk-flutter)                    | Mobile: `screen`, not `page`.                                                            |
-| `python`       | `python`         | [`ht-sdks/events-sdk-python`](https://github.com/ht-sdks/events-sdk-python)                      | `htevents.track(user_id, event, properties)` (user id is required on server calls).      |
-| `ruby`         | `ruby`           | [`ht-sdks/events-sdk-ruby`](https://github.com/ht-sdks/events-sdk-ruby)                          | Keyword args: `analytics.track(user_id:, event:, properties:)`.                          |
-| `php`          | `php`            | [`ht-sdks/events-sdk-php`](https://github.com/ht-sdks/events-sdk-php)                            | Array payloads: `Hightouch::track(['event' => …, 'userId' => …])`.                       |
-| `csharp`       | `csharp`         | [`ht-sdks/events-sdk-csharp`](https://github.com/ht-sdks/events-sdk-csharp)                      |                                                                                          |
-| `java`         | `java`           | [`ht-sdks/events-sdk-java`](https://github.com/ht-sdks/events-sdk-java)                          | Server JVM SDK. Not Android (`events-sdk-android`) and not Kotlin (`events-sdk-kotlin`). |
+| Planned id     | quicktype `lang` | Peer SDK                                                                                         | Notes                                                                                                                                                                                                                         |
+| -------------- | ---------------- | ------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `browser-ts`   | `typescript`     | [`ht-sdks/events-sdk-js-mono`](https://github.com/ht-sdks/events-sdk-js-mono) `packages/browser` | Shipped. JS/TS reference.                                                                                                                                                                                                     |
+| `go`           | `go`             | [`ht-sdks/events-sdk-go`](https://github.com/ht-sdks/events-sdk-go)                              | Shipped. `client.Enqueue(htevents.Track{…})`; structs + `json` tags; `just-types: true`.                                                                                                                                      |
+| `swift`        | `swift`          | [`ht-sdks/events-sdk-swift`](https://github.com/ht-sdks/events-sdk-swift)                        | Shipped. `extension Analytics`; `page` → `screen`; Codable; context via enrichment.                                                                                                                                           |
+| `android`      | `java`           | [`ht-sdks/events-sdk-android`](https://github.com/ht-sdks/events-sdk-android)                    | Shipped. Maven Central `com.hightouch.analytics.android:analytics:0.1.0`. `HtEvents(Analytics)`; `page` → `screen`; per-call context via `Options.putContext`. Robolectric harness. Distinct from `kotlin` and server `java`. |
+| `kotlin`       | `kotlin`         | [`ht-sdks/events-sdk-kotlin`](https://github.com/ht-sdks/events-sdk-kotlin)                      | Later. JitPack-only (blocked for Chick-fil-A). Not the Java Android SDK. `screen`, not `page`.                                                                                                                                |
+| `node`         | `typescript`     | [`ht-sdks/events-sdk-js-mono`](https://github.com/ht-sdks/events-sdk-js-mono) `packages/node`    | Next generic. Object-style methods (`track({ event, properties, … })`), not positional.                                                                                                                                       |
+| `react-native` | `typescript`     | [`ht-sdks/events-sdk-react-native`](https://github.com/ht-sdks/events-sdk-react-native)          | Likely `.tsx` if JSX is required; otherwise `.ts`.                                                                                                                                                                            |
+| `flutter`      | `dart`           | [`ht-sdks/events-sdk-flutter`](https://github.com/ht-sdks/events-sdk-flutter)                    | Mobile: `screen`, not `page`.                                                                                                                                                                                                 |
+| `python`       | `python`         | [`ht-sdks/events-sdk-python`](https://github.com/ht-sdks/events-sdk-python)                      | `htevents.track(user_id, event, properties)` (user id is required on server calls).                                                                                                                                           |
+| `ruby`         | `ruby`           | [`ht-sdks/events-sdk-ruby`](https://github.com/ht-sdks/events-sdk-ruby)                          | Keyword args: `analytics.track(user_id:, event:, properties:)`.                                                                                                                                                               |
+| `php`          | `php`            | [`ht-sdks/events-sdk-php`](https://github.com/ht-sdks/events-sdk-php)                            | Array payloads: `Hightouch::track(['event' => …, 'userId' => …])`.                                                                                                                                                            |
+| `csharp`       | `csharp`         | [`ht-sdks/events-sdk-csharp`](https://github.com/ht-sdks/events-sdk-csharp)                      |                                                                                                                                                                                                                               |
+| `java`         | `java`           | [`ht-sdks/events-sdk-java`](https://github.com/ht-sdks/events-sdk-java)                          | Server JVM SDK. Not Android (`events-sdk-android`) and not Kotlin (`events-sdk-kotlin`).                                                                                                                                      |
 
 `page` exists on browser/node. Mobile SDKs use `screen`. Map per SDK; do not emit an identical surface for every target.
 
@@ -278,7 +279,8 @@ Generated code is a wrapper, not a new SDK. The app already constructed the clie
 - Browser-ts: module-level `setHtEvents(instance)`
 - Go: functions that take the client, or methods on a wrapper struct
 - Swift: `extension Analytics` methods, or a small type that holds `Analytics`
-- Kotlin/Android: methods on a class constructed with `Analytics`
+- Android: methods on `HtEvents` constructed with `Analytics` (public class, so the file is `HtEvents.java`)
+- Kotlin: methods on a class constructed with `Analytics`
 - Node: `setHtEvents` like browser, or a factory `withAnalytics(client)`
 
 Never call `new Analytics(writeKey)` inside generated code. Never add a dependency manifest that pins the SDK (that fights the app's own install).
@@ -313,7 +315,7 @@ Port of event-router `getCacheKey`. Re-implement as **generated** `withSchemaVer
 
 Clone-on-write: do not mutate the caller's objects. Each SDK's generated `setAtPath` + `withSchemaVersion` must implement this. Port the behavior, not the helper source.
 
-Required behavioral cases (`test/render.wrappers.test.ts`, `test/harness/browser-ts/wrappers.test.ts`, `test/harness/go/analytics/wrappers_test.go`, `test/harness/swift/Tests/AnalyticsTests/WrappersTests.swift`):
+Required behavioral cases (`test/render.wrappers.test.ts`, `test/harness/browser-ts/wrappers.test.ts`, `test/harness/go/analytics/wrappers_test.go`, `test/harness/swift/Tests/AnalyticsTests/WrappersTests.swift`, `test/harness/android/src/test/java/analytics/WrappersTest.java`):
 
 1. `context.protocols.schemaVersion` on track → options.context.
 2. `properties.apiVersion` on track → properties.
