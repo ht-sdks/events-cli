@@ -27,10 +27,11 @@ internal object Support {
                 trackApplicationLifecycleEvents = false
                 flushAt = Int.MAX_VALUE
                 flushInterval = Int.MAX_VALUE
-                // Settings fetch is required to flip System.running; point it at a
-                // closed port so CI does not sit on the CDN timeout (~10s).
-                apiHost = "127.0.0.1:1"
-                cdnHost = "127.0.0.1:1"
+                // Settings fetch must fail before System.running flips. The SDK
+                // only uses HTTP (not 15s HTTPS) for hosts starting with
+                // "localhost"; a closed port then refuses immediately.
+                apiHost = "localhost:1"
+                cdnHost = "localhost:1"
                 defaultSettings = Settings()
             }
         analytics.add(
