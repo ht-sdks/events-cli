@@ -1,0 +1,24 @@
+name: Swift harness
+
+on:
+  push:
+
+jobs:
+  swift-harness:
+    name: test generated wrappers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-cli
+        with:
+          node-version: '22'
+
+      - uses: sersoft-gmbh/swifty-linux-action@v3
+        with:
+          release-version: '5.10.1'
+
+      - name: Generate wrappers and test against events-sdk-swift
+        run: pnpm test:harness swift
+        env:
+          RUN_HARNESS: '1'

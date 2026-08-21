@@ -34,6 +34,13 @@ const GENERATED_SNIPPETS = {
     'func TrackOrderCompletedV2(',
     'return client.Enqueue(htevents.Track{',
   ],
+  swift: [
+    'extension Analytics',
+    'func trackCartViewedDefault(',
+    'func identifyDefault(',
+    'func trackOrderCompletedV2(',
+    'self.track(name:',
+  ],
 } as const satisfies Record<SupportedSdk, readonly string[]>;
 
 const CLI = join(__dirname, '..', 'dist', 'cli.js');

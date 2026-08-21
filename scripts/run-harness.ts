@@ -11,11 +11,12 @@ import { spawnSync } from 'child_process';
 import { join } from 'path';
 import { emitBrowserTsHarness } from './emit-browser-ts-harness';
 import { emitGoHarness } from './emit-go-harness';
+import { emitSwiftHarness } from './emit-swift-harness';
 
 const ROOT = join(__dirname, '..');
 const required = process.env.RUN_HARNESS === '1';
 
-const HARNESS_IDS = ['browser-ts', 'go'] as const;
+const HARNESS_IDS = ['browser-ts', 'go', 'swift'] as const;
 type HarnessId = (typeof HARNESS_IDS)[number];
 
 function run(command: string, args: string[], cwd: string = ROOT): number {
@@ -60,6 +61,31 @@ async function runGo(emitOnly: boolean): Promise<number> {
   return run('go', ['test', '-count=1', './...'], harness);
 }
 
+function hasSwift(): boolean {
+  return spawnSync('swift', ['--version'], { encoding: 'utf-8' }).status === 0;
+}
+
+async function runSwift(emitOnly: boolean): Promise<number> {
+  if (!hasSwift()) {
+    if (required) {
+      console.error('swift is required when RUN_HARNESS=1');
+      return 1;
+    }
+    console.error(
+      'skipping swift harness (swift not on PATH; set RUN_HARNESS=1 to require it)',
+    );
+    return 0;
+  }
+
+  await emitSwiftHarness();
+  if (emitOnly) {
+    return 0;
+  }
+
+  const harness = join(ROOT, 'test', 'harness', 'swift');
+  return run('swift', ['test', '--enable-test-discovery'], harness);
+}
+
 async function runBrowserTs(emitOnly: boolean): Promise<number> {
   await emitBrowserTsHarness();
   if (emitOnly) {
@@ -79,6 +105,8 @@ async function runHarness(id: HarnessId, emitOnly: boolean): Promise<number> {
       return runGo(emitOnly);
     case 'browser-ts':
       return runBrowserTs(emitOnly);
+    case 'swift':
+      return runSwift(emitOnly);
     default: {
       const exhaustive: never = id;
       return exhaustive;

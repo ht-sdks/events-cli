@@ -29,6 +29,7 @@ Append a bullet when a renderer lands:
 
 - `browser-ts`
 - `go`
+- `swift`
 
 ## Harness (real SDK)
 
@@ -42,7 +43,7 @@ Wire tests against the peer SDK. Separate workflow files so PRs do not all edit 
 Package pin:
 
 - JS/TS: the CLI `devDependency` (already on the Node job for `ts.createProgram`)
-- Other languages: pin in `test/harness/<id>/` (`go.mod`, `requirements.txt`, …)
+- Other languages: pin in `test/harness/<id>/` (`go.mod`, `Package.swift`, `requirements.txt`, …)
 
 ```sh
 pnpm test:harness <id>
@@ -123,7 +124,7 @@ Do not target archived repos:
 | -------------- | ---------------- | ------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
 | `browser-ts`   | `typescript`     | [`ht-sdks/events-sdk-js-mono`](https://github.com/ht-sdks/events-sdk-js-mono) `packages/browser` | Shipped. JS/TS reference.                                                                |
 | `go`           | `go`             | [`ht-sdks/events-sdk-go`](https://github.com/ht-sdks/events-sdk-go)                              | Shipped. `client.Enqueue(htevents.Track{…})`; structs + `json` tags; `just-types: true`. |
-| `swift`        | `swift`          | [`ht-sdks/events-sdk-swift`](https://github.com/ht-sdks/events-sdk-swift)                        | Next. Mobile: `screen`, not `page`. Codable types.                                       |
+| `swift`        | `swift`          | [`ht-sdks/events-sdk-swift`](https://github.com/ht-sdks/events-sdk-swift)                        | Shipped. `extension Analytics`; `page` → `screen`; Codable; context via enrichment.      |
 | `kotlin`       | `kotlin`         | [`ht-sdks/events-sdk-kotlin`](https://github.com/ht-sdks/events-sdk-kotlin)                      | Next. Android/JVM Kotlin SDK (not the Java Android SDK). `screen`, not `page`.           |
 | `node`         | `typescript`     | [`ht-sdks/events-sdk-js-mono`](https://github.com/ht-sdks/events-sdk-js-mono) `packages/node`    | Object-style methods (`track({ event, properties, … })`), not positional.                |
 | `react-native` | `typescript`     | [`ht-sdks/events-sdk-react-native`](https://github.com/ht-sdks/events-sdk-react-native)          | Likely `.tsx` if JSX is required; otherwise `.ts`.                                       |
@@ -193,13 +194,13 @@ Follow the closer `wrappers-emit.ts` and the [invariants](#invariants) below. Qu
 
 **Must emit per SDK** (string-concatenated generated source — not CLI runtime, not `src/render/shared/`). Copy the _jobs_, not the syntax. browser-ts inlines them at the top of `renderWrappers`; Go puts them in `renderHelpers()`. Either layout is fine.
 
-| Job                         | browser-ts                              | go                                    | Why it cannot be shared                                                |
-| --------------------------- | --------------------------------------- | ------------------------------------- | ---------------------------------------------------------------------- |
-| Bind to an existing client  | `setHtEvents` + `requireAnalytics`      | `client` argument on every func       | module singleton vs `Enqueue` receiver                                 |
-| Clone-on-write nested write | `setAtPath`                             | `setAtPath` + `cloneMap`              | TS spread vs Go maps                                                   |
-| Version-injection policy    | `withSchemaVersion` → `options.context` | `withSchemaVersion` → `Context.Extra` | [rules](#schema-version-injection) are shared; the write target is not |
-| Typed payload → SDK map     | (already a JS object)                   | `toMap` (`json` tags)                 | only if the type is not already a map                                  |
-| Clone typed context         | (plain object spread)                   | `cloneContext`                        | only if context is a struct                                            |
+| Job                         | browser-ts                              | go                                    | swift                                                           | Why it cannot be shared                                                |
+| --------------------------- | --------------------------------------- | ------------------------------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| Bind to an existing client  | `setHtEvents` + `requireAnalytics`      | `client` argument on every func       | `extension Analytics` methods                                   | module singleton vs `Enqueue` vs receiver methods                      |
+| Clone-on-write nested write | `setAtPath`                             | `setAtPath` + `cloneMap`              | `setAtPath` + `cloneMap`                                        | TS spread vs Go/Swift maps                                             |
+| Version-injection policy    | `withSchemaVersion` → `options.context` | `withSchemaVersion` → `Context.Extra` | `withSchemaVersion` → event `context` via a one-shot enrichment | [rules](#schema-version-injection) are shared; the write target is not |
+| Typed payload → SDK map     | (already a JS object)                   | `toMap` (`json` tags)                 | `toMap` (`JSONEncoder`)                                         | only if the type is not already a map                                  |
+| Clone typed context         | (plain object spread)                   | `cloneContext`                        | dict copy                                                       | only if context is a struct                                            |
 
 Optional extras that also stay per SDK: options bag (`CallOptions`), identify/group overloads, `latestAlias` shape (`export const` vs forwarding `func`).
 
@@ -312,7 +313,7 @@ Port of event-router `getCacheKey`. Re-implement as **generated** `withSchemaVer
 
 Clone-on-write: do not mutate the caller's objects. Each SDK's generated `setAtPath` + `withSchemaVersion` must implement this. Port the behavior, not the helper source.
 
-Required behavioral cases (`test/render.wrappers.test.ts`, `test/harness/browser-ts/wrappers.test.ts`, `test/harness/go/analytics/wrappers_test.go`):
+Required behavioral cases (`test/render.wrappers.test.ts`, `test/harness/browser-ts/wrappers.test.ts`, `test/harness/go/analytics/wrappers_test.go`, `test/harness/swift/Tests/AnalyticsTests/WrappersTests.swift`):
 
 1. `context.protocols.schemaVersion` on track → options.context.
 2. `properties.apiVersion` on track → properties.
