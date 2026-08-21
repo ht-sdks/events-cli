@@ -10,14 +10,14 @@ describe('writeConfigFile', () => {
     const dir = mkdtempSync(join(tmpdir(), 'htevents-'));
     const path = join(dir, 'htevents.config.json');
     const config = buildConfig({
-      writeKey: 'key',
+      source: 'key',
       inputType: 'git-sync',
       gitSyncPath: './events',
       sdk: 'browser-ts',
       outputPath: './out.ts',
     });
     writeConfigFile(path, config);
-    expect(loadConfig(path).writeKey).toBe('key');
+    expect(loadConfig(path).source).toBe('key');
     expect(JSON.parse(readFileSync(path, 'utf-8')).$schema).toContain(
       'schemas/config.schema.json',
     );
@@ -28,7 +28,7 @@ describe('writeConfigFile', () => {
     const path = join(dir, 'htevents.config.json');
     writeFileSync(path, '{}');
     const config = buildConfig({
-      writeKey: 'key',
+      source: 'key',
       inputType: 'api',
       sdk: 'browser-ts',
       outputPath: './out.ts',

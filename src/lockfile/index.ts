@@ -17,7 +17,7 @@ export type LockfileEvent = {
 
 export type Lockfile = {
   version: typeof LOCKFILE_VERSION;
-  writeKey: string;
+  source: string;
   generator: { name: string; version: string };
   events: LockfileEvent[];
 };
@@ -41,7 +41,7 @@ export function hashSchema(schema: unknown): string {
 }
 
 export function buildLockfile(
-  writeKey: string,
+  source: string,
   events: NormalizedEvent[],
 ): Lockfile {
   const { name, version } = cliPackage();
@@ -59,7 +59,7 @@ export function buildLockfile(
 
   return {
     version: LOCKFILE_VERSION,
-    writeKey,
+    source,
     generator: { name, version },
     events: entries,
   };

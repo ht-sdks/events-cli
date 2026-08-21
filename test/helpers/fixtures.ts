@@ -9,7 +9,7 @@ const fixtures = join(__dirname, '..', 'fixtures', 'domains');
 
 export function eventsFromFixture(file: string): NormalizedEvent[] {
   const bundle: ContractBundle = {
-    writeKey: 'wk',
+    source: 'wk',
     domains: [
       parseDomain(JSON.parse(readFileSync(join(fixtures, file), 'utf-8'))),
     ],

@@ -1,10 +1,6 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import {
-  DEFAULT_API_BASE_URL,
-  EVENT_SOURCE_WRITE_KEY_HEADER,
-  loadFromApi,
-} from '../src/input/api';
+import { DEFAULT_API_BASE_URL, loadFromApi } from '../src/input/api';
 import { loadConfig } from '../src/config/load';
 import { CliError } from '../src/lib/errors';
 import type { ResolvedConfig } from '../src/config/resolve';
@@ -58,7 +54,7 @@ describe('loadFromApi', () => {
     fetchSpy = jest.spyOn(globalThis, 'fetch').mockImplementation(impl);
   }
 
-  it('paginates and sends Authorization + write-key header', async () => {
+  it('paginates and sends Authorization plus source query param', async () => {
     const calls: Array<{ url: string; headers: Headers }> = [];
     mockFetch(async (input, init) => {
       const url = String(input);
@@ -79,7 +75,7 @@ describe('loadFromApi', () => {
 
     const bundle = await loadFromApi(resolved());
 
-    expect(bundle.writeKey).toBe('my-write-key');
+    expect(bundle.source).toBe('web-app');
     expect(bundle.domains.map((d) => d.name)).toEqual(['A', 'B']);
     expect(calls).toHaveLength(2);
     expect(calls[0].url).toContain('offset=0');
@@ -88,10 +84,8 @@ describe('loadFromApi', () => {
 
     for (const call of calls) {
       expect(call.headers.get('Authorization')).toBe('Bearer tok');
-      expect(call.headers.get(EVENT_SOURCE_WRITE_KEY_HEADER)).toBe(
-        'my-write-key',
-      );
-      expect(call.url).not.toMatch(/write-key=/i);
+      expect(call.url).toContain('source=web-app');
+      expect(call.headers.get('X-Hightouch-Event-Source-Write-Key')).toBeNull();
     }
   });
 
@@ -99,7 +93,7 @@ describe('loadFromApi', () => {
     mockFetch(async () => jsonResponse(200, { data: [], hasMore: false }));
 
     const bundle = await loadFromApi(resolved());
-    expect(bundle).toEqual({ writeKey: 'my-write-key', domains: [] });
+    expect(bundle).toEqual({ source: 'web-app', domains: [] });
   });
 
   it('parses a real domain fixture from the list response', async () => {
@@ -152,10 +146,11 @@ describe('loadFromApi', () => {
     await expect(loadFromApi(resolved())).rejects.toBeInstanceOf(CliError);
   });
 
-  it('throws CliError on 404', async () => {
-    mockFetch(async () => jsonResponse(404, { message: 'not found' }));
+  it('throws CliError on 422', async () => {
+    mockFetch(async () => jsonResponse(422, { message: 'unknown slug' }));
 
-    await expect(loadFromApi(resolved())).rejects.toThrow(/404|Event Studio/i);
+    await expect(loadFromApi(resolved())).rejects.toThrow(/422|source slug/i);
+    await expect(loadFromApi(resolved())).rejects.toBeInstanceOf(CliError);
   });
 
   it('throws CliError on other non-OK status', async () => {

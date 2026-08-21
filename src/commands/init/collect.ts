@@ -3,7 +3,7 @@ import { SUPPORTED_SDKS, type SupportedSdk } from '../../config/schema';
 import { loadPrompter, Prompter } from './prompter';
 
 export type InitFlags = {
-  writeKey?: string;
+  source?: string;
   input?: 'api' | 'git-sync';
   gitSyncPath?: string;
   sdk?: SupportedSdk;
@@ -12,7 +12,7 @@ export type InitFlags = {
 };
 
 export type InitAnswers = {
-  writeKey: string;
+  source: string;
   inputType: 'api' | 'git-sync';
   gitSyncPath?: string;
   sdk: SupportedSdk;
@@ -34,15 +34,15 @@ export function defaultOutputPath(sdk: SupportedSdk): string {
 }
 
 function hasAllFlags(flags: InitFlags): boolean {
-  if (!flags.writeKey || !flags.input || !flags.output) return false;
+  if (!flags.source || !flags.input || !flags.output) return false;
   if (flags.input === 'git-sync' && !flags.gitSyncPath) return false;
   return true;
 }
 
 function fromFlags(flags: InitFlags): InitAnswers {
-  if (!flags.writeKey || !flags.input || !flags.output) {
+  if (!flags.source || !flags.input || !flags.output) {
     throw new CliError(
-      'Non-interactive init requires --write-key, --input, and --output' +
+      'Non-interactive init requires --source, --input, and --output' +
         (flags.input === 'git-sync' ? ', plus --git-sync-path' : '') +
         '.',
     );
@@ -51,7 +51,7 @@ function fromFlags(flags: InitFlags): InitAnswers {
     throw new CliError('`--input git-sync` requires --git-sync-path.');
   }
   return {
-    writeKey: flags.writeKey,
+    source: flags.source,
     inputType: flags.input,
     gitSyncPath: flags.gitSyncPath,
     sdk: flags.sdk ?? 'browser-ts',
@@ -71,10 +71,10 @@ export async function collectInitAnswers(
 
   const p = prompter ?? (await loadPrompter());
 
-  const writeKey =
-    flags.writeKey ??
+  const source =
+    flags.source ??
     (await p.input({
-      message: 'Source write key',
+      message: 'Event source slug (copy from the source Setup tab)',
       validate: (v) => (v.trim() ? true : 'Required'),
     }));
 
@@ -119,7 +119,7 @@ export async function collectInitAnswers(
     false; /* overwrite is handled later via exists check + --force / confirm */
 
   return {
-    writeKey: writeKey.trim(),
+    source: source.trim(),
     inputType,
     gitSyncPath: gitSyncPath?.trim(),
     sdk,

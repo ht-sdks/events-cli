@@ -17,7 +17,7 @@ exports[`lockfile matches a stable snapshot for fixture events 1`] = `
     "name": "@ht-sdks/events-cli",
     "version": "0.1.0",
   },
+  "source": "wk",
   "version": 1,
-  "writeKey": "wk",
 }
 `;

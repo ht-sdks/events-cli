@@ -52,7 +52,7 @@ export const domainSchema = z.object({
 });
 
 export const contractBundleSchema = z.object({
-  writeKey: z.string().min(1),
+  source: z.string().min(1),
   domains: z.array(domainSchema),
 });
 

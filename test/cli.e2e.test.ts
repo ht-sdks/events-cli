@@ -11,7 +11,6 @@ import { tmpdir } from 'os';
 import { loadConfig } from '../src/config/load';
 import { runGenerate } from '../src/commands/generate';
 import { runCheck } from '../src/commands/check';
-import { EVENT_SOURCE_WRITE_KEY_HEADER } from '../src/input/api';
 import { CliError, EXIT_DRIFT } from '../src/lib/errors';
 import type { ResolvedConfig } from '../src/config/resolve';
 import { defaultOutputPath } from '../src/commands/init/collect';
@@ -76,7 +75,7 @@ function tempApiWorkspace(
     configPath,
     `${JSON.stringify(
       {
-        writeKey: 'my-write-key',
+        source: 'web-app',
         input: { type: 'api' },
         outputs: [{ sdk, path: defaultOutputPath(sdk) }],
       },
@@ -107,7 +106,9 @@ function mockDomainsFetch(token: string): jest.SpyInstance {
     .mockImplementation(async (_input, init) => {
       const headers = new Headers(init?.headers);
       expect(headers.get('Authorization')).toBe(`Bearer ${token}`);
-      expect(headers.get(EVENT_SOURCE_WRITE_KEY_HEADER)).toBe('my-write-key');
+      const url = String(_input);
+      expect(url).toContain('source=web-app');
+      expect(headers.get('X-Hightouch-Event-Source-Write-Key')).toBeNull();
       return jsonResponse(200, { data: [domain, multi], hasMore: false });
     });
 }
@@ -191,8 +192,8 @@ describe('htevents cli (e2e)', () => {
 
         const lockfile = JSON.parse(
           readFileSync(join(dir, 'htevents.lock.json'), 'utf-8'),
-        ) as { writeKey: string; events: Array<{ wrapperName: string }> };
-        expect(lockfile.writeKey).toBe('my-write-key');
+        ) as { source: string; events: Array<{ wrapperName: string }> };
+        expect(lockfile.source).toBe('web-app');
         expect(lockfile.events.map((e) => e.wrapperName)).toEqual(
           expect.arrayContaining([...WRAPPER_NAMES]),
         );
@@ -283,7 +284,7 @@ describe('htevents cli (e2e)', () => {
       'init',
       '--config',
       config,
-      '--write-key',
+      '--source',
       'demo-key',
       '--input',
       'git-sync',
@@ -319,7 +320,7 @@ describe('htevents cli (e2e)', () => {
         'init',
         '--config',
         config,
-        '--write-key',
+        '--source',
         'demo-key',
         '--input',
         'api',
@@ -343,7 +344,7 @@ describe('htevents cli (e2e)', () => {
       'init',
       '--config',
       config,
-      '--write-key',
+      '--source',
       'a',
       '--input',
       'api',

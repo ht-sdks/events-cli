@@ -5,9 +5,6 @@ import { parseDomain } from './parse';
 import type { ContractBundle, Domain } from './types';
 
 export const DEFAULT_API_BASE_URL = 'https://api.hightouch.com/api/v1';
-/** Match backend; HTTP header names are case-insensitive. */
-export const EVENT_SOURCE_WRITE_KEY_HEADER =
-  'X-Hightouch-Event-Source-Write-Key';
 
 const DEFAULT_PAGE_SIZE = 100;
 
@@ -22,11 +19,7 @@ function resolveBaseUrl(): string {
   return raw.replace(/\/+$/, '');
 }
 
-async function fetchPage(
-  url: URL,
-  token: string,
-  writeKey: string,
-): Promise<Response> {
+async function fetchPage(url: URL, token: string): Promise<Response> {
   let response: Response;
   try {
     response = await fetch(url.toString(), {
@@ -34,7 +27,6 @@ async function fetchPage(
       headers: {
         Accept: 'application/json',
         Authorization: `Bearer ${token}`,
-        [EVENT_SOURCE_WRITE_KEY_HEADER]: writeKey,
       },
     });
   } catch (err) {
@@ -52,6 +44,11 @@ async function fetchPage(
   if (response.status === 404) {
     throw new CliError(
       'Event domains API returned 404. Event Studio may be disabled for this workspace, or the API base URL is wrong.',
+    );
+  }
+  if (response.status === 422) {
+    throw new CliError(
+      'Event source slug was rejected (422). Check config "source" — copy it from the event source Setup tab.',
     );
   }
   if (!response.ok) {
@@ -81,10 +78,10 @@ export async function loadFromApi(
     );
   }
 
-  const writeKey = resolved.config.writeKey.trim();
-  if (!writeKey) {
+  const source = resolved.config.source.trim();
+  if (!source) {
     throw new CliError(
-      'Config "writeKey" (event source write key) must not be empty.',
+      'Config "source" (event source slug) must not be empty.',
     );
   }
 
@@ -103,8 +100,9 @@ export async function loadFromApi(
     const url = new URL(`${baseUrl}/events/domains`);
     url.searchParams.set('limit', String(DEFAULT_PAGE_SIZE));
     url.searchParams.set('offset', String(offset));
+    url.searchParams.set('source', source);
 
-    const response = await fetchPage(url, token, writeKey);
+    const response = await fetchPage(url, token);
     const body = await readJsonBody(response);
     const parsed = listResponseSchema.safeParse(body);
     if (!parsed.success) {
@@ -121,5 +119,5 @@ export async function loadFromApi(
     offset += DEFAULT_PAGE_SIZE;
   }
 
-  return { writeKey: writeKey, domains };
+  return { source, domains };
 }
