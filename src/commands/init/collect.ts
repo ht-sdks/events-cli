@@ -33,6 +33,9 @@ export function defaultOutputPath(sdk: SupportedSdk): string {
       return './src/main/java/analytics/HtEvents.java';
     case 'kotlin':
       return './src/main/kotlin/analytics/HtEvents.kt';
+    case 'java':
+      // Distinct from Android's ./src/main/java/analytics/HtEvents.java.
+      return './analytics/HtEvents.java';
     default: {
       const exhaustive: never = sdk;
       return exhaustive;

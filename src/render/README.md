@@ -129,6 +129,7 @@ Do not target archived repos:
 | `swift`        | `swift`          | [`ht-sdks/events-sdk-swift`](https://github.com/ht-sdks/events-sdk-swift)                        | Shipped. `extension Analytics`; `page` → `screen`; Codable; context via enrichment.                                                                                                                                                                                    |
 | `android`      | `java`           | [`ht-sdks/events-sdk-android`](https://github.com/ht-sdks/events-sdk-android)                    | Shipped. Maven Central `com.hightouch.analytics.android:analytics:0.1.0`. `HtEvents(Analytics)`; `page` → `screen`; per-call context via `Options.putContext`. Robolectric harness. Distinct from `kotlin` and server `java`.                                          |
 | `kotlin`       | `kotlin`         | [`ht-sdks/events-sdk-kotlin`](https://github.com/ht-sdks/events-sdk-kotlin)                      | Shipped. JitPack `com.github.ht-sdks.events-sdk-kotlin:core:7fe50c7` (no Maven tag yet; Chick-fil-A apps cannot consume JitPack). Distinct from the Java Android SDK. `HtEvents(Analytics)`; `page` → `screen`; per-call context via `EnrichmentClosure`. JVM harness. |
+| `java`         | `java`           | [`ht-sdks/events-sdk-java`](https://github.com/ht-sdks/events-sdk-java)                          | Shipped. JitPack `com.github.ht-sdks.events-sdk-java:analytics:0.0.2`. Server JVM SDK — not Android and not Kotlin. `HtEvents(Analytics)`; `analytics.enqueue(TrackMessage.builder(…))`; keeps `page`; per-call context via `MessageBuilder.context`. JVM harness.     |
 | `node`         | `typescript`     | [`ht-sdks/events-sdk-js-mono`](https://github.com/ht-sdks/events-sdk-js-mono) `packages/node`    | Next generic. Object-style methods (`track({ event, properties, … })`), not positional.                                                                                                                                                                                |
 | `react-native` | `typescript`     | [`ht-sdks/events-sdk-react-native`](https://github.com/ht-sdks/events-sdk-react-native)          | Likely `.tsx` if JSX is required; otherwise `.ts`.                                                                                                                                                                                                                     |
 | `flutter`      | `dart`           | [`ht-sdks/events-sdk-flutter`](https://github.com/ht-sdks/events-sdk-flutter)                    | Mobile: `screen`, not `page`.                                                                                                                                                                                                                                          |
@@ -136,7 +137,6 @@ Do not target archived repos:
 | `ruby`         | `ruby`           | [`ht-sdks/events-sdk-ruby`](https://github.com/ht-sdks/events-sdk-ruby)                          | Keyword args: `analytics.track(user_id:, event:, properties:)`.                                                                                                                                                                                                        |
 | `php`          | `php`            | [`ht-sdks/events-sdk-php`](https://github.com/ht-sdks/events-sdk-php)                            | Array payloads: `Hightouch::track(['event' => …, 'userId' => …])`.                                                                                                                                                                                                     |
 | `csharp`       | `csharp`         | [`ht-sdks/events-sdk-csharp`](https://github.com/ht-sdks/events-sdk-csharp)                      |                                                                                                                                                                                                                                                                        |
-| `java`         | `java`           | [`ht-sdks/events-sdk-java`](https://github.com/ht-sdks/events-sdk-java)                          | Server JVM SDK. Not Android (`events-sdk-android`) and not Kotlin (`events-sdk-kotlin`).                                                                                                                                                                               |
 
 `page` exists on browser/node. Mobile SDKs use `screen`. Map per SDK; do not emit an identical surface for every target.
 
@@ -246,7 +246,7 @@ Compile harness is CLI test infrastructure, not something `htevents generate` do
 
 - JS/TS: npm `devDependency` + `ts.createProgram`
 - Package-manager languages: pin in `test/harness/<id>/` (`go.mod`, `requirements.txt`, …). Do not put them in this package's `package.json`.
-- Clone-from-GitHub: Swift SPM, Android AAR, Kotlin JitPack, and similar — not the default when a registry pin exists
+- Clone-from-GitHub: Swift SPM, Android AAR, Kotlin/Java JitPack, and similar — not the default when a registry pin exists
 - Assert parsed fields, not byte-equal SDK fixtures (`messageId` / `timestamp` / `sentAt` / library)
 
 Minimum SDK version belongs in `constants.ts` and the generated header.
@@ -282,6 +282,7 @@ Generated code is a wrapper, not a new SDK. The app already constructed the clie
 - Swift: `extension Analytics` methods, or a small type that holds `Analytics`
 - Android: methods on `HtEvents` constructed with `Analytics` (public class, so the file is `HtEvents.java`)
 - Kotlin: methods on a class constructed with `Analytics`
+- Java: methods on `HtEvents` constructed with `Analytics`; wrappers `enqueue` message builders
 - Node: `setHtEvents` like browser, or a factory `withAnalytics(client)`
 
 Never call `new Analytics(writeKey)` inside generated code. Never add a dependency manifest that pins the SDK (that fights the app's own install).
@@ -316,7 +317,7 @@ Port of event-router `getCacheKey`. Re-implement as **generated** `withSchemaVer
 
 Clone-on-write: do not mutate the caller's objects. Each SDK's generated `setAtPath` + `withSchemaVersion` must implement this. Port the behavior, not the helper source.
 
-Required behavioral cases (`test/render.wrappers.test.ts`, `test/harness/browser-ts/wrappers.test.ts`, `test/harness/go/analytics/wrappers_test.go`, `test/harness/swift/Tests/AnalyticsTests/WrappersTests.swift`, `test/harness/android/src/test/java/analytics/WrappersTest.java`, `test/harness/kotlin/src/test/kotlin/analytics/WrappersTest.kt`):
+Required behavioral cases (`test/render.wrappers.test.ts`, `test/harness/browser-ts/wrappers.test.ts`, `test/harness/go/analytics/wrappers_test.go`, `test/harness/swift/Tests/AnalyticsTests/WrappersTests.swift`, `test/harness/android/src/test/java/analytics/WrappersTest.java`, `test/harness/kotlin/src/test/kotlin/analytics/WrappersTest.kt`, `test/harness/java/src/test/java/analytics/WrappersTest.java`):
 
 1. `context.protocols.schemaVersion` on track → options.context.
 2. `properties.apiVersion` on track → properties.

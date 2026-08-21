@@ -6,6 +6,7 @@ export const SUPPORTED_SDKS = [
   'swift',
   'android',
   'kotlin',
+  'java',
 ] as const;
 export type SupportedSdk = (typeof SUPPORTED_SDKS)[number];
 
