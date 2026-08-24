@@ -208,7 +208,6 @@ function renderEventWrappers(event: NormalizedEvent): string[] {
 
 export function renderWrappers(events: NormalizedEvent[]): string {
   assertNoCollisions(events, {
-    errorPrefixLabel: 'Python',
     generatedMethodName: snakeName,
     generatedTypeName: typeNameFor,
   });
