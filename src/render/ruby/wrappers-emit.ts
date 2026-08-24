@@ -204,7 +204,6 @@ function renderEventWrappers(event: NormalizedEvent): string[] {
 
 export function renderWrappers(events: NormalizedEvent[]): string {
   assertNoCollisions(events, {
-    errorPrefixLabel: 'Ruby',
     generatedMethodName: snakeName,
     generatedTypeName: typeNameFor,
   });
