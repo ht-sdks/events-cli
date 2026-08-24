@@ -8,4 +8,5 @@ test/harness/go/
 test/harness/android/
 test/harness/kotlin/
 test/harness/java/
+test/harness/python/
 test/fixtures/git-sync/invalid-yaml/

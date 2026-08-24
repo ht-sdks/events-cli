@@ -45,6 +45,9 @@ test/harness/go/analytics/generated.go
 test/harness/go/tmp/
 test/harness/browser-ts/generated.ts
 test/harness/node-ts/generated.ts
+test/harness/python/generated.py
+test/harness/python/__pycache__/
+test/harness/python/.venv/
 test/harness/swift/Sources/Analytics/Generated.swift
 test/harness/swift/.build/
 test/harness/swift/.swiftpm/

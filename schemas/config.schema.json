@@ -56,6 +56,7 @@
                 "enum": [
                   "browser-ts",
                   "node-ts",
+                  "python",
                   "go",
                   "swift",
                   "android",
