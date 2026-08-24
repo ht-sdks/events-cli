@@ -24,7 +24,8 @@ export async function renderBrowserTs(
       sdkImport,
       types,
       wrappers,
-    ].filter(Boolean).join('\n\n') +
-    '\n'
+    ]
+      .filter(Boolean)
+      .join('\n\n') + '\n'
   );
 }
