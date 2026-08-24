@@ -10,6 +10,7 @@ export default tseslint.config(
       '.tmp-render-*/',
       'test/harness/go/',
       'test/harness/browser-ts/generated.ts',
+      'test/harness/android/',
     ],
   },
   ...tseslint.configs.recommended,

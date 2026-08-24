@@ -28,6 +28,8 @@ export function defaultOutputPath(sdk: SupportedSdk): string {
       return './analytics/generated.go';
     case 'swift':
       return './Sources/Analytics/Generated.swift';
+    case 'android':
+      return './src/main/java/analytics/HtEvents.java';
     default: {
       const exhaustive: never = sdk;
       return exhaustive;
