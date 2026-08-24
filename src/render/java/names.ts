@@ -113,7 +113,6 @@ export function assertNoMethodCollisions(
   }
 
   assertNoCollisions(events, {
-    errorPrefixLabel: 'Java',
     generatedMethodName: methodName,
   });
 }

@@ -123,7 +123,7 @@ describe('renderKotlin', () => {
       },
     ];
     await expect(renderKotlin(events)).rejects.toThrow(
-      /Kotlin identifier collision/,
+      /Identifier collision: "trackFoo" is produced by both method trackFoo and latest alias trackFoo/,
     );
   });
 });

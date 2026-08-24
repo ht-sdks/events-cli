@@ -119,7 +119,7 @@ describe('renderAndroid', () => {
       },
     ];
     await expect(renderAndroid(events)).rejects.toThrow(
-      /Android identifier collision/,
+      /Identifier collision: "trackFoo" is produced by both method trackFoo and latest alias trackFoo/,
     );
   });
 });

@@ -98,7 +98,6 @@ export function assertNoMethodCollisions(
   }
 
   assertNoCollisions(events, {
-    errorPrefixLabel: 'Kotlin',
     generatedMethodName: methodName,
   });
 }

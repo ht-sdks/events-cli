@@ -124,7 +124,7 @@ describe('renderJava', () => {
       },
     ];
     await expect(renderJava(events)).rejects.toThrow(
-      /Java identifier collision/,
+      /Identifier collision: "trackFoo" is produced by both method trackFoo and latest alias trackFoo/,
     );
   });
 });

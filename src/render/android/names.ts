@@ -114,7 +114,6 @@ export function assertNoMethodCollisions(
   }
 
   assertNoCollisions(events, {
-    errorPrefixLabel: 'Android',
     generatedMethodName: methodName,
   });
 }
