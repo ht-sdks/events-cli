@@ -7,6 +7,7 @@ import { renderJava } from './java';
 import { renderKotlin } from './kotlin';
 import { renderNodeTs } from './node-ts';
 import { renderPython } from './python';
+import { renderRuby } from './ruby';
 import { renderSwift } from './swift';
 
 export type RenderOptions = {
@@ -32,6 +33,8 @@ export async function renderSdk(
       return renderNodeTs(events);
     case 'python':
       return renderPython(events);
+    case 'ruby':
+      return renderRuby(events);
     case 'go':
       return renderGo(events);
     case 'swift':

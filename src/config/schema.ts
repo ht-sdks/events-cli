@@ -4,6 +4,7 @@ export const SUPPORTED_SDKS = [
   'browser-ts',
   'node-ts',
   'python',
+  'ruby',
   'go',
   'swift',
   'android',

@@ -9,4 +9,5 @@ test/harness/android/
 test/harness/kotlin/
 test/harness/java/
 test/harness/python/
+test/harness/ruby/
 test/fixtures/git-sync/invalid-yaml/
