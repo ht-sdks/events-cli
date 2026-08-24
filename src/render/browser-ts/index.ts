@@ -1,7 +1,7 @@
 import type { NormalizedEvent } from '../../normalize/types';
+import { renderHeader } from '../shared/header';
 import { byWrapperName } from '../shared/sort';
-import { MIN_SDK_PACKAGE } from './constants';
-import { renderHeader } from './header';
+import { MIN_SDK_PACKAGE, MIN_SDK_VERSION } from './constants';
 import { renderTypes } from './types-emit';
 import { renderWrappers } from './wrappers-emit';
 
@@ -15,7 +15,16 @@ export async function renderBrowserTs(
   const wrappers = renderWrappers(ordered);
   const sdkImport = `import type { HtEventsBrowser, Options } from '${MIN_SDK_PACKAGE}';`;
   return (
-    [renderHeader(), sdkImport, types, wrappers].filter(Boolean).join('\n\n') +
+    [
+      renderHeader(MIN_SDK_PACKAGE, MIN_SDK_VERSION, {
+        open: '/**',
+        linePrefix: ' * ',
+        close: ' */',
+      }),
+      sdkImport,
+      types,
+      wrappers,
+    ].filter(Boolean).join('\n\n') +
     '\n'
   );
 }

@@ -10,3 +10,21 @@ export function headerLines(
     requires: `Requires peer ${peerPackage} v${peerVersion} or later.`,
   };
 }
+
+export type CommentOptions =
+  { linePrefix: string } | { open: string; linePrefix: string; close: string };
+
+export function renderHeader(
+  peerPackage: string,
+  peerVersion: string,
+  comment: CommentOptions = { linePrefix: '// ' },
+): string {
+  const { generated, requires } = headerLines(peerPackage, peerVersion);
+  const body = [generated, requires].map(
+    (line) => `${comment.linePrefix}${line}`,
+  );
+  if ('open' in comment) {
+    return [comment.open, ...body, comment.close].join('\n');
+  }
+  return body.join('\n');
+}
