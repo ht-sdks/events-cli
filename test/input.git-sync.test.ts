@@ -132,6 +132,7 @@ describe('loadFromGitSync', () => {
     ]);
     const web = forWeb.domains.find((d) => d.slug === 'web');
     expect(web?.components?.map((c) => c.slug).sort()).toEqual([
+      'empty-sources',
       'shared',
       'web-only',
     ]);
@@ -157,7 +158,9 @@ describe('loadFromGitSync', () => {
       (webPing?.schema as { properties?: Record<string, unknown> })
         .properties ?? {},
     );
-    expect(props).toEqual(expect.arrayContaining(['shared', 'webOnly']));
+    expect(props).toEqual(
+      expect.arrayContaining(['shared', 'emptySources', 'webOnly']),
+    );
     expect(props).not.toContain('mobileOnly');
   });
 });
