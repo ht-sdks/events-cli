@@ -13,6 +13,7 @@ export default tseslint.config(
       'test/harness/node-ts/generated.ts',
       'test/harness/python/',
       'test/harness/ruby/',
+      'test/harness/php/',
       'test/harness/android/',
       'test/harness/kotlin/',
       'test/harness/java/',

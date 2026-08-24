@@ -6,6 +6,7 @@ import { renderGo } from './go';
 import { renderJava } from './java';
 import { renderKotlin } from './kotlin';
 import { renderNodeTs } from './node-ts';
+import { renderPhp } from './php';
 import { renderPython } from './python';
 import { renderRuby } from './ruby';
 import { renderSwift } from './swift';
@@ -35,6 +36,8 @@ export async function renderSdk(
       return renderPython(events);
     case 'ruby':
       return renderRuby(events);
+    case 'php':
+      return renderPhp(events);
     case 'go':
       return renderGo(events);
     case 'swift':

@@ -39,6 +39,12 @@ const GENERATED_SNIPPETS = {
     'def self.identify_default(',
     'client.track(',
   ],
+  php: [
+    'use Hightouch\\Client;',
+    'function trackCartViewedDefault(',
+    'function identifyDefault(',
+    '$client->track(',
+  ],
   go: [
     'package analytics',
     'func TrackCartViewedDefault(',

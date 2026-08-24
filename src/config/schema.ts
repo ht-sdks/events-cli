@@ -5,6 +5,7 @@ export const SUPPORTED_SDKS = [
   'node-ts',
   'python',
   'ruby',
+  'php',
   'go',
   'swift',
   'android',

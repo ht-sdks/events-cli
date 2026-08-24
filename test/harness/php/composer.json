@@ -1,0 +1,15 @@
+{
+  "name": "ht-sdks/events-cli-php-harness",
+  "require": {
+    "ht-sdks/events-sdk-php": "0.0.1"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/ht-sdks/events-sdk-php"
+    }
+  ],
+  "config": {
+    "secure-http": true
+  }
+}
