@@ -193,18 +193,18 @@ Jest snapshots prove **string drift**. They do not prove compile or SDK behavior
 
 **JS/TS:**
 
-- `test/render.<sdk-id>.test.ts` — snapshots, header, type names, sort, alias has no properties payload
+- `test/render.<sdk-id>.test.ts` — `defineRendererContractTests` (snapshots, header, sort) plus language asserts (type names, alias has no properties payload)
 - `test/render.<sdk-id>.wrappers.test.ts` — SDK **args** (Jest mock) + version-injection matrix
 - `test/render.<sdk-id>.compile.test.ts` — `ts.createProgram` against the npm `devDependency`
 - `test/harness/<id>/` — real client + local HTTP server; generated source gitignored
 
 **Non-JS:**
 
-- `test/render.<sdk-id>.test.ts` — same three domain-fixture snapshots
+- `test/render.<sdk-id>.test.ts` — same contract helper, then language asserts (imports, page→screen, collisions, …)
 - `test/harness/<id>/` — real client + HTTP capture; generated source gitignored
 - Fixture generator via `scripts/emit-harness.ts` (discovers `src/render/<id>/harness.ts`) — runs the renderer, not quicktype directly; extra event types live in `test/harness/extra-events.ts`
 
-Snapshots: `it.each(['simple-track.json', 'multi-version.json', 'with-refs.json'])`.
+Snapshots: `defineRendererContractTests` in `test/helpers/renderer-contract.ts` (`simple-track.json`, `multi-version.json`, `with-refs.json`). Do not put page→screen in that helper.
 
 Compile harness is CLI test infrastructure, not something `htevents generate` does for customers.
 
@@ -329,6 +329,6 @@ Markdown API docs are a **separate** renderer (not part of an SDK PR).
 3. Add the id to `SUPPORTED_SDKS` and `defaultOutputPath`; run `pnpm run generate:schema`.
 4. Scaffold `src/render/<sdk-id>/`; register in `src/render/index.ts`.
 5. Implement `types-emit` (shared quicktype input) and `wrappers-emit` (must-emit helpers + invariants). Extract CLI-only duplication; leave generated helpers per SDK.
-6. Add Jest snapshots, `test/harness/<id>/`, `src/render/<id>/harness.ts`, and `.github/workflows/harness-<id>.yml`.
+6. Add `defineRendererContractTests` plus language asserts in `test/render.<sdk-id>.test.ts`, `test/harness/<id>/`, `src/render/<id>/harness.ts`, and `.github/workflows/harness-<id>.yml`.
 7. Run `pnpm test && pnpm run lint && pnpm run check:schema && pnpm test:harness <id>` (or `pnpm test:harness:all`).
 8. In the PR: peer SDK + min version, page vs screen mapping, instance binding, harness location.
