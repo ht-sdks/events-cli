@@ -1,4 +1,5 @@
 import type { NormalizedEvent } from '../../normalize/types';
+import { assembleSource } from '../shared/assemble';
 import { byWrapperName } from '../shared/sort';
 import { MIN_SDK_PACKAGE } from './constants';
 import { renderHeader } from './header';
@@ -14,8 +15,5 @@ export async function renderBrowserTs(
   const types = await renderTypes(ordered);
   const wrappers = renderWrappers(ordered);
   const sdkImport = `import type { HtEventsBrowser, Options } from '${MIN_SDK_PACKAGE}';`;
-  return (
-    [renderHeader(), sdkImport, types, wrappers].filter(Boolean).join('\n\n') +
-    '\n'
-  );
+  return assembleSource([renderHeader(), sdkImport, types, wrappers]);
 }

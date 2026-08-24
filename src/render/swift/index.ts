@@ -1,4 +1,5 @@
 import type { NormalizedEvent } from '../../normalize/types';
+import { assembleSource } from '../shared/assemble';
 import { byWrapperName } from '../shared/sort';
 import { renderHeader } from './header';
 import { renderTypes } from './types-emit';
@@ -10,11 +11,10 @@ export async function renderSwift(events: NormalizedEvent[]): Promise<string> {
   const ordered = [...events].sort(byWrapperName);
   const types = await renderTypes(ordered);
   const wrappers = renderWrappers(ordered);
-  const sections = [
+  return assembleSource([
     renderHeader(),
     'import Foundation\nimport Hightouch',
     types,
     wrappers,
-  ].filter((section) => section.length > 0);
-  return `${sections.join('\n\n')}\n`;
+  ]);
 }

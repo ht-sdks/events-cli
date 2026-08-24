@@ -10,3 +10,12 @@ export function headerLines(
     requires: `Requires peer ${peerPackage} v${peerVersion} or later.`,
   };
 }
+
+/** `//` line comments. JSDoc (browser-ts) stays in that renderer. */
+export function renderSlashHeader(
+  peerPackage: string,
+  peerVersion: string,
+): string {
+  const { generated, requires } = headerLines(peerPackage, peerVersion);
+  return [`// ${generated}`, `// ${requires}`].join('\n');
+}

@@ -9,9 +9,11 @@
  */
 import { spawnSync } from 'child_process';
 import { join } from 'path';
-import { emitBrowserTsHarness } from './emit-browser-ts-harness';
-import { emitGoHarness } from './emit-go-harness';
-import { emitSwiftHarness } from './emit-swift-harness';
+import {
+  emitBrowserTsHarness,
+  emitGoHarness,
+  emitSwiftHarness,
+} from './emit-harness';
 
 const ROOT = join(__dirname, '..');
 const required = process.env.RUN_HARNESS === '1';

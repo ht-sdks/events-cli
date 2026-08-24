@@ -1,7 +1,6 @@
-import { quicktype } from 'quicktype-core';
 import { toPascalCase } from '../../normalize/names';
 import type { NormalizedEvent } from '../../normalize/types';
-import { buildQuicktypeInput } from '../shared/quicktype-input';
+import { runQuicktype } from '../shared/quicktype';
 
 export function typeNameFor(event: NormalizedEvent): string {
   return toPascalCase(event.wrapperName);
@@ -14,19 +13,15 @@ function declaresType(source: string, name: string): boolean {
 }
 
 export async function renderTypes(events: NormalizedEvent[]): Promise<string> {
-  if (events.length === 0) return '';
-
-  const inputData = await buildQuicktypeInput(events, typeNameFor);
-  const { lines } = await quicktype({
-    inputData,
+  const types = await runQuicktype(events, {
     lang: 'typescript',
+    typeNameFor,
     rendererOptions: {
       'just-types': 'true',
       'nice-property-names': 'false',
     },
   });
 
-  const types = lines.join('\n').trimEnd();
   const fallbacks = events
     .map(typeNameFor)
     .filter((name) => !declaresType(types, name))
