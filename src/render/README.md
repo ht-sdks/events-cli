@@ -15,10 +15,8 @@ Copy layout from `src/render/browser-ts/` (Jest snapshots plus `test/harness/bro
 Check here before copying. Add to this list when you extract something:
 
 - `sort.ts` — `byWrapperName`
-- `header.ts` — `headerLines` / `renderSlashHeader`
-- `quicktype-input.ts` / `quicktype.ts` — JSON Schema sources and `runQuicktype`
-- `assemble.ts` — stitch header + types + wrappers
-- `collisions.ts` — identifier collision checks
+- `header.ts` — `headerLines` (CLI version + peer pin; wrap per language)
+- `quicktype-input.ts` — JSON Schema sources for quicktype
 
 Keep language syntax, peer-SDK call shapes, and generated injection helpers in `src/render/<sdk-id>/`. Do **not** move `setAtPath` / `withSchemaVersion` into `shared/` — those are emitted into the customer's file and must match that SDK. `wrappers-emit.ts` is per SDK on purpose (quicktype is types only).
 
@@ -30,7 +28,7 @@ Wire tests against the peer SDK. Separate workflow files so PRs do not all edit 
 
 - `test/harness/<id>/` — committed language tests; generated output gitignored
 - Shared extra contracts: `test/harness/extra-events.ts`
-- A case in `scripts/run-harness.ts` / `scripts/emit-harness.ts`
+- A case in `scripts/run-harness.ts`
 - `.github/workflows/harness-<id>.yml` — reuse `.github/actions/setup-cli`; do not add this job to the Node 18–24 matrix
 
 Package pin:
@@ -131,8 +129,8 @@ Create `src/render/<sdk-id>/`. Reuse `src/render/shared/` first.
 | ------------------ | ----------------------------------------------------------------------------------------- |
 | `index.ts`         | `render<Id>(events): Promise<string>` — sort, stitch header + types + wrappers            |
 | `constants.ts`     | `MIN_SDK_PACKAGE`, `MIN_SDK_VERSION` (documented minimum, never pinned in generated code) |
-| `header.ts`        | Wrap `headerLines` / `renderSlashHeader`                                                  |
-| `types-emit.ts`    | `runQuicktype` + language post-process                                                    |
+| `header.ts`        | Wrap `headerLines` in language comment syntax                                             |
+| `types-emit.ts`    | `buildQuicktypeInput` + `quicktype({ lang, rendererOptions })`                            |
 | `wrappers-emit.ts` | instance binding + **generated helpers below** + per-event SDK calls                      |
 
 Register it in `src/render/index.ts`:
@@ -156,7 +154,8 @@ Keep the `default` / `never` branch. TypeScript will fail the build if `SUPPORTE
 
 Follow `src/render/browser-ts/types-emit.ts`:
 
-- `runQuicktype(events, { lang, rendererOptions, typeNameFor, postprocess })`.
+- `buildQuicktypeInput(events, typeNameFor)` (sets `schema.title` and `$schema`).
+- `quicktype({ inputData, lang: '<lang>', rendererOptions })`.
 - Preserve JSON property names (`nice-property-names: false` in TypeScript; Go `json` tags).
 - Prefer `just-types: true` when the language can express types separately from marshaling. Swift is the exception: Typewriter forces full types + `Codable` because `just-types` breaks JSON compatibility. If you subclass a quicktype renderer, do it only for this kind of language constraint.
 
@@ -200,7 +199,7 @@ Jest snapshots prove **string drift**. They do not prove compile or SDK behavior
 
 - `test/render.<sdk-id>.test.ts` — same three domain-fixture snapshots
 - `test/harness/<id>/` — real client + HTTP capture; generated source gitignored
-- Fixture generator via `scripts/emit-harness.ts` — runs the renderer, not quicktype directly; extra event types live in `test/harness/extra-events.ts`
+- Fixture generator (`scripts/emit-<id>-harness.ts`) — runs the renderer, not quicktype directly; extra event types live in `test/harness/extra-events.ts`
 
 Snapshots: `it.each(['simple-track.json', 'multi-version.json', 'with-refs.json'])`.
 
