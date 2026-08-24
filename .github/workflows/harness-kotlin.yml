@@ -1,0 +1,29 @@
+name: Kotlin harness
+
+on:
+  push:
+
+jobs:
+  kotlin-harness:
+    name: test generated wrappers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-cli
+        with:
+          node-version: '22'
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Generate wrappers and test against events-sdk-kotlin
+        run: pnpm test:harness kotlin
+        env:
+          RUN_HARNESS: '1'

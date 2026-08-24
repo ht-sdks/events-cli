@@ -43,7 +43,9 @@ export async function buildArtifacts(
 
   const files: ArtifactFile[] = [];
   for (const output of resolvedConfig.config.outputs) {
-    const contents = await renderSdk(output.sdk, events);
+    const contents = await renderSdk(output.sdk, events, {
+      outputPath: output.path,
+    });
     files.push({
       path: resolve(dir, output.path),
       contents,

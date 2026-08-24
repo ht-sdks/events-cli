@@ -13,6 +13,8 @@ htevents check
 
 Config lives in committed `htevents.config.json` (JSON Schema in `schemas/config.schema.json`). Tokens are never stored there — use `HIGHTOUCH_API_TOKEN` or `--token` when the input is the API.
 
+**Never put a customer name** in GitHub (issues, PRs, comments, commit messages) or in any git-committed file.
+
 ## Adding an SDK renderer
 
 **Playbook for humans and agents:** [`src/render/README.md`](src/render/README.md).

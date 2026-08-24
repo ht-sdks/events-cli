@@ -29,8 +29,8 @@ Options:
   --source <slug>         event source slug
   --input <type>          api | git-sync
   --git-sync-path <path>  local git-sync directory (for git-sync)
-  --sdk <sdk>             target SDK (browser-ts, go, swift) (default:
-                          "browser-ts")
+  --sdk <sdk>             target SDK (browser-ts, go, swift, android, kotlin,
+                          java) (default: "browser-ts")
   --output <path>         path for generated code
   --force                 overwrite an existing config file
   -h, --help              display help for command
