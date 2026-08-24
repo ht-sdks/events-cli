@@ -17,6 +17,7 @@ Check here before copying. Add to this list when you extract something:
 - `sort.ts` — `byWrapperName`
 - `header.ts` — `headerLines` (CLI version + peer pin; wrap per language)
 - `quicktype-input.ts` — JSON Schema sources for quicktype
+- `collisions.ts` — identifier collision checks
 
 Keep language syntax, peer-SDK call shapes, and generated injection helpers in `src/render/<sdk-id>/`. Do **not** move `setAtPath` / `withSchemaVersion` into `shared/` — those are emitted into the customer's file and must match that SDK. `wrappers-emit.ts` is per SDK on purpose (quicktype is types only).
 

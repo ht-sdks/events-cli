@@ -1,5 +1,6 @@
 import type { NormalizedEvent } from '../../normalize/types';
-import { assertNoExportedCollisions, exportedName, typeNameFor } from './names';
+import { assertNoCollisions } from '../shared/collisions';
+import { exportedName, typeNameFor } from './names';
 
 function goString(value: string): string {
   return JSON.stringify(value);
@@ -239,7 +240,11 @@ function renderEventWrappers(event: NormalizedEvent): string[] {
 }
 
 export function renderWrappers(events: NormalizedEvent[]): string {
-  assertNoExportedCollisions(events);
+  assertNoCollisions(events, {
+    errorPrefixLabel: 'Go',
+    generatedMethodName: exportedName,
+    generatedTypeName: typeNameFor,
+  });
   const parts = [renderHelpers()];
   for (const event of events) {
     parts.push(renderEventWrappers(event).join('\n'));
