@@ -18,6 +18,7 @@ Check here before copying. Add to this list when you extract something:
 - `header.ts` — `headerLines` / `renderHeader`
 - `quicktype-input.ts` — JSON Schema sources for quicktype
 - `collisions.ts` — identifier collision checks
+- `harness.ts` — `SdkHarness` shape for `src/render/<id>/harness.ts`
 
 Keep language syntax, peer-SDK call shapes, and generated injection helpers in `src/render/<sdk-id>/`. Do **not** move `setAtPath` / `withSchemaVersion` into `shared/` — those are emitted into the customer's file and must match that SDK. `wrappers-emit.ts` is per SDK on purpose (quicktype is types only).
 
@@ -29,7 +30,7 @@ Wire tests against the peer SDK. Separate workflow files so PRs do not all edit 
 
 - `test/harness/<id>/` — committed language tests; generated output gitignored
 - Shared extra contracts: `test/harness/extra-events.ts`
-- A case in `scripts/run-harness.ts`
+- `src/render/<id>/harness.ts` — emit path + how to run tests (discovered; do not edit a central list)
 - `.github/workflows/harness-<id>.yml` — reuse `.github/actions/setup-cli`; do not add this job to the Node 18–24 matrix
 
 Package pin:
@@ -126,12 +127,13 @@ Do not target archived repos:
 
 Create `src/render/<sdk-id>/`. Reuse `src/render/shared/` first.
 
-| File               | Responsibility                                                                            |
-| ------------------ | ----------------------------------------------------------------------------------------- |
-| `index.ts`         | `render<Id>(events): Promise<string>` — sort, stitch header + types + wrappers            |
-| `constants.ts`     | `MIN_SDK_PACKAGE`, `MIN_SDK_VERSION` (documented minimum, never pinned in generated code) |
-| `types-emit.ts`    | `buildQuicktypeInput` + `quicktype({ lang, rendererOptions })`                            |
-| `wrappers-emit.ts` | instance binding + **generated helpers below** + per-event SDK calls                      |
+| File               | Responsibility                                                                                                                |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `index.ts`         | `render<Id>(events): Promise<string>` — sort, stitch header + types + wrappers                                                |
+| `constants.ts`     | `MIN_SDK_PACKAGE`, `MIN_SDK_VERSION` (documented minimum, never pinned in generated code)                                     |
+| `types-emit.ts`    | `buildQuicktypeInput` + `quicktype({ lang, rendererOptions })`                                                                |
+| `wrappers-emit.ts` | instance binding + **generated helpers below** + per-event SDK calls                                                          |
+| `harness.ts`       | `export const harness` — generated file path, formatter, how to run tests. Discovered; do not edit `scripts/emit-harness.ts`. |
 
 Register it in `src/render/index.ts`:
 
@@ -169,13 +171,13 @@ Follow `src/render/browser-ts/wrappers-emit.ts` and the [invariants](#invariants
 
 **Must emit per SDK** (string-concatenated generated source — not CLI runtime, not `src/render/shared/`). Copy the _jobs_, not the syntax.
 
-| Job | Why it cannot be shared |
-| --- | ----------------------- |
-| Bind to an existing client (`setHtEvents`, a `client` argument, or receiver methods) | module singleton vs `Enqueue` vs methods |
-| Clone-on-write nested write (`setAtPath`, `cloneMap`) | object spread vs maps |
-| Version injection (`withSchemaVersion`) | [rules](#schema-version-injection) are shared; the write target is not (`options.context`, extra map, or a one-shot enrichment) |
-| Typed payload → SDK map (`toMap`) | only if the type is not already a map |
-| Clone typed context (`cloneContext`) | only if context is a struct |
+| Job                                                                                  | Why it cannot be shared                                                                                                         |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| Bind to an existing client (`setHtEvents`, a `client` argument, or receiver methods) | module singleton vs `Enqueue` vs methods                                                                                        |
+| Clone-on-write nested write (`setAtPath`, `cloneMap`)                                | object spread vs maps                                                                                                           |
+| Version injection (`withSchemaVersion`)                                              | [rules](#schema-version-injection) are shared; the write target is not (`options.context`, extra map, or a one-shot enrichment) |
+| Typed payload → SDK map (`toMap`)                                                    | only if the type is not already a map                                                                                           |
+| Clone typed context (`cloneContext`)                                                 | only if context is a struct                                                                                                     |
 
 Optional extras that also stay per SDK: options bag (`CallOptions`), identify/group overloads, `latestAlias` shape (`export const` vs forwarding `func`).
 
@@ -201,7 +203,7 @@ Jest snapshots prove **string drift**. They do not prove compile or SDK behavior
 
 - `test/render.<sdk-id>.test.ts` — same three domain-fixture snapshots
 - `test/harness/<id>/` — real client + HTTP capture; generated source gitignored
-- Fixture generator (`scripts/emit-<id>-harness.ts`) — runs the renderer, not quicktype directly; extra event types live in `test/harness/extra-events.ts`
+- Fixture generator via `scripts/emit-harness.ts` (discovers `src/render/<id>/harness.ts`) — runs the renderer, not quicktype directly; extra event types live in `test/harness/extra-events.ts`
 
 Snapshots: `it.each(['simple-track.json', 'multi-version.json', 'with-refs.json'])`.
 
@@ -310,7 +312,7 @@ Markdown API docs are a **separate** renderer (not part of an SDK PR).
 - Do not put API tokens, write keys, workspace ids, or **customer names** in generated code or any committed file.
 - Do not `npm install` / pin the peer SDK from generated output, and do not auto-install it during `generate` / `check`. The customer's app owns that dependency.
 - Do not add non-JS SDKs to this package's `devDependencies`. Pin them in `test/harness/<id>/` instead.
-- Do not add a new `package.json` script per SDK; extend `scripts/run-harness.ts`.
+- Do not add a new `package.json` script per SDK, and do not edit `scripts/emit-harness.ts` / `scripts/run-harness.ts` to register one. Add `src/render/<id>/harness.ts`.
 - Do not put a harness (JS or not) on the Node version matrix; add `.github/workflows/harness-<id>.yml`.
 - Do not subclass quicktype's renderer unless the language requires it (Swift `Codable` is the known case). Prefer `quicktype()` + string-concatenated wrappers.
 - Do not copy Typewriter Handlebars templates verbatim. Use them as a hint for call shape, then match **our** SDKs and **our** version-injection rules.
@@ -328,6 +330,6 @@ Markdown API docs are a **separate** renderer (not part of an SDK PR).
 3. Add the id to `SUPPORTED_SDKS` and `defaultOutputPath`; run `pnpm run generate:schema`.
 4. Scaffold `src/render/<sdk-id>/`; register in `src/render/index.ts`.
 5. Implement `types-emit` (shared quicktype input) and `wrappers-emit` (must-emit helpers + invariants). Extract CLI-only duplication; leave generated helpers per SDK.
-6. Add Jest snapshots, `test/harness/<id>/`, a `run-harness.ts` case, and `.github/workflows/harness-<id>.yml`.
+6. Add Jest snapshots, `test/harness/<id>/`, `src/render/<id>/harness.ts`, and `.github/workflows/harness-<id>.yml`.
 7. Run `pnpm test && pnpm run lint && pnpm run check:schema && pnpm test:harness <id>` (or `pnpm test:harness:all`).
 8. In the PR: peer SDK + min version, page vs screen mapping, instance binding, harness location.

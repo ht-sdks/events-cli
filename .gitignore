@@ -40,7 +40,7 @@ build/Release
 # Compile-harness temp dirs
 .tmp-render-*
 
-# Generated harness output (rewritten by scripts/emit-*-harness.ts)
+# Generated harness output (rewritten by scripts/emit-harness.ts)
 test/harness/go/analytics/generated.go
 test/harness/go/tmp/
 test/harness/browser-ts/generated.ts
