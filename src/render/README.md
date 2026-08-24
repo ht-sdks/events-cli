@@ -169,13 +169,15 @@ Follow `src/render/browser-ts/wrappers-emit.ts` and the [invariants](#invariants
 
 **Must emit per SDK** (string-concatenated generated source — not CLI runtime, not `src/render/shared/`). Copy the _jobs_, not the syntax.
 
-| Job                         | Why it cannot be shared                                                |
-| --------------------------- | ---------------------------------------------------------------------- |
-| Bind to an existing client  | module singleton vs `Enqueue` vs receiver methods                      |
-| Clone-on-write nested write | TS spread vs Go/Swift maps vs Java `LinkedHashMap`                     |
-| Version-injection policy    | [rules](#schema-version-injection) are shared; the write target is not |
-| Typed payload → SDK map     | only if the type is not already a map                                  |
-| Clone typed context         | only if context is a struct                                            |
+| Job | Why it cannot be shared |
+| --- | ----------------------- |
+| Bind to an existing client (`setHtEvents`, a `client` argument, or receiver methods) | module singleton vs `Enqueue` vs methods |
+| Clone-on-write nested write (`setAtPath`, `cloneMap`) | object spread vs maps |
+| Version injection (`withSchemaVersion`) | [rules](#schema-version-injection) are shared; the write target is not (`options.context`, extra map, or a one-shot enrichment) |
+| Typed payload → SDK map (`toMap`) | only if the type is not already a map |
+| Clone typed context (`cloneContext`) | only if context is a struct |
+
+Optional extras that also stay per SDK: options bag (`CallOptions`), identify/group overloads, `latestAlias` shape (`export const` vs forwarding `func`).
 
 Then:
 
