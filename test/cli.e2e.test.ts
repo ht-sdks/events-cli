@@ -26,6 +26,7 @@ const WRAPPER_NAMES = [
 /** Per-SDK strings that must appear in generated output. Add a row with each new SDK. */
 const GENERATED_SNIPPETS = {
   'browser-ts': ['trackCartViewedDefault', 'identifyDefault'],
+  'node-ts': ['trackCartViewedDefault', 'identifyDefault', 'htevents.track({'],
   go: [
     'package analytics',
     'func TrackCartViewedDefault(',

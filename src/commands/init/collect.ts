@@ -24,6 +24,8 @@ export function defaultOutputPath(sdk: SupportedSdk): string {
   switch (sdk) {
     case 'browser-ts':
       return './src/analytics/generated.ts';
+    case 'node-ts':
+      return './src/analytics/generated.ts';
     case 'go':
       return './analytics/generated.go';
     case 'swift':

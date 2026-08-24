@@ -55,6 +55,7 @@
                 "type": "string",
                 "enum": [
                   "browser-ts",
+                  "node-ts",
                   "go",
                   "swift",
                   "android",

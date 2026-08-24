@@ -7,6 +7,7 @@ import { CliError } from '../src/lib/errors';
 
 const DEFAULT_OUTPUT_PATHS = {
   'browser-ts': './src/analytics/generated.ts',
+  'node-ts': './src/analytics/generated.ts',
   go: './analytics/generated.go',
   swift: './Sources/Analytics/Generated.swift',
   android: './src/main/java/analytics/HtEvents.java',

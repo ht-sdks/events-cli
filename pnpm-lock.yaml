@@ -27,6 +27,9 @@ importers:
       '@ht-sdks/events-sdk-js-browser':
         specifier: 1.4.0
         version: 1.4.0
+      '@ht-sdks/events-sdk-js-node':
+        specifier: 1.1.0
+        version: 1.1.0
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
@@ -431,6 +434,10 @@ packages:
 
   '@ht-sdks/events-sdk-js-core@1.1.1':
     resolution: {integrity: sha512-g6/SMvPgCZ3HNk3E4ppCqcgOUIj/PQ5wEa70AGZdpwroPprucF8cmVTI91mJgOrN2MG9/TwNpkNrM4/ieNr5/Q==}
+
+  '@ht-sdks/events-sdk-js-node@1.1.0':
+    resolution: {integrity: sha512-x3u0Wv6no05eKCoiYYjowPmCWlwe30quf3UUJS6MHvQu3WdU6BNPM8o7Yaxt18tRcupeWRDZSdD1NyDMSMNXLg==}
+    engines: {node: '>=18'}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -3100,6 +3107,16 @@ snapshots:
       '@lukeed/uuid': 2.0.1
       dset: 3.1.4
       tslib: 2.8.1
+
+  '@ht-sdks/events-sdk-js-node@1.1.0':
+    dependencies:
+      '@ht-sdks/events-sdk-js-core': 1.1.1
+      '@lukeed/uuid': 2.0.1
+      buffer: 6.0.3
+      node-fetch: 2.7.0
+      tslib: 2.8.1
+    transitivePeerDependencies:
+      - encoding
 
   '@humanfs/core@0.19.2':
     dependencies:
