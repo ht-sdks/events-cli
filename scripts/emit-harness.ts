@@ -7,8 +7,11 @@ import { dirname, join } from 'path';
 import { spawnSync } from 'child_process';
 import { eventsFromFixture } from '../test/helpers/fixtures';
 import { extraHarnessEvents } from '../test/harness/extra-events';
+import { renderAndroid } from '../src/render/android';
 import { renderBrowserTs } from '../src/render/browser-ts';
 import { renderGo } from '../src/render/go';
+import { renderJava } from '../src/render/java';
+import { renderKotlin } from '../src/render/kotlin';
 import { renderSwift } from '../src/render/swift';
 import type { NormalizedEvent } from '../src/normalize/types';
 
@@ -77,4 +80,52 @@ export async function emitSwiftHarness(): Promise<void> {
     command: 'swift-format',
     args: ['-i'],
   });
+}
+
+export async function emitJavaHarness(): Promise<void> {
+  const relative = './src/main/java/analytics/HtEvents.java';
+  const out = join(
+    ROOT,
+    'test',
+    'harness',
+    'java',
+    'src',
+    'main',
+    'java',
+    'analytics',
+    'HtEvents.java',
+  );
+  await writeGenerated(out, await renderJava(harnessEvents(), relative));
+}
+
+export async function emitAndroidHarness(): Promise<void> {
+  const relative = './src/main/java/analytics/HtEvents.java';
+  const out = join(
+    ROOT,
+    'test',
+    'harness',
+    'android',
+    'src',
+    'main',
+    'java',
+    'analytics',
+    'HtEvents.java',
+  );
+  await writeGenerated(out, await renderAndroid(harnessEvents(), relative));
+}
+
+export async function emitKotlinHarness(): Promise<void> {
+  const relative = './src/main/kotlin/analytics/HtEvents.kt';
+  const out = join(
+    ROOT,
+    'test',
+    'harness',
+    'kotlin',
+    'src',
+    'main',
+    'kotlin',
+    'analytics',
+    'HtEvents.kt',
+  );
+  await writeGenerated(out, await renderKotlin(harnessEvents(), relative));
 }

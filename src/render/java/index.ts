@@ -1,0 +1,56 @@
+import type { NormalizedEvent } from '../../normalize/types';
+import { assembleSource } from '../shared/assemble';
+import { indentBlock, jvmOutputLayout } from '../shared/jvm-output';
+import { byWrapperName } from '../shared/sort';
+import { DEFAULT_OUTPUT_PATH } from './constants';
+import { renderHeader } from './header';
+import { renderTypes } from './types-emit';
+import { renderWrappers } from './wrappers-emit';
+
+export {
+  DEFAULT_OUTPUT_PATH,
+  MIN_SDK_PACKAGE,
+  MIN_SDK_VERSION,
+} from './constants';
+
+const BASE_IMPORTS = [
+  'com.hightouch.analytics.Analytics',
+  'com.hightouch.analytics.messages.AliasMessage',
+  'com.hightouch.analytics.messages.GroupMessage',
+  'com.hightouch.analytics.messages.IdentifyMessage',
+  'com.hightouch.analytics.messages.MessageBuilder',
+  'com.hightouch.analytics.messages.PageMessage',
+  'com.hightouch.analytics.messages.ScreenMessage',
+  'com.hightouch.analytics.messages.TrackMessage',
+  'java.lang.reflect.Field',
+  'java.lang.reflect.Modifier',
+  'java.util.ArrayList',
+  'java.util.Arrays',
+  'java.util.Collection',
+  'java.util.LinkedHashMap',
+  'java.util.List',
+  'java.util.Map',
+];
+
+function renderImports(extra: readonly string[]): string {
+  const all = [...new Set([...BASE_IMPORTS, ...extra])].sort();
+  return all.map((pkg) => `import ${pkg};`).join('\n');
+}
+
+export async function renderJava(
+  events: NormalizedEvent[],
+  outputPath: string = DEFAULT_OUTPUT_PATH,
+): Promise<string> {
+  const { packageName, className } = jvmOutputLayout(outputPath);
+  const ordered = [...events].sort(byWrapperName);
+  const types = await renderTypes(ordered, packageName);
+  const wrappers = renderWrappers(ordered, className);
+  const typeBlock = indentBlock(types.body, 4);
+  const classBody = [typeBlock, wrappers].filter((part) => part.length > 0);
+  return assembleSource([
+    renderHeader(),
+    `package ${packageName};`,
+    renderImports(types.imports),
+    `public final class ${className} {\n${classBody.join('\n\n')}\n}`,
+  ]);
+}

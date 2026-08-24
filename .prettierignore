@@ -5,3 +5,6 @@ schemas/config.schema.json
 test/fixtures/config/malformed.json
 *.go
 test/harness/go/
+test/harness/java/
+test/harness/android/
+test/harness/kotlin/

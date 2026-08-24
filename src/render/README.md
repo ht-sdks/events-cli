@@ -19,6 +19,7 @@ Check here before copying. Add to this list when you extract something:
 - `quicktype-input.ts` / `quicktype.ts` — JSON Schema sources and `runQuicktype`
 - `assemble.ts` — stitch header + types + wrappers
 - `collisions.ts` — identifier collision checks
+- `jvm-output.ts` — package + class from `outputs[].path` (JVM only)
 
 Keep language syntax, peer-SDK call shapes, and generated injection helpers in `src/render/<sdk-id>/`. Do **not** move `setAtPath` / `withSchemaVersion` into `shared/` — those are emitted into the customer's file and must match that SDK. `wrappers-emit.ts` is per SDK on purpose (quicktype is types only).
 
@@ -36,7 +37,7 @@ Wire tests against the peer SDK. Separate workflow files so PRs do not all edit 
 Package pin:
 
 - JS/TS: the CLI `devDependency` (already on the Node job for `ts.createProgram`)
-- Other languages: pin in `test/harness/<id>/` (`go.mod`, `Package.swift`, …)
+- Other languages: pin in `test/harness/<id>/` (`go.mod`, `Package.swift`, Gradle, …)
 
 ```sh
 pnpm test:harness <id>
@@ -65,7 +66,7 @@ pnpm test:harness:all
 htevents.config.json
         │
         ▼
-  loadContracts  →  normalize  →  renderSdk(sdk, events)  →  write files
+  loadContracts  →  normalize  →  renderSdk(sdk, events, { outputPath })  →  write files
                          │                    │
                          │                    └── src/render/<sdk-id>/
                          └── NormalizedEvent[] (lockfile hashes these)
@@ -114,6 +115,8 @@ Do not target archived repos:
 - `events-sdk-ios` → `events-sdk-swift`
 
 `page` exists on browser/node. Mobile SDKs use `screen`. Map per SDK; do not emit an identical surface for every target.
+
+If the language requires `package` / class to match the file path (Java, Kotlin), derive them from `outputs[].path` via `jvmOutputLayout`. Do not hardcode `package analytics` or `class HtEvents`.
 
 ### 2. Add the id to the config enum
 
@@ -289,7 +292,7 @@ Regex, min/max, etc. stay as doc comments on the generated types if the language
 
 ## Output shape
 
-Today `renderSdk` returns one `string`. `buildArtifacts` writes it to `output.path` (resolved relative to the config file directory).
+Today `renderSdk` returns one `string`. `buildArtifacts` writes it to `output.path` (resolved relative to the config file directory) and passes that path into the renderer so languages that need package/class alignment can derive it.
 
 If a language needs multiple files (e.g. `Types.swift` + `HtEvents.swift`):
 
