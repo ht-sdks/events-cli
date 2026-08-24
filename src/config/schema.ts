@@ -6,6 +6,7 @@ export const SUPPORTED_SDKS = [
   'python',
   'ruby',
   'php',
+  'csharp',
   'go',
   'swift',
   'android',

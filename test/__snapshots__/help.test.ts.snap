@@ -30,7 +30,7 @@ Options:
   --input <type>          api | git-sync
   --git-sync-path <path>  local git-sync directory (for git-sync)
   --sdk <sdk>             target SDK (browser-ts, node-ts, python, ruby, php,
-                          go, swift, android, kotlin, java) (default:
+                          csharp, go, swift, android, kotlin, java) (default:
                           "browser-ts")
   --output <path>         path for generated code
   --force                 overwrite an existing config file

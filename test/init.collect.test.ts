@@ -11,6 +11,7 @@ const DEFAULT_OUTPUT_PATHS = {
   python: './analytics/generated.py',
   ruby: './analytics/generated.rb',
   php: './src/Hightouch/Generated/',
+  csharp: './Analytics/HtEvents.cs',
   go: './analytics/generated.go',
   swift: './Sources/Analytics/Generated.swift',
   android: './src/main/java/analytics/HtEvents.java',

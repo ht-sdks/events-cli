@@ -46,6 +46,12 @@ const GENERATED_SNIPPETS = {
     'function identifyDefault(',
     '$client->track(',
   ],
+  csharp: [
+    'using AnalyticsClient = Hightouch.Events.Analytics;',
+    'void TrackCartViewedDefault(',
+    'void IdentifyDefault(',
+    '_analytics.Track(',
+  ],
   go: [
     'package analytics',
     'func TrackCartViewedDefault(',
