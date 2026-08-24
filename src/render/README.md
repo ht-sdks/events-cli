@@ -15,8 +15,8 @@ Copy layout from `src/render/browser-ts/` (Jest snapshots plus `test/harness/bro
 Check here before copying. Add to this list when you extract something:
 
 - `sort.ts` — `byWrapperName`
-- `header.ts` — `headerLines` / `renderHeader`
-- `quicktype-input.ts` — `buildQuicktypeInput` / `runQuicktype`
+- `header.ts` — `renderHeader`
+- `quicktype-input.ts` — `runQuicktype`
 - `collisions.ts` — identifier collision checks
 - `harness.ts` — `SdkHarness` shape for `src/render/<id>/harness.ts`
 

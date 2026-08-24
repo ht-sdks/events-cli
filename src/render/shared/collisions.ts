@@ -2,8 +2,6 @@ import { CliError } from '../../lib/errors';
 import type { NormalizedEvent } from '../../normalize/types';
 
 export type CollisionOptions = {
-  /** CliError prefix only: `"${errorPrefixLabel} identifier collision: ..."`. */
-  errorPrefixLabel: string;
   /**
    * Return the method/function name as it will appear in generated code
    * for this wrapper id (`wrapperName` or `latestAlias`).
@@ -26,20 +24,25 @@ export function assertNoCollisions(
     const existing = owners.get(name);
     if (existing !== undefined) {
       throw new CliError(
-        `${opts.errorPrefixLabel} identifier collision: "${name}" is produced by both ${existing} and ${owner}.`,
+        `Identifier collision: "${name}" is produced by both ${existing} and ${owner}.`,
       );
     }
     owners.set(name, owner);
   };
 
   for (const event of events) {
-    const owner = event.wrapperName;
-    claim(opts.generatedMethodName(event.wrapperName), owner);
+    claim(
+      opts.generatedMethodName(event.wrapperName),
+      `method ${event.wrapperName}`,
+    );
     if (opts.generatedTypeName !== undefined) {
-      claim(opts.generatedTypeName(event), owner);
+      claim(opts.generatedTypeName(event), `type ${event.wrapperName}`);
     }
     if (event.latestAlias !== undefined) {
-      claim(opts.generatedMethodName(event.latestAlias), owner);
+      claim(
+        opts.generatedMethodName(event.latestAlias),
+        `latest alias ${event.latestAlias}`,
+      );
     }
   }
 }

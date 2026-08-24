@@ -88,6 +88,8 @@ describe('renderGo', () => {
         latestAlias: 'TrackFoo',
       },
     ];
-    await expect(renderGo(events)).rejects.toThrow(/Go identifier collision/);
+    await expect(renderGo(events)).rejects.toThrow(
+      /Identifier collision: "TrackFoo" is produced by both method trackFoo and latest alias TrackFoo/,
+    );
   });
 });

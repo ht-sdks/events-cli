@@ -8,7 +8,7 @@ import {
 } from 'quicktype-core';
 import type { NormalizedEvent } from '../../normalize/types';
 
-export async function buildQuicktypeInput(
+async function buildQuicktypeInput(
   events: readonly NormalizedEvent[],
   typeNameFor: (event: NormalizedEvent) => string,
 ): Promise<InputData> {

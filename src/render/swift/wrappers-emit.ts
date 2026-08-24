@@ -295,7 +295,6 @@ function renderEventWrappers(event: NormalizedEvent): string[] {
 
 export function renderWrappers(events: NormalizedEvent[]): string {
   assertNoCollisions(events, {
-    errorPrefixLabel: 'Swift',
     generatedMethodName: methodName,
   });
   const methodLines: string[] = ['extension Analytics {'];

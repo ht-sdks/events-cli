@@ -107,7 +107,7 @@ describe('renderSwift', () => {
       },
     ];
     await expect(renderSwift(events)).rejects.toThrow(
-      /Swift identifier collision/,
+      /Identifier collision: "trackFoo" is produced by both method trackFoo and latest alias trackFoo/,
     );
   });
 });

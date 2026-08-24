@@ -241,7 +241,6 @@ function renderEventWrappers(event: NormalizedEvent): string[] {
 
 export function renderWrappers(events: NormalizedEvent[]): string {
   assertNoCollisions(events, {
-    errorPrefixLabel: 'Go',
     generatedMethodName: exportedName,
     generatedTypeName: typeNameFor,
   });

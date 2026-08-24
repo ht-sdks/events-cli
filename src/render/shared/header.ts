@@ -1,6 +1,6 @@
 import { cliPackage } from '../../lib/package-info';
 
-export function headerLines(
+function headerLines(
   peerPackage: string,
   peerVersion: string,
 ): { generated: string; requires: string } {
