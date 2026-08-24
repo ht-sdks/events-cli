@@ -5,3 +5,4 @@ schemas/config.schema.json
 test/fixtures/config/malformed.json
 *.go
 test/harness/go/
+test/fixtures/git-sync/invalid-yaml/

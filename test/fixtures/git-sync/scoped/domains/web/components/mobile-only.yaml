@@ -1,0 +1,8 @@
+name: Mobile Only
+sources:
+  - mobile-app
+schema:
+  type: object
+  properties:
+    mobileOnly:
+      type: string

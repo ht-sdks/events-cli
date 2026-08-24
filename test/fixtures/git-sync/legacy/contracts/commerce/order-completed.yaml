@@ -1,0 +1,15 @@
+type: track
+name: Order Completed
+version: default
+schema:
+  type: object
+  properties:
+    properties:
+      type: object
+      properties:
+        orderId:
+          type: string
+        total:
+          type: number
+      required:
+        - orderId

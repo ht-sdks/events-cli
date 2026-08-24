@@ -30,6 +30,7 @@
     "@inquirer/prompts": "^8.5.2",
     "commander": "^13",
     "quicktype-core": "^26.0.0",
+    "yaml": "^2.9.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {

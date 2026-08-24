@@ -1,0 +1,12 @@
+name: Money
+version: default
+schema:
+  type: object
+  properties:
+    amount:
+      type: number
+    currency:
+      type: string
+  required:
+    - amount
+    - currency
