@@ -54,6 +54,13 @@ const GENERATED_SNIPPETS = {
     'fun identifyDefault(',
     'analytics.track(',
   ],
+  java: [
+    'package analytics;',
+    'public final class HtEvents',
+    'trackCartViewedDefault',
+    'identifyDefault',
+    'analytics.enqueue(',
+  ],
 } as const satisfies Record<SupportedSdk, readonly string[]>;
 
 const CLI = join(__dirname, '..', 'dist', 'cli.js');

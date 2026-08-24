@@ -7,3 +7,4 @@ test/fixtures/config/malformed.json
 test/harness/go/
 test/harness/android/
 test/harness/kotlin/
+test/harness/java/

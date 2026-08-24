@@ -11,6 +11,7 @@ const DEFAULT_OUTPUT_PATHS = {
   swift: './Sources/Analytics/Generated.swift',
   android: './src/main/java/analytics/HtEvents.java',
   kotlin: './src/main/kotlin/analytics/HtEvents.kt',
+  java: './analytics/HtEvents.java',
 } as const satisfies Record<SupportedSdk, string>;
 
 describe('collectInitAnswers', () => {

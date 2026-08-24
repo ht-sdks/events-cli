@@ -58,7 +58,8 @@
                   "go",
                   "swift",
                   "android",
-                  "kotlin"
+                  "kotlin",
+                  "java"
                 ]
               },
               "path": {

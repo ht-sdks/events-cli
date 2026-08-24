@@ -3,6 +3,7 @@ import type { NormalizedEvent } from '../normalize/types';
 import { renderAndroid } from './android';
 import { renderBrowserTs } from './browser-ts';
 import { renderGo } from './go';
+import { renderJava } from './java';
 import { renderKotlin } from './kotlin';
 import { renderSwift } from './swift';
 
@@ -33,6 +34,8 @@ export async function renderSdk(
       return renderAndroid(events, options.outputPath);
     case 'kotlin':
       return renderKotlin(events, options.outputPath);
+    case 'java':
+      return renderJava(events, options.outputPath);
     default: {
       const exhaustive: never = sdk;
       throw new Error(`Unsupported SDK: ${String(exhaustive)}`);
