@@ -11,6 +11,7 @@ export default tseslint.config(
       'test/harness/go/',
       'test/harness/browser-ts/generated.ts',
       'test/harness/android/',
+      'test/harness/kotlin/',
     ],
   },
   ...tseslint.configs.recommended,

@@ -47,6 +47,13 @@ const GENERATED_SNIPPETS = {
     'identifyDefault',
     'analytics.track(',
   ],
+  kotlin: [
+    'package analytics',
+    'class HtEvents',
+    'fun trackCartViewedDefault(',
+    'fun identifyDefault(',
+    'analytics.track(',
+  ],
 } as const satisfies Record<SupportedSdk, readonly string[]>;
 
 const CLI = join(__dirname, '..', 'dist', 'cli.js');

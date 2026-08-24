@@ -30,6 +30,8 @@ export function defaultOutputPath(sdk: SupportedSdk): string {
       return './Sources/Analytics/Generated.swift';
     case 'android':
       return './src/main/java/analytics/HtEvents.java';
+    case 'kotlin':
+      return './src/main/kotlin/analytics/HtEvents.kt';
     default: {
       const exhaustive: never = sdk;
       return exhaustive;

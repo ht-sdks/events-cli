@@ -1,6 +1,12 @@
 import { z } from 'zod';
 
-export const SUPPORTED_SDKS = ['browser-ts', 'go', 'swift', 'android'] as const;
+export const SUPPORTED_SDKS = [
+  'browser-ts',
+  'go',
+  'swift',
+  'android',
+  'kotlin',
+] as const;
 export type SupportedSdk = (typeof SUPPORTED_SDKS)[number];
 
 const apiInputSchema = z.object({
