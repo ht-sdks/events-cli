@@ -1,6 +1,5 @@
-import { quicktype } from 'quicktype-core';
 import type { NormalizedEvent } from '../../normalize/types';
-import { buildQuicktypeInput } from '../shared/quicktype-input';
+import { runQuicktype } from '../shared/quicktype-input';
 import { typeNameFor } from './names';
 
 export { typeNameFor };
@@ -29,12 +28,8 @@ function stripJsonAnyDictionaryExtensions(source: string): string {
 }
 
 export async function renderTypes(events: NormalizedEvent[]): Promise<string> {
-  const typed = events.filter(needsPayloadType);
-  if (typed.length === 0) return '';
-
-  const inputData = await buildQuicktypeInput(typed, typeNameFor);
-  const { lines } = await quicktype({
-    inputData,
+  return runQuicktype(events.filter(needsPayloadType), {
+    typeNameFor,
     lang: 'swift',
     rendererOptions: {
       'just-types': 'false',
@@ -42,9 +37,7 @@ export async function renderTypes(events: NormalizedEvent[]): Promise<string> {
       'struct-or-class': 'struct',
       initializers: 'false',
     },
+    postprocess: (source) =>
+      stripJsonAnyDictionaryExtensions(cleanQuicktypeSwift(source)),
   });
-
-  return stripJsonAnyDictionaryExtensions(
-    cleanQuicktypeSwift(lines.join('\n')),
-  );
 }

@@ -1,6 +1,5 @@
-import { quicktype } from 'quicktype-core';
 import type { NormalizedEvent } from '../../normalize/types';
-import { buildQuicktypeInput } from '../shared/quicktype-input';
+import { runQuicktype } from '../shared/quicktype-input';
 import { typeNameFor } from './names';
 
 function stripPackageDecl(source: string): string {
@@ -8,18 +7,14 @@ function stripPackageDecl(source: string): string {
 }
 
 export async function renderTypes(events: NormalizedEvent[]): Promise<string> {
-  if (events.length === 0) return '';
-
-  const inputData = await buildQuicktypeInput(events, typeNameFor);
-  const { lines } = await quicktype({
-    inputData,
+  return runQuicktype(events, {
+    typeNameFor,
     lang: 'go',
     rendererOptions: {
       'just-types': 'true',
       package: 'analytics',
       'field-tags': 'json',
     },
+    postprocess: stripPackageDecl,
   });
-
-  return stripPackageDecl(lines.join('\n'));
 }

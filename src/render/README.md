@@ -16,7 +16,7 @@ Check here before copying. Add to this list when you extract something:
 
 - `sort.ts` — `byWrapperName`
 - `header.ts` — `headerLines` / `renderHeader`
-- `quicktype-input.ts` — JSON Schema sources for quicktype
+- `quicktype-input.ts` — `buildQuicktypeInput` / `runQuicktype`
 - `collisions.ts` — identifier collision checks
 - `harness.ts` — `SdkHarness` shape for `src/render/<id>/harness.ts`
 
@@ -131,7 +131,7 @@ Create `src/render/<sdk-id>/`. Reuse `src/render/shared/` first.
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
 | `index.ts`         | `render<Id>(events): Promise<string>` — sort, stitch header + types + wrappers                                                |
 | `constants.ts`     | `MIN_SDK_PACKAGE`, `MIN_SDK_VERSION` (documented minimum, never pinned in generated code)                                     |
-| `types-emit.ts`    | `buildQuicktypeInput` + `quicktype({ lang, rendererOptions })`                                                                |
+| `types-emit.ts`    | `runQuicktype` + language cleanup (Swift alias filter, TypeScript empty-payload fallbacks)                                    |
 | `wrappers-emit.ts` | instance binding + **generated helpers below** + per-event SDK calls                                                          |
 | `harness.ts`       | `export const harness` — generated file path, formatter, how to run tests. Discovered; do not edit `scripts/emit-harness.ts`. |
 
@@ -156,8 +156,7 @@ Keep the `default` / `never` branch. TypeScript will fail the build if `SUPPORTE
 
 Follow `src/render/browser-ts/types-emit.ts`:
 
-- `buildQuicktypeInput(events, typeNameFor)` (sets `schema.title` and `$schema`).
-- `quicktype({ inputData, lang: '<lang>', rendererOptions })`.
+- `runQuicktype(events, { typeNameFor, lang, rendererOptions, postprocess })` — builds JSON Schema input (`schema.title` and `$schema`) then quicktype. Pass `lang` as the real quicktype language name. Do not skip aliases in the helper; filter before the call if the language has no payload type for alias (Swift). Empty-payload TypeScript fallbacks stay after the call.
 - Preserve JSON property names (`nice-property-names: false` in TypeScript; Go `json` tags).
 - Prefer `just-types: true` when the language can express types separately from marshaling. Swift is the exception: Typewriter forces full types + `Codable` because `just-types` breaks JSON compatibility. If you subclass a quicktype renderer, do it only for this kind of language constraint.
 
