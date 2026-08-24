@@ -66,6 +66,25 @@ describe('renderBrowserTs compile harness', () => {
     expect(text).toBe('');
   });
 
+  it('typechecks generated track wrappers with an empty properties schema', async () => {
+    const event: NormalizedEvent = {
+      type: 'track',
+      name: 'Unscoped Ping',
+      version: 'default',
+      domainName: 'Unscoped',
+      envelopeKey: 'properties',
+      schema: { type: 'object' },
+      wrapperName: 'trackUnscopedPingDefault',
+    };
+    const diagnostics = compileGenerated(await renderBrowserTs([event]));
+    const text = ts.formatDiagnostics(diagnostics, {
+      getCanonicalFileName: (name) => name,
+      getCurrentDirectory: () => packageRoot,
+      getNewLine: () => '\n',
+    });
+    expect(text).toBe('');
+  });
+
   it('typechecks generated alias wrappers against the browser SDK', async () => {
     const event: NormalizedEvent = {
       type: 'alias',

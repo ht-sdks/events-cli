@@ -7,6 +7,12 @@ export function typeNameFor(event: NormalizedEvent): string {
   return toPascalCase(event.wrapperName);
 }
 
+function declaresType(source: string, name: string): boolean {
+  return new RegExp(
+    String.raw`(?:export\s+)?(?:interface|type|class)\s+${name}\b`,
+  ).test(source);
+}
+
 export async function renderTypes(events: NormalizedEvent[]): Promise<string> {
   if (events.length === 0) return '';
 
@@ -20,5 +26,11 @@ export async function renderTypes(events: NormalizedEvent[]): Promise<string> {
     },
   });
 
-  return lines.join('\n').trimEnd();
+  const types = lines.join('\n').trimEnd();
+  const fallbacks = events
+    .map(typeNameFor)
+    .filter((name) => !declaresType(types, name))
+    .map((name) => `export type ${name} = Record<string, unknown>;`);
+
+  return [types, ...fallbacks].filter(Boolean).join('\n\n');
 }
