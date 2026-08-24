@@ -1,5 +1,6 @@
 import type { NormalizedEvent } from '../../normalize/types';
-import { assertNoMethodCollisions, methodName, typeNameFor } from './names';
+import { assertNoCollisions } from '../shared/collisions';
+import { methodName, typeNameFor } from './names';
 
 function swiftString(value: string): string {
   return JSON.stringify(value);
@@ -293,7 +294,9 @@ function renderEventWrappers(event: NormalizedEvent): string[] {
 }
 
 export function renderWrappers(events: NormalizedEvent[]): string {
-  assertNoMethodCollisions(events);
+  assertNoCollisions(events, {
+    generatedMethodName: methodName,
+  });
   const methodLines: string[] = ['extension Analytics {'];
   for (const event of events) {
     if (methodLines.length > 1) {

@@ -1,4 +1,3 @@
-import { CliError } from '../../lib/errors';
 import { toPascalCase } from '../../normalize/names';
 import type { NormalizedEvent } from '../../normalize/types';
 
@@ -13,29 +12,4 @@ export function exportedName(wrapperName: string): string {
  */
 export function typeNameFor(event: NormalizedEvent): string {
   return `${toPascalCase(event.wrapperName)}Payload`;
-}
-
-export function assertNoExportedCollisions(
-  events: readonly NormalizedEvent[],
-): void {
-  const owners = new Map<string, string>();
-
-  const claim = (name: string, label: string) => {
-    const existing = owners.get(name);
-    if (existing !== undefined) {
-      throw new CliError(
-        `Go identifier collision: "${name}" is produced by both ${existing} and ${label}.`,
-      );
-    }
-    owners.set(name, label);
-  };
-
-  for (const event of events) {
-    const label = event.wrapperName;
-    claim(exportedName(event.wrapperName), label);
-    claim(typeNameFor(event), label);
-    if (event.latestAlias !== undefined) {
-      claim(exportedName(event.latestAlias), label);
-    }
-  }
 }

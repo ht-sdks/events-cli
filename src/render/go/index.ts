@@ -1,6 +1,7 @@
 import type { NormalizedEvent } from '../../normalize/types';
+import { renderHeader } from '../shared/header';
 import { byWrapperName } from '../shared/sort';
-import { renderHeader } from './header';
+import { MIN_SDK_PACKAGE, MIN_SDK_VERSION } from './constants';
 import { renderTypes } from './types-emit';
 import { renderWrappers } from './wrappers-emit';
 
@@ -20,7 +21,7 @@ export async function renderGo(events: NormalizedEvent[]): Promise<string> {
   const types = await renderTypes(ordered);
   const wrappers = renderWrappers(ordered);
   const sections = [
-    renderHeader(),
+    renderHeader(MIN_SDK_PACKAGE, MIN_SDK_VERSION),
     'package analytics',
     GO_IMPORTS,
     types,

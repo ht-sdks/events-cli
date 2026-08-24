@@ -4,22 +4,17 @@
  *   pnpm test:harness <sdk>
  *   pnpm test:harness:all
  *
- * Add a `case` here when a new `test/harness/<id>/` lands. Do not add a new
- * package.json script per SDK.
+ * Discovers `src/render/<id>/harness.ts`. Do not add a new package.json
+ * script per SDK.
  */
 import { spawnSync } from 'child_process';
 import { join } from 'path';
-import { emitBrowserTsHarness } from './emit-browser-ts-harness';
-import { emitGoHarness } from './emit-go-harness';
-import { emitSwiftHarness } from './emit-swift-harness';
+import { emitHarness, loadHarnesses, type LoadedHarness } from './emit-harness';
 
 const ROOT = join(__dirname, '..');
 const required = process.env.RUN_HARNESS === '1';
 
-const HARNESS_IDS = ['browser-ts', 'go', 'swift'] as const;
-type HarnessId = (typeof HARNESS_IDS)[number];
-
-function run(command: string, args: string[], cwd: string = ROOT): number {
+function run(command: string, args: string[], cwd: string): number {
   const result = spawnSync(command, args, {
     cwd,
     stdio: 'inherit',
@@ -32,97 +27,57 @@ function run(command: string, args: string[], cwd: string = ROOT): number {
   return result.status ?? 1;
 }
 
-function hasGo(): boolean {
+function toolchainReady(spec: LoadedHarness): boolean {
+  if (spec.toolchain === undefined) {
+    return true;
+  }
   return (
-    spawnSync('go', ['env', 'GOVERSION'], { encoding: 'utf-8' }).status === 0
+    spawnSync(spec.toolchain.command, spec.toolchain.args, {
+      encoding: 'utf-8',
+    }).status === 0
   );
 }
 
-async function runGo(emitOnly: boolean): Promise<number> {
-  if (!hasGo()) {
+async function runHarness(
+  spec: LoadedHarness,
+  emitOnly: boolean,
+): Promise<number> {
+  if (!toolchainReady(spec)) {
+    const name = spec.toolchain?.command ?? spec.id;
     if (required) {
-      console.error('go is required when RUN_HARNESS=1');
+      console.error(`${name} is required when RUN_HARNESS=1`);
       return 1;
     }
     console.error(
-      'skipping go harness (go not on PATH; set RUN_HARNESS=1 to require it)',
+      `skipping ${spec.id} harness (${name} not on PATH; set RUN_HARNESS=1 to require it)`,
     );
     return 0;
   }
 
-  await emitGoHarness();
+  await emitHarness(spec);
   if (emitOnly) {
     return 0;
   }
 
-  const harness = join(ROOT, 'test', 'harness', 'go');
-  const vet = run('go', ['vet', './...'], harness);
-  if (vet !== 0) return vet;
-  return run('go', ['test', '-count=1', './...'], harness);
-}
-
-function hasSwift(): boolean {
-  return spawnSync('swift', ['--version'], { encoding: 'utf-8' }).status === 0;
-}
-
-async function runSwift(emitOnly: boolean): Promise<number> {
-  if (!hasSwift()) {
-    if (required) {
-      console.error('swift is required when RUN_HARNESS=1');
-      return 1;
-    }
-    console.error(
-      'skipping swift harness (swift not on PATH; set RUN_HARNESS=1 to require it)',
-    );
-    return 0;
-  }
-
-  await emitSwiftHarness();
-  if (emitOnly) {
-    return 0;
-  }
-
-  const harness = join(ROOT, 'test', 'harness', 'swift');
-  return run('swift', ['test', '--enable-test-discovery'], harness);
-}
-
-async function runBrowserTs(emitOnly: boolean): Promise<number> {
-  await emitBrowserTsHarness();
-  if (emitOnly) {
-    return 0;
-  }
-  return run('pnpm', [
-    'exec',
-    'tsx',
-    '--test',
-    'test/harness/browser-ts/wrappers.test.ts',
-  ]);
-}
-
-async function runHarness(id: HarnessId, emitOnly: boolean): Promise<number> {
-  switch (id) {
-    case 'go':
-      return runGo(emitOnly);
-    case 'browser-ts':
-      return runBrowserTs(emitOnly);
-    case 'swift':
-      return runSwift(emitOnly);
-    default: {
-      const exhaustive: never = id;
-      return exhaustive;
+  for (const step of spec.test) {
+    const code = run(step.command, step.args, join(ROOT, step.cwd));
+    if (code !== 0) {
+      return code;
     }
   }
+  return 0;
 }
 
 async function main(): Promise<void> {
+  const harnesses = await loadHarnesses();
   const emitOnly = process.argv.includes('--emit-only');
   const args = process.argv.slice(2).filter((arg) => arg !== '--emit-only');
   const all = args[0] === '--all' || args[0] === 'all';
 
   if (all) {
     let status = 0;
-    for (const id of HARNESS_IDS) {
-      const code = await runHarness(id, emitOnly);
+    for (const spec of harnesses) {
+      const code = await runHarness(spec, emitOnly);
       if (code !== 0) status = code;
     }
     process.exit(status);
@@ -136,12 +91,13 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  if (!HARNESS_IDS.includes(id as HarnessId)) {
+  const spec = harnesses.find((h) => h.id === id);
+  if (spec === undefined) {
     console.error(`unknown harness: ${id}`);
     process.exit(1);
   }
 
-  process.exit(await runHarness(id as HarnessId, emitOnly));
+  process.exit(await runHarness(spec, emitOnly));
 }
 
 void main();
