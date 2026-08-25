@@ -27,8 +27,29 @@ function stripJsonAnyDictionaryExtensions(source: string): string {
     .trimEnd();
 }
 
+function declaredSwiftTypes(source: string): string[] {
+  return [...source.matchAll(/^public struct (\w+)/gm)].map(
+    (match) => match[1],
+  );
+}
+
+function alignTypeNames(source: string, expected: readonly string[]): string {
+  const declared = declaredSwiftTypes(source);
+  let out = source;
+  for (const name of expected) {
+    if (declared.includes(name)) continue;
+    const actual = declared.find(
+      (ident) => ident.toLowerCase() === name.toLowerCase(),
+    );
+    if (actual === undefined) continue;
+    out = out.replace(new RegExp(`\\b${actual}\\b`, 'g'), name);
+  }
+  return out;
+}
+
 export async function renderTypes(events: NormalizedEvent[]): Promise<string> {
-  return runQuicktype(events.filter(needsPayloadType), {
+  const typed = events.filter(needsPayloadType);
+  return runQuicktype(typed, {
     typeNameFor,
     lang: 'swift',
     rendererOptions: {
@@ -38,6 +59,9 @@ export async function renderTypes(events: NormalizedEvent[]): Promise<string> {
       initializers: 'false',
     },
     postprocess: (source) =>
-      stripJsonAnyDictionaryExtensions(cleanQuicktypeSwift(source)),
+      alignTypeNames(
+        stripJsonAnyDictionaryExtensions(cleanQuicktypeSwift(source)),
+        typed.map(typeNameFor),
+      ),
   });
 }

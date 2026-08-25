@@ -20,23 +20,11 @@ const RENDER_ROOT = join(ROOT, 'src', 'render');
 
 export type LoadedHarness = SdkHarness & { id: string };
 
-/**
- * Stock Go/Swift quicktype does not emit a named payload type for the four
- * JSON-key spellings (`order-id` / `order_id` / `OrderId` / `orderId`), so
- * wrappers would reference a missing type. Other harnesses keep the probe.
- */
-const SKIP_JSON_KEY_PROBE = new Set(['go', 'swift']);
-
-function harnessEvents(id: string): NormalizedEvent[] {
-  const extras = extraHarnessEvents().filter(
-    (event) =>
-      event.wrapperName !== 'trackJsonKeyProbeDefault' ||
-      !SKIP_JSON_KEY_PROBE.has(id),
-  );
+function harnessEvents(): NormalizedEvent[] {
   return [
     ...eventsFromFixture('multi-version.json'),
     ...eventsFromFixture('with-refs.json'),
-    ...extras,
+    ...extraHarnessEvents(),
   ];
 }
 
@@ -66,7 +54,7 @@ export async function loadHarnesses(): Promise<LoadedHarness[]> {
 export async function emitHarness(spec: LoadedHarness): Promise<void> {
   const out = join(ROOT, spec.generatedFile);
   mkdirSync(dirname(out), { recursive: true });
-  writeFileSync(out, await spec.render(harnessEvents(spec.id)));
+  writeFileSync(out, await spec.render(harnessEvents()));
   if (spec.format !== undefined) {
     const result = spawnSync(spec.format.command, [...spec.format.args, out], {
       encoding: 'utf-8',
