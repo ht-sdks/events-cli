@@ -207,7 +207,7 @@ Jest snapshots prove **string drift**. They do not prove compile or SDK behavior
 
 - `test/render.<sdk-id>.test.ts` — same contract helper, then language asserts (imports, page→screen, collisions, …)
 - `test/harness/<id>/` — real client + HTTP capture; generated source gitignored
-- Fixture generator via `scripts/emit-harness.ts` (discovers `src/render/<id>/harness.ts`) — runs the renderer, not quicktype directly; extra event types live in `test/harness/extra-events.ts` plus JVM-only `test/harness/jvm-extra-events.ts`
+- Fixture generator via `scripts/emit-harness.ts` (discovers `src/render/<id>/harness.ts`) — runs the renderer, not quicktype directly; extra event types live in `test/harness/extra-events.ts` plus JVM-only `test/harness/jvm-extra-events.ts`. The hyphenated-key probe is omitted for Go/Swift (stock quicktype emits no payload type for those four key spellings).
 
 Snapshots: `defineRendererContractTests` in `test/helpers/renderer-contract.ts` (`simple-track.json`, `multi-version.json`, `with-refs.json`). Do not put page→screen in that helper.
 
