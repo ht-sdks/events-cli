@@ -5,6 +5,7 @@ import { renderBrowserTs } from './browser-ts';
 import { renderGo } from './go';
 import { renderJava } from './java';
 import { renderKotlin } from './kotlin';
+import { renderNodeTs } from './node-ts';
 import { renderSwift } from './swift';
 
 export type RenderOptions = {
@@ -26,6 +27,8 @@ export async function renderSdk(
   switch (sdk) {
     case 'browser-ts':
       return renderBrowserTs(events);
+    case 'node-ts':
+      return renderNodeTs(events);
     case 'go':
       return renderGo(events);
     case 'swift':

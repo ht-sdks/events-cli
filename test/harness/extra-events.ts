@@ -62,6 +62,7 @@ export function extraHarnessEvents(): NormalizedEvent[] {
         properties: { orderId: { type: 'string' } },
       },
       wrapperName: 'trackOrderCompletedPropsV1',
+      latestAlias: 'trackOrderCompletedProps',
     },
     {
       type: 'identify',

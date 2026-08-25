@@ -23,6 +23,7 @@ Check here before copying. Add to this list when you extract something:
 - `jvm-names.ts` — `methodName` / `typeNameFor` / reserved-name sets / `assertNoReservedCollisions`
 - `java-types.ts` — `renderNestedJavaTypes` / `nestQuicktypeJava`
 - `jvm-json-name-quicktype.ts` — Java/Kotlin renderers that emit `@JsonName` when the JSON key is not a valid identifier
+- `ts-types.ts` — `typeNameFor` / `renderTypescriptTypes`
 
 Keep language syntax, peer-SDK call shapes, and generated injection helpers in `src/render/<sdk-id>/`. Do **not** move `setAtPath` / `withSchemaVersion` into `shared/` — those are emitted into the customer's file and must match that SDK. `wrappers-emit.ts` is per SDK on purpose (quicktype is types only).
 
