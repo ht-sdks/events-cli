@@ -11,6 +11,24 @@ export const JSON_KEY_PROBE_PROPERTIES = {
   orderId: { type: 'string' },
 } as const;
 
+export function jsonKeyProbeHarnessEvents(): NormalizedEvent[] {
+  return [
+    {
+      type: 'track',
+      name: 'Json Key Probe',
+      version: 'default',
+      domainName: 'Keys',
+      envelopeKey: 'properties',
+      schema: {
+        type: 'object',
+        properties: { ...JSON_KEY_PROBE_PROPERTIES },
+      },
+      wrapperName: 'trackJsonKeyProbeDefault',
+      latestAlias: 'trackJsonKeyProbe',
+    },
+  ];
+}
+
 /** Extra contracts for language harnesses. Domain fixtures omit some event types. */
 export function extraHarnessEvents(): NormalizedEvent[] {
   return [
@@ -153,17 +171,33 @@ export function extraHarnessEvents(): NormalizedEvent[] {
       wrapperName: 'trackSignedUpDefault',
       latestAlias: 'trackSignedUp',
     },
+    ...jsonKeyProbeHarnessEvents(),
     {
       type: 'track',
-      name: 'Json Key Probe',
+      name: '123 Start',
       version: 'default',
-      domainName: 'Keys',
+      domainName: 'Names',
       envelopeKey: 'properties',
       schema: {
         type: 'object',
-        properties: { ...JSON_KEY_PROBE_PROPERTIES },
+        properties: { foo: { type: 'string' } },
       },
-      wrapperName: 'trackJsonKeyProbeDefault',
+      wrapperName: 'trackN123StartDefault',
+      latestAlias: 'trackN123Start',
+    },
+    {
+      type: 'track',
+      name: 'Web Only Probe',
+      version: 'default',
+      domainName: 'WebOnly',
+      envelopeKey: 'properties',
+      schema: {
+        type: 'object',
+        properties: { webOnlyProp: { type: 'string' } },
+        required: ['webOnlyProp'],
+      },
+      wrapperName: 'trackWebOnlyProbeDefault',
+      latestAlias: 'trackWebOnlyProbe',
     },
   ];
 }
