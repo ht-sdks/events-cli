@@ -1,57 +1,21 @@
 import { toPascalCase } from '../../normalize/names';
 import type { NormalizedEvent } from '../../normalize/types';
+import {
+  RUBY_KEYWORDS,
+  snakeName as sharedSnakeName,
+  toSnakeCase,
+} from '../shared/snake-names';
 
-const KEYWORDS = new Set([
-  'alias',
-  'and',
-  'begin',
-  'break',
-  'case',
-  'class',
-  'def',
-  'defined',
-  'do',
-  'else',
-  'elsif',
-  'end',
-  'ensure',
-  'false',
-  'for',
-  'if',
-  'in',
-  'module',
-  'next',
-  'nil',
-  'not',
-  'or',
-  'redo',
-  'rescue',
-  'retry',
-  'return',
-  'self',
-  'super',
-  'then',
-  'true',
-  'undef',
-  'unless',
-  'until',
-  'when',
-  'while',
-  'yield',
-]);
-
-export function toSnakeCase(wrapperName: string): string {
-  return wrapperName
-    .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
-    .replace(/([A-Z]+)([A-Z][a-z])/g, '$1_$2')
-    .toLowerCase();
-}
+export { RUBY_KEYWORDS, toSnakeCase };
 
 export function snakeName(wrapperName: string): string {
-  const name = toSnakeCase(wrapperName);
-  return KEYWORDS.has(name) ? `${name}_` : name;
+  return sharedSnakeName(wrapperName, RUBY_KEYWORDS);
 }
 
 export function typeNameFor(event: NormalizedEvent): string {
   return toPascalCase(event.wrapperName);
+}
+
+export function isRubyKeyword(name: string): boolean {
+  return RUBY_KEYWORDS.has(toSnakeCase(name));
 }

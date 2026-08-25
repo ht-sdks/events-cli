@@ -20,7 +20,10 @@ describe('renderRuby', () => {
   it('emits snake_case wrappers and Struct types with JSON keys', async () => {
     const src = await renderRuby(eventsFromFixture('simple-track.json'));
     expect(src).toContain("require 'hightouch/analytics'");
-    expect(src).toContain('TrackOrderCompletedDefault = Struct.new(:orderId');
+    expect(src).toContain(
+      'TrackOrderCompletedDefault = Struct.new(:orderId, :total, keyword_init: true)',
+    );
+    expect(src).toContain('module HtEvents');
     expect(src).toContain('def self.track_order_completed_default(');
     expect(src).toContain('client.track(');
   });
@@ -33,10 +36,74 @@ describe('renderRuby', () => {
       envelopeKey: 'properties',
       schema: { type: 'object' },
       wrapperName: 'aliasDefault',
+      latestAlias: 'alias',
     };
     const src = await renderRuby([event]);
     expect(src).toContain('def self.alias_default(');
     expect(src).toContain('previous_id');
     expect(src).toContain('client.alias(');
+    expect(src).toContain('define_singleton_method(:alias) do |*args, **opts|');
+    expect(src).not.toContain('def self.alias_(');
+    expect(src).not.toContain('class AliasDefault');
+  });
+
+  it('quotes hyphenated struct members so the wire key is unchanged', async () => {
+    const src = await renderRuby([
+      {
+        type: 'track',
+        name: 'Json Key Probe',
+        version: 'default',
+        domainName: 'Keys',
+        envelopeKey: 'properties',
+        schema: {
+          type: 'object',
+          properties: {
+            'order-id': { type: 'string' },
+            order_id: { type: 'string' },
+            OrderId: { type: 'string' },
+            orderId: { type: 'string' },
+          },
+        },
+        wrapperName: 'trackJsonKeyProbeDefault',
+      },
+    ]);
+    expect(src).toContain(":'order-id'");
+    expect(src).toContain(':order_id');
+    expect(src).toContain(':OrderId');
+    expect(src).toContain(':orderId');
+    expect(src).toContain('out[key.to_s] =');
+  });
+
+  it('fails when a screen event has no name', async () => {
+    const event: NormalizedEvent = {
+      type: 'screen',
+      name: '',
+      version: 'default',
+      domainName: 'Mobile',
+      envelopeKey: 'properties',
+      schema: { type: 'object' },
+      wrapperName: 'screenDefault',
+    };
+    await expect(renderRuby([event])).rejects.toThrow(
+      /screen events require a non-empty name/,
+    );
+  });
+
+  it('fails when generated method names collide', async () => {
+    const events: NormalizedEvent[] = [
+      {
+        type: 'track',
+        name: 'Foo',
+        version: 'v1',
+        domainName: 'A',
+        envelopeKey: 'properties',
+        schema: { type: 'object' },
+        wrapperName: 'trackFoo',
+        latestAlias: 'trackFoo',
+      },
+    ];
+    await expect(renderRuby(events)).rejects.toThrow(
+      /Identifier collision: "track_foo" is produced by both method trackFoo and latest alias trackFoo/,
+    );
   });
 });

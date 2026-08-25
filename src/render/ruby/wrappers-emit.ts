@@ -1,9 +1,10 @@
+import { CliError } from '../../lib/errors';
 import type { NormalizedEvent } from '../../normalize/types';
 import { assertNoCollisions } from '../shared/collisions';
-import { snakeName, typeNameFor } from './names';
+import { isRubyKeyword, snakeName, toSnakeCase, typeNameFor } from './names';
 
 function rbString(value: string): string {
-  return JSON.stringify(value);
+  return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
 }
 
 function rbStringArray(values: readonly string[] | undefined): string {
@@ -15,6 +16,13 @@ function rbStringArray(values: readonly string[] | undefined): string {
 
 function renderHelpers(): string {
   return [
+    'def self.stringify_keys(value)',
+    '  return value unless value.is_a?(Hash)',
+    '  value.each_with_object({}) do |(key, val), out|',
+    '    out[key.to_s] = stringify_keys(val)',
+    '  end',
+    'end',
+    '',
     'def self.to_map(value)',
     '  return {} if value.nil?',
     '  hash = if value.is_a?(Hash)',
@@ -25,7 +33,15 @@ function renderHelpers(): string {
     '           {}',
     '         end',
     '  hash.each_with_object({}) do |(key, val), out|',
-    '    out[key.to_s] = val unless val.nil?',
+    '    next if val.nil?',
+    '    out[key.to_s] =',
+    '      if val.is_a?(Array)',
+    '        val.map { |el| el.respond_to?(:to_h) ? to_map(el) : el }',
+    '      elsif val.respond_to?(:to_h)',
+    '        to_map(val)',
+    '      else',
+    '        val',
+    '      end',
     '  end',
     'end',
     '',
@@ -50,16 +66,37 @@ function renderHelpers(): string {
     '    return [set_at_path(data.dup, rest, version), context]',
     '  end',
     '  if head == "context"',
-    '    ctx = context.is_a?(Hash) ? context.dup : {}',
+    '    ctx = stringify_keys(context.is_a?(Hash) ? context : {})',
     '    return [data, set_at_path(ctx, rest, version)]',
     '  end',
     '  [data, context]',
     'end',
     '',
     'class << self',
-    '  private :to_map, :set_at_path, :with_schema_version',
+    '  private :stringify_keys, :to_map, :set_at_path, :with_schema_version',
     'end',
   ].join('\n');
+}
+
+function renderLatestAlias(event: NormalizedEvent, fn: string): string[] {
+  if (event.latestAlias === undefined) {
+    return [];
+  }
+  if (isRubyKeyword(event.latestAlias)) {
+    const keyword = toSnakeCase(event.latestAlias);
+    return [
+      '',
+      `define_singleton_method(:${keyword}) do |*args, **opts|`,
+      `  ${fn}(*args, **opts)`,
+      'end',
+    ];
+  }
+  return [
+    '',
+    `def self.${snakeName(event.latestAlias)}(*args, **opts)`,
+    `  ${fn}(*args, **opts)`,
+    'end',
+  ];
 }
 
 function renderAliasWrapper(event: NormalizedEvent): string[] {
@@ -67,7 +104,7 @@ function renderAliasWrapper(event: NormalizedEvent): string[] {
   const pathLiteral = rbStringArray(event.schemaVersionPath);
   const version = rbString(event.version);
   const envelope = rbString(event.envelopeKey);
-  const lines = [
+  return [
     `def self.${fn}(client, user_id, previous_id, **opts)`,
     `  _, ctx = with_schema_version({}, opts[:context], ${pathLiteral}, ${version}, ${envelope})`,
     '  client.alias(',
@@ -79,13 +116,8 @@ function renderAliasWrapper(event: NormalizedEvent): string[] {
     '    integrations: opts[:integrations]',
     '  )',
     'end',
+    ...renderLatestAlias(event, fn),
   ];
-  if (event.latestAlias !== undefined) {
-    lines.push('', `def self.${snakeName(event.latestAlias)}(*args, **opts)`);
-    lines.push(`  ${fn}(*args, **opts)`);
-    lines.push('end');
-  }
-  return lines;
 }
 
 function renderGroupWrapper(event: NormalizedEvent): string[] {
@@ -94,7 +126,7 @@ function renderGroupWrapper(event: NormalizedEvent): string[] {
   const pathLiteral = rbStringArray(event.schemaVersionPath);
   const version = rbString(event.version);
   const envelope = rbString(event.envelopeKey);
-  const lines = [
+  return [
     `def self.${fn}(client, group_id, user_id, traits = ${typeName}.new, **opts)`,
     `  data, ctx = with_schema_version(to_map(traits), opts[:context], ${pathLiteral}, ${version}, ${envelope})`,
     '  client.group(',
@@ -107,13 +139,8 @@ function renderGroupWrapper(event: NormalizedEvent): string[] {
     '    integrations: opts[:integrations]',
     '  )',
     'end',
+    ...renderLatestAlias(event, fn),
   ];
-  if (event.latestAlias !== undefined) {
-    lines.push('', `def self.${snakeName(event.latestAlias)}(*args, **opts)`);
-    lines.push(`  ${fn}(*args, **opts)`);
-    lines.push('end');
-  }
-  return lines;
 }
 
 function renderIdentifyWrapper(event: NormalizedEvent): string[] {
@@ -122,7 +149,7 @@ function renderIdentifyWrapper(event: NormalizedEvent): string[] {
   const pathLiteral = rbStringArray(event.schemaVersionPath);
   const version = rbString(event.version);
   const envelope = rbString(event.envelopeKey);
-  const lines = [
+  return [
     `def self.${fn}(client, user_id, traits = ${typeName}.new, **opts)`,
     `  data, ctx = with_schema_version(to_map(traits), opts[:context], ${pathLiteral}, ${version}, ${envelope})`,
     '  client.identify(',
@@ -134,16 +161,19 @@ function renderIdentifyWrapper(event: NormalizedEvent): string[] {
     '    integrations: opts[:integrations]',
     '  )',
     'end',
+    ...renderLatestAlias(event, fn),
   ];
-  if (event.latestAlias !== undefined) {
-    lines.push('', `def self.${snakeName(event.latestAlias)}(*args, **opts)`);
-    lines.push(`  ${fn}(*args, **opts)`);
-    lines.push('end');
-  }
-  return lines;
 }
 
 function renderDataWrapper(event: NormalizedEvent): string[] {
+  if (
+    event.type === 'screen' &&
+    (event.name === undefined || event.name.trim() === '')
+  ) {
+    throw new CliError(
+      'screen events require a non-empty name; unnamed screen wrappers are not emitted',
+    );
+  }
   const fn = snakeName(event.wrapperName);
   const typeName = typeNameFor(event);
   const pathLiteral = rbStringArray(event.schemaVersionPath);
@@ -167,7 +197,7 @@ function renderDataWrapper(event: NormalizedEvent): string[] {
     Object.keys(event.schema.properties).length > 0
       ? `${typeName}.new`
       : '{}';
-  const lines = [
+  return [
     `def self.${fn}(client, user_id, properties = ${defaultProps}, **opts)`,
     `  data, ctx = with_schema_version(to_map(properties), opts[:context], ${pathLiteral}, ${version}, ${envelope})`,
     `  client.${method}(`,
@@ -180,13 +210,8 @@ function renderDataWrapper(event: NormalizedEvent): string[] {
     '    integrations: opts[:integrations]',
     '  )',
     'end',
+    ...renderLatestAlias(event, fn),
   ];
-  if (event.latestAlias !== undefined) {
-    lines.push('', `def self.${snakeName(event.latestAlias)}(*args, **opts)`);
-    lines.push(`  ${fn}(*args, **opts)`);
-    lines.push('end');
-  }
-  return lines;
 }
 
 function renderEventWrappers(event: NormalizedEvent): string[] {
@@ -207,13 +232,8 @@ export function renderWrappers(events: NormalizedEvent[]): string {
     generatedMethodName: snakeName,
     generatedTypeName: typeNameFor,
   });
-  const inner = [
+  return [
     renderHelpers(),
-    ...events.map((e) => renderEventWrappers(e).join('\n')),
+    ...events.map((event) => renderEventWrappers(event).join('\n')),
   ].join('\n\n');
-  const indented = inner
-    .split('\n')
-    .map((line) => (line.length === 0 ? line : `  ${line}`))
-    .join('\n');
-  return `module HtEvents\n${indented}\nend`;
 }

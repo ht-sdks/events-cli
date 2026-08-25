@@ -8,11 +8,18 @@ exports[`renderRuby matches the snapshot for multi-version.json 1`] = `
 
 require 'hightouch/analytics'
 
-TrackOrderCompletedV1 = Struct.new(:orderId, keyword_init: true)
-
-TrackOrderCompletedV2 = Struct.new(:orderId, :total, keyword_init: true)
-
 module HtEvents
+  TrackOrderCompletedV1 = Struct.new(:orderId, keyword_init: true)
+
+  TrackOrderCompletedV2 = Struct.new(:orderId, :total, keyword_init: true)
+
+  def self.stringify_keys(value)
+    return value unless value.is_a?(Hash)
+    value.each_with_object({}) do |(key, val), out|
+      out[key.to_s] = stringify_keys(val)
+    end
+  end
+
   def self.to_map(value)
     return {} if value.nil?
     hash = if value.is_a?(Hash)
@@ -23,7 +30,15 @@ module HtEvents
              {}
            end
     hash.each_with_object({}) do |(key, val), out|
-      out[key.to_s] = val unless val.nil?
+      next if val.nil?
+      out[key.to_s] =
+        if val.is_a?(Array)
+          val.map { |el| el.respond_to?(:to_h) ? to_map(el) : el }
+        elsif val.respond_to?(:to_h)
+          to_map(val)
+        else
+          val
+        end
     end
   end
 
@@ -48,21 +63,21 @@ module HtEvents
       return [set_at_path(data.dup, rest, version), context]
     end
     if head == "context"
-      ctx = context.is_a?(Hash) ? context.dup : {}
+      ctx = stringify_keys(context.is_a?(Hash) ? context : {})
       return [data, set_at_path(ctx, rest, version)]
     end
     [data, context]
   end
 
   class << self
-    private :to_map, :set_at_path, :with_schema_version
+    private :stringify_keys, :to_map, :set_at_path, :with_schema_version
   end
 
   def self.track_order_completed_v1(client, user_id, properties = TrackOrderCompletedV1.new, **opts)
-    data, ctx = with_schema_version(to_map(properties), opts[:context], nil, "v1", "properties")
+    data, ctx = with_schema_version(to_map(properties), opts[:context], nil, 'v1', 'properties')
     client.track(
       user_id: user_id,
-      event: "Order Completed",
+      event: 'Order Completed',
       properties: data,
       context: ctx,
       anonymous_id: opts[:anonymous_id],
@@ -72,10 +87,10 @@ module HtEvents
   end
 
   def self.track_order_completed_v2(client, user_id, properties = TrackOrderCompletedV2.new, **opts)
-    data, ctx = with_schema_version(to_map(properties), opts[:context], nil, "v2", "properties")
+    data, ctx = with_schema_version(to_map(properties), opts[:context], nil, 'v2', 'properties')
     client.track(
       user_id: user_id,
-      event: "Order Completed",
+      event: 'Order Completed',
       properties: data,
       context: ctx,
       anonymous_id: opts[:anonymous_id],
@@ -99,9 +114,16 @@ exports[`renderRuby matches the snapshot for simple-track.json 1`] = `
 
 require 'hightouch/analytics'
 
-TrackOrderCompletedDefault = Struct.new(:orderId, :total, keyword_init: true)
-
 module HtEvents
+  TrackOrderCompletedDefault = Struct.new(:orderId, :total, keyword_init: true)
+
+  def self.stringify_keys(value)
+    return value unless value.is_a?(Hash)
+    value.each_with_object({}) do |(key, val), out|
+      out[key.to_s] = stringify_keys(val)
+    end
+  end
+
   def self.to_map(value)
     return {} if value.nil?
     hash = if value.is_a?(Hash)
@@ -112,7 +134,15 @@ module HtEvents
              {}
            end
     hash.each_with_object({}) do |(key, val), out|
-      out[key.to_s] = val unless val.nil?
+      next if val.nil?
+      out[key.to_s] =
+        if val.is_a?(Array)
+          val.map { |el| el.respond_to?(:to_h) ? to_map(el) : el }
+        elsif val.respond_to?(:to_h)
+          to_map(val)
+        else
+          val
+        end
     end
   end
 
@@ -137,21 +167,21 @@ module HtEvents
       return [set_at_path(data.dup, rest, version), context]
     end
     if head == "context"
-      ctx = context.is_a?(Hash) ? context.dup : {}
+      ctx = stringify_keys(context.is_a?(Hash) ? context : {})
       return [data, set_at_path(ctx, rest, version)]
     end
     [data, context]
   end
 
   class << self
-    private :to_map, :set_at_path, :with_schema_version
+    private :stringify_keys, :to_map, :set_at_path, :with_schema_version
   end
 
   def self.track_order_completed_default(client, user_id, properties = TrackOrderCompletedDefault.new, **opts)
-    data, ctx = with_schema_version(to_map(properties), opts[:context], ["context", "protocols", "schemaVersion"], "default", "properties")
+    data, ctx = with_schema_version(to_map(properties), opts[:context], ['context', 'protocols', 'schemaVersion'], 'default', 'properties')
     client.track(
       user_id: user_id,
-      event: "Order Completed",
+      event: 'Order Completed',
       properties: data,
       context: ctx,
       anonymous_id: opts[:anonymous_id],
@@ -175,11 +205,18 @@ exports[`renderRuby matches the snapshot for with-refs.json 1`] = `
 
 require 'hightouch/analytics'
 
-IdentifyDefault = Struct.new(:email, keyword_init: true)
-
-TrackCartViewedDefault = Struct.new(:itemCount, :amount, :currency, keyword_init: true)
-
 module HtEvents
+  IdentifyDefault = Struct.new(:email, keyword_init: true)
+
+  TrackCartViewedDefault = Struct.new(:itemCount, :amount, :currency, keyword_init: true)
+
+  def self.stringify_keys(value)
+    return value unless value.is_a?(Hash)
+    value.each_with_object({}) do |(key, val), out|
+      out[key.to_s] = stringify_keys(val)
+    end
+  end
+
   def self.to_map(value)
     return {} if value.nil?
     hash = if value.is_a?(Hash)
@@ -190,7 +227,15 @@ module HtEvents
              {}
            end
     hash.each_with_object({}) do |(key, val), out|
-      out[key.to_s] = val unless val.nil?
+      next if val.nil?
+      out[key.to_s] =
+        if val.is_a?(Array)
+          val.map { |el| el.respond_to?(:to_h) ? to_map(el) : el }
+        elsif val.respond_to?(:to_h)
+          to_map(val)
+        else
+          val
+        end
     end
   end
 
@@ -215,18 +260,18 @@ module HtEvents
       return [set_at_path(data.dup, rest, version), context]
     end
     if head == "context"
-      ctx = context.is_a?(Hash) ? context.dup : {}
+      ctx = stringify_keys(context.is_a?(Hash) ? context : {})
       return [data, set_at_path(ctx, rest, version)]
     end
     [data, context]
   end
 
   class << self
-    private :to_map, :set_at_path, :with_schema_version
+    private :stringify_keys, :to_map, :set_at_path, :with_schema_version
   end
 
   def self.identify_default(client, user_id, traits = IdentifyDefault.new, **opts)
-    data, ctx = with_schema_version(to_map(traits), opts[:context], nil, "default", "traits")
+    data, ctx = with_schema_version(to_map(traits), opts[:context], nil, 'default', 'traits')
     client.identify(
       user_id: user_id,
       traits: data,
@@ -242,10 +287,10 @@ module HtEvents
   end
 
   def self.track_cart_viewed_default(client, user_id, properties = TrackCartViewedDefault.new, **opts)
-    data, ctx = with_schema_version(to_map(properties), opts[:context], nil, "default", "properties")
+    data, ctx = with_schema_version(to_map(properties), opts[:context], nil, 'default', 'properties')
     client.track(
       user_id: user_id,
-      event: "Cart Viewed",
+      event: 'Cart Viewed',
       properties: data,
       context: ctx,
       anonymous_id: opts[:anonymous_id],
