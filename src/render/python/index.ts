@@ -8,7 +8,7 @@ import { renderWrappers } from './wrappers-emit';
 export { MIN_SDK_PACKAGE, MIN_SDK_VERSION } from './constants';
 
 const IMPORTS = [
-  'from dataclasses import asdict, is_dataclass',
+  'from dataclasses import dataclass, field, fields, is_dataclass',
   'from typing import Any, Dict, List, Optional, Tuple',
   '',
   'from hightouch.htevents.client import Client',
@@ -16,7 +16,7 @@ const IMPORTS = [
 
 export async function renderPython(events: NormalizedEvent[]): Promise<string> {
   const ordered = [...events].sort(byWrapperName);
-  const types = await renderTypes(ordered);
+  const types = renderTypes(ordered);
   const wrappers = renderWrappers(ordered);
   const sections = [
     renderHeader(MIN_SDK_PACKAGE, MIN_SDK_VERSION, { linePrefix: '# ' }),

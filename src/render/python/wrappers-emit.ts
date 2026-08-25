@@ -15,13 +15,29 @@ function pyStringList(values: readonly string[] | undefined): string {
 
 function renderHelpers(): string {
   return [
+    'def to_value(value: Any) -> Any:',
+    '    if is_dataclass(value) and not isinstance(value, type):',
+    '        return to_map(value)',
+    '    if isinstance(value, dict):',
+    '        return {k: to_value(v) for k, v in value.items() if v is not None}',
+    '    if isinstance(value, list):',
+    '        return [to_value(el) for el in value]',
+    '    return value',
+    '',
     'def to_map(value: Any) -> Dict[str, Any]:',
     '    if value is None:',
     '        return {}',
     '    if is_dataclass(value) and not isinstance(value, type):',
-    '        return {k: v for k, v in asdict(value).items() if v is not None}',
+    '        out: Dict[str, Any] = {}',
+    '        for item in fields(value):',
+    '            nested = getattr(value, item.name)',
+    '            if nested is None:',
+    '                continue',
+    '            key = item.metadata.get("json", item.name)',
+    '            out[key] = to_value(nested)',
+    '        return out',
     '    if isinstance(value, dict):',
-    '        return dict(value)',
+    '        return {k: to_value(v) for k, v in value.items() if v is not None}',
     '    return dict(value)',
     '',
     'def set_at_path(root: Dict[str, Any], path: List[str], value: str) -> Dict[str, Any]:',
@@ -56,13 +72,16 @@ function renderHelpers(): string {
   ].join('\n');
 }
 
-function extraKwargs(): string[] {
-  return [
-    '    anonymous_id: Optional[str] = None,',
+function extraKwargs(includeAnonymousId = true): string[] {
+  const lines = [
     '    context: Optional[Dict[str, Any]] = None,',
     '    timestamp: Any = None,',
     '    integrations: Optional[Dict[str, Any]] = None,',
   ];
+  if (includeAnonymousId) {
+    lines.unshift('    anonymous_id: Optional[str] = None,');
+  }
+  return lines;
 }
 
 function extraCallKwargs(): string[] {
@@ -84,7 +103,7 @@ function renderAliasWrapper(event: NormalizedEvent): string[] {
     '    client: Client,',
     '    user_id: str,',
     '    previous_id: str,',
-    ...extraKwargs(),
+    ...extraKwargs(false),
     ') -> None:',
     `    _, ctx = with_schema_version({}, context, ${pathLiteral}, ${version}, ${envelope})`,
     '    client.alias(',
@@ -111,8 +130,8 @@ function renderGroupWrapper(event: NormalizedEvent): string[] {
     `def ${fn}(`,
     '    client: Client,',
     '    group_id: str,',
-    '    user_id: str,',
-    `    traits: ${typeName},`,
+    '    user_id: Optional[str] = None,',
+    `    traits: Optional[${typeName}] = None,`,
     ...extraKwargs(),
     ') -> None:',
     `    data, ctx = with_schema_version(to_map(traits), context, ${pathLiteral}, ${version}, ${envelope})`,
@@ -138,7 +157,7 @@ function renderIdentifyWrapper(event: NormalizedEvent): string[] {
   const lines = [
     `def ${fn}(`,
     '    client: Client,',
-    '    user_id: str,',
+    '    user_id: Optional[str] = None,',
     `    traits: Optional[${typeName}] = None,`,
     ...extraKwargs(),
     ') -> None:',
@@ -175,8 +194,8 @@ function renderDataWrapper(event: NormalizedEvent): string[] {
   const lines = [
     `def ${fn}(`,
     '    client: Client,',
-    '    user_id: str,',
-    `    properties: ${typeName},`,
+    '    user_id: Optional[str] = None,',
+    `    properties: Optional[${typeName}] = None,`,
     ...extraKwargs(),
     ') -> None:',
     `    data, ctx = with_schema_version(to_map(properties), context, ${pathLiteral}, ${version}, ${envelope})`,

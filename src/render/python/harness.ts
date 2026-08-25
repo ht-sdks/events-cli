@@ -10,12 +10,12 @@ export const harness = {
   },
   test: [
     {
-      command: 'python3',
+      command: '.venv/bin/python',
       args: ['-m', 'pip', 'install', '-r', 'requirements.txt', '-q'],
       cwd: 'test/harness/python',
     },
     {
-      command: 'python3',
+      command: '.venv/bin/python',
       args: ['-m', 'unittest', 'test_wrappers', '-v'],
       cwd: 'test/harness/python',
     },

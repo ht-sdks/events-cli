@@ -233,6 +233,36 @@ class WrappersTest(unittest.TestCase):
         )
         self.assertEqual(msg['properties']['itemCount'], 3)
 
+    def test_round_trips_legal_json_object_keys(self):
+        msg = send_and_read(
+            lambda client: generated.track_json_key_probe_default(
+                client,
+                'user_1',
+                generated.TrackJsonKeyProbeDefault(
+                    orderid='hyphen',
+                    order_id='snake',
+                    OrderId='pascal',
+                    orderId='camel',
+                ),
+            )
+        )
+        props = msg['properties']
+        self.assertEqual(props['order-id'], 'hyphen')
+        self.assertEqual(props['order_id'], 'snake')
+        self.assertEqual(props['OrderId'], 'pascal')
+        self.assertEqual(props['orderId'], 'camel')
+
+    def test_track_accepts_anonymous_id_without_user_id(self):
+        msg = send_and_read(
+            lambda client: generated.track_order_completed(
+                client,
+                properties=generated.TrackOrderCompletedV2(orderId='ord_1'),
+                anonymous_id='anon_1',
+            )
+        )
+        self.assertEqual(msg['anonymousId'], 'anon_1')
+        self.assertEqual(msg['properties']['orderId'], 'ord_1')
+
 
 if __name__ == '__main__':
     unittest.main()

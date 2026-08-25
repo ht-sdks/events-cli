@@ -12,7 +12,6 @@ import { pathToFileURL } from 'url';
 import { spawnSync } from 'child_process';
 import { eventsFromFixture } from '../test/helpers/fixtures';
 import { extraHarnessEvents } from '../test/harness/extra-events';
-import { jvmExtraHarnessEvents } from '../test/harness/jvm-extra-events';
 import type { NormalizedEvent } from '../src/normalize/types';
 import type { SdkHarness } from '../src/render/shared/harness';
 
@@ -21,14 +20,11 @@ const RENDER_ROOT = join(ROOT, 'src', 'render');
 
 export type LoadedHarness = SdkHarness & { id: string };
 
-const JVM_HARNESS_IDS = new Set(['android', 'java', 'kotlin']);
-
-function harnessEvents(id: string): NormalizedEvent[] {
+function harnessEvents(): NormalizedEvent[] {
   return [
     ...eventsFromFixture('multi-version.json'),
     ...eventsFromFixture('with-refs.json'),
     ...extraHarnessEvents(),
-    ...(JVM_HARNESS_IDS.has(id) ? jvmExtraHarnessEvents() : []),
   ];
 }
 
@@ -58,7 +54,7 @@ export async function loadHarnesses(): Promise<LoadedHarness[]> {
 export async function emitHarness(spec: LoadedHarness): Promise<void> {
   const out = join(ROOT, spec.generatedFile);
   mkdirSync(dirname(out), { recursive: true });
-  writeFileSync(out, await spec.render(harnessEvents(spec.id)));
+  writeFileSync(out, await spec.render(harnessEvents()));
   if (spec.format !== undefined) {
     const result = spawnSync(spec.format.command, [...spec.format.args, out], {
       encoding: 'utf-8',
