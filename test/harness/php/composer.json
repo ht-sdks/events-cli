@@ -9,6 +9,11 @@
       "url": "https://github.com/ht-sdks/events-sdk-php"
     }
   ],
+  "autoload": {
+    "psr-4": {
+      "Hightouch\\Generated\\": "generated/"
+    }
+  },
   "config": {
     "secure-http": true
   }

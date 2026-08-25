@@ -10,7 +10,7 @@ const DEFAULT_OUTPUT_PATHS = {
   'node-ts': './src/analytics/generated.ts',
   python: './analytics/generated.py',
   ruby: './analytics/generated.rb',
-  php: './src/HtEvents.php',
+  php: './src/Hightouch/Generated/',
   go: './analytics/generated.go',
   swift: './Sources/Analytics/Generated.swift',
   android: './src/main/java/analytics/HtEvents.java',

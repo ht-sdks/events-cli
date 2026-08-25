@@ -3,9 +3,21 @@
 declare(strict_types=1);
 
 require __DIR__ . '/vendor/autoload.php';
-require __DIR__ . '/generated.php';
 
 use Hightouch\Client;
+use Hightouch\Generated\GroupDefault;
+use Hightouch\Generated\HtEvents;
+use Hightouch\Generated\IdentifyDefault;
+use Hightouch\Generated\IdentifyTraitsV1;
+use Hightouch\Generated\IdentifyWrongEnvelopeV1;
+use Hightouch\Generated\PageHomeDefault;
+use Hightouch\Generated\ScreenHomeDefault;
+use Hightouch\Generated\TrackCartViewedDefault;
+use Hightouch\Generated\TrackJsonKeyProbeDefault;
+use Hightouch\Generated\TrackOrderCompletedPropsV1;
+use Hightouch\Generated\TrackOrderCompletedV2;
+use Hightouch\Generated\TrackSignedUpDefault;
+use Hightouch\Generated\TrackWrongEnvelopeV1;
 
 function send_and_read(callable $run): array
 {
@@ -106,7 +118,7 @@ function assert_eq($actual, $expected, string $msg = ''): void
 }
 
 $msg = send_and_read(function (Client $client) {
-    HtEvents::trackOrderCompleted($client, 'user_1', props('TrackOrderCompletedV2', ['orderId' => 'ord_1', 'total' => 2.0]));
+    HtEvents::trackOrderCompleted($client, 'user_1', props(TrackOrderCompletedV2::class, ['orderId' => 'ord_1', 'total' => 2.0]));
 });
 assert_eq($msg['type'], 'track');
 assert_eq($msg['event'], 'Order Completed');
@@ -114,63 +126,63 @@ assert_eq($msg['userId'], 'user_1');
 assert_eq($msg['properties']['orderId'], 'ord_1');
 
 $versioned = send_and_read(function (Client $client) {
-    HtEvents::trackOrderCompletedV2($client, 'user_1', props('TrackOrderCompletedV2', ['orderId' => '1']));
+    HtEvents::trackOrderCompletedV2($client, 'user_1', props(TrackOrderCompletedV2::class, ['orderId' => '1']));
 });
 $aliased = send_and_read(function (Client $client) {
-    HtEvents::trackOrderCompleted($client, 'user_1', props('TrackOrderCompletedV2', ['orderId' => '1']));
+    HtEvents::trackOrderCompleted($client, 'user_1', props(TrackOrderCompletedV2::class, ['orderId' => '1']));
 });
 assert_eq($versioned['event'], $aliased['event']);
 
 $msg = send_and_read(function (Client $client) {
-    HtEvents::trackSignedUp($client, 'user_1', props('TrackSignedUpDefault', ['plan' => 'pro']), ['context' => ['locale' => 'en-US']]);
+    HtEvents::trackSignedUp($client, 'user_1', props(TrackSignedUpDefault::class, ['plan' => 'pro']), ['context' => ['locale' => 'en-US']]);
 });
 assert_eq($msg['context']['locale'], 'en-US');
 assert_eq($msg['context']['protocols']['schemaVersion'], 'default');
 
 $msg = send_and_read(function (Client $client) {
-    HtEvents::trackOrderCompletedPropsV1($client, 'user_1', props('TrackOrderCompletedPropsV1', ['orderId' => '1']));
+    HtEvents::trackOrderCompletedPropsV1($client, 'user_1', props(TrackOrderCompletedPropsV1::class, ['orderId' => '1']));
 });
 assert_eq($msg['properties']['apiVersion'], 'v1');
 
 $msg = send_and_read(function (Client $client) {
-    HtEvents::identifyDefault($client, 'user_1', props('IdentifyDefault', ['email' => 'a@b.c']));
+    HtEvents::identifyDefault($client, 'user_1', props(IdentifyDefault::class, ['email' => 'a@b.c']));
 });
 assert_eq($msg['type'], 'identify');
 assert_eq($msg['traits']['email'], 'a@b.c');
 
 $msg = send_and_read(function (Client $client) {
-    HtEvents::identifyTraitsV1($client, 'user_1', props('IdentifyTraitsV1', ['email' => 'a@b.c']));
+    HtEvents::identifyTraitsV1($client, 'user_1', props(IdentifyTraitsV1::class, ['email' => 'a@b.c']));
 });
 assert_eq($msg['traits']['apiVersion'], 'v1');
 
 $msg = send_and_read(function (Client $client) {
-    HtEvents::identifyWrongEnvelopeV1($client, 'user_1', props('IdentifyWrongEnvelopeV1', ['email' => 'a@b.c']));
+    HtEvents::identifyWrongEnvelopeV1($client, 'user_1', props(IdentifyWrongEnvelopeV1::class, ['email' => 'a@b.c']));
 });
 if (array_key_exists('apiVersion', $msg['traits'])) {
     throw new RuntimeException('did not expect apiVersion on traits');
 }
 
 $msg = send_and_read(function (Client $client) {
-    HtEvents::trackWrongEnvelopeV1($client, 'user_1', props('TrackWrongEnvelopeV1', ['orderId' => '1']));
+    HtEvents::trackWrongEnvelopeV1($client, 'user_1', props(TrackWrongEnvelopeV1::class, ['orderId' => '1']));
 });
 if (array_key_exists('apiVersion', $msg['properties'])) {
     throw new RuntimeException('did not expect apiVersion on properties');
 }
 
 $msg = send_and_read(function (Client $client) {
-    HtEvents::groupDefault($client, 'grp_1', 'user_1', props('GroupDefault', ['name' => 'Acme']));
+    HtEvents::groupDefault($client, 'grp_1', 'user_1', props(GroupDefault::class, ['name' => 'Acme']));
 });
 assert_eq($msg['type'], 'group');
 assert_eq($msg['groupId'], 'grp_1');
 
 $page = send_and_read(function (Client $client) {
-    HtEvents::pageHome($client, 'user_1', props('PageHomeDefault', ['path' => '/']));
+    HtEvents::pageHome($client, 'user_1', props(PageHomeDefault::class, ['path' => '/']));
 });
 assert_eq($page['type'], 'page');
 assert_eq($page['name'], 'Home');
 
 $screen = send_and_read(function (Client $client) {
-    HtEvents::screenHome($client, 'user_1', props('ScreenHomeDefault', ['path' => '/']));
+    HtEvents::screenHome($client, 'user_1', props(ScreenHomeDefault::class, ['path' => '/']));
 });
 assert_eq($screen['type'], 'screen');
 assert_eq($screen['name'], 'Home');
@@ -196,10 +208,26 @@ $msg = send_and_read(function (Client $client) {
 if (array_key_exists('properties', $msg)) {
     throw new RuntimeException('did not expect properties on alias');
 }
+if (str_contains(json_encode($msg), 'v1')) {
+    throw new RuntimeException('did not expect version v1 anywhere on aliasPropsV1');
+}
 
 $msg = send_and_read(function (Client $client) {
-    HtEvents::trackCartViewedDefault($client, 'user_1', props('TrackCartViewedDefault', ['amount' => 10, 'currency' => 'USD', 'itemCount' => 3]));
+    HtEvents::trackCartViewedDefault($client, 'user_1', props(TrackCartViewedDefault::class, ['amount' => 10, 'currency' => 'USD', 'itemCount' => 3]));
 });
 assert_eq($msg['properties']['itemCount'], 3);
+
+$msg = send_and_read(function (Client $client) {
+    HtEvents::trackJsonKeyProbeDefault($client, 'user_1', props(TrackJsonKeyProbeDefault::class, [
+        'orderid' => 'hyphen',
+        'order_id' => 'snake',
+        'OrderId' => 'pascal',
+        'orderId' => 'camel',
+    ]));
+});
+assert_eq($msg['properties']['order-id'], 'hyphen');
+assert_eq($msg['properties']['order_id'], 'snake');
+assert_eq($msg['properties']['OrderId'], 'pascal');
+assert_eq($msg['properties']['orderId'], 'camel');
 
 fwrite(STDOUT, "ok\n");

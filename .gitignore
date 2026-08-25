@@ -50,7 +50,7 @@ test/harness/python/__pycache__/
 test/harness/python/.venv/
 test/harness/ruby/generated.rb
 test/harness/ruby/vendor/
-test/harness/php/generated.php
+test/harness/php/generated/
 test/harness/php/vendor/
 test/harness/swift/Sources/Analytics/Generated.swift
 test/harness/swift/.build/

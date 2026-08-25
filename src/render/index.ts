@@ -10,6 +10,9 @@ import { renderPhp } from './php';
 import { renderPython } from './python';
 import { renderRuby } from './ruby';
 import { renderSwift } from './swift';
+import type { RenderedSdk } from './shared/output';
+
+export type { ArtifactFile, RenderedSdk } from './shared/output';
 
 export type RenderOptions = {
   /** Config-relative `outputs[].path`. JVM uses this for package + class names. */
@@ -26,7 +29,7 @@ export async function renderSdk(
   sdk: SupportedSdk,
   events: NormalizedEvent[],
   options: RenderOptions = {},
-): Promise<string> {
+): Promise<RenderedSdk> {
   switch (sdk) {
     case 'browser-ts':
       return renderBrowserTs(events);

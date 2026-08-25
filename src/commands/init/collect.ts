@@ -31,7 +31,7 @@ export function defaultOutputPath(sdk: SupportedSdk): string {
     case 'ruby':
       return './analytics/generated.rb';
     case 'php':
-      return './src/HtEvents.php';
+      return './src/Hightouch/Generated/';
     case 'go':
       return './analytics/generated.go';
     case 'swift':

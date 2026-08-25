@@ -26,6 +26,8 @@ Check here before copying. Add to this list when you extract something:
 - `ts-types.ts` — `typeNameFor` / `renderTypescriptTypes`
 - `json-fields.ts` — `walkSchemaKeys` / `legalizeIdentifier` / `assignFieldNames`
 - `snake-names.ts` — `toSnakeCase` / `snakeName` / Python and Ruby keyword sets
+- `output.ts` — `ArtifactFile` / `RenderedSdk` / `flattenRender`
+- `php-json-name-quicktype.ts` — PHP renderer that emits `@JsonName` when the JSON key is not a valid identifier
 
 Keep language syntax, peer-SDK call shapes, and generated injection helpers in `src/render/<sdk-id>/`. Do **not** move `setAtPath` / `withSchemaVersion` into `shared/` — those are emitted into the customer's file and must match that SDK. `wrappers-emit.ts` is per SDK on purpose (quicktype is types only).
 
@@ -134,13 +136,13 @@ Do not target archived repos:
 
 Create `src/render/<sdk-id>/`. Reuse `src/render/shared/` first.
 
-| File               | Responsibility                                                                                                                |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| `index.ts`         | `render<Id>(events): Promise<string>` — sort, stitch header + types + wrappers                                                |
-| `constants.ts`     | `MIN_SDK_PACKAGE`, `MIN_SDK_VERSION` (documented minimum, never pinned in generated code)                                     |
-| `types-emit.ts`    | `runQuicktype` + language cleanup (Swift alias filter, TypeScript empty-payload fallbacks)                                    |
-| `wrappers-emit.ts` | instance binding + **generated helpers below** + per-event SDK calls                                                          |
-| `harness.ts`       | `export const harness` — generated file path, formatter, how to run tests. Discovered; do not edit `scripts/emit-harness.ts`. |
+| File               | Responsibility                                                                                                                          |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `index.ts`         | `render<Id>(events): Promise<string \| ArtifactFile[]>` — sort, stitch header + types + wrappers. PHP is the first multi-file renderer. |
+| `constants.ts`     | `MIN_SDK_PACKAGE`, `MIN_SDK_VERSION` (documented minimum, never pinned in generated code)                                               |
+| `types-emit.ts`    | `runQuicktype` + language cleanup (Swift alias filter, TypeScript empty-payload fallbacks)                                              |
+| `wrappers-emit.ts` | instance binding + **generated helpers below** + per-event SDK calls                                                                    |
+| `harness.ts`       | `export const harness` — generated file path, formatter, how to run tests. Discovered; do not edit `scripts/emit-harness.ts`.           |
 
 Register it in `src/render/index.ts`:
 
@@ -298,14 +300,9 @@ Regex, min/max, etc. stay as doc comments on the generated types if the language
 
 ## Output shape
 
-Today `renderSdk` returns one `string`. `buildArtifacts` writes it to `output.path` (resolved relative to the config file directory).
+`renderSdk` returns `string | ArtifactFile[]`. A single string is written to `output.path` (resolved relative to the config file directory). An array means `output.path` is a **directory** and each `ArtifactFile.path` is resolved under it.
 
-If a language needs multiple files (e.g. `Types.swift` + `HtEvents.swift`):
-
-1. Change `renderSdk` to return `ArtifactFile[]` (see `src/pipeline/artifacts.ts`).
-2. Treat `output.path` as a **directory**.
-3. Keep `generate` / `check` writing and diffing every file, including the lockfile.
-4. Do this in the same PR as the first multi-file renderer. Do not invent a parallel write path.
+PHP is the first multi-file renderer (`HtEvents.php` plus one class per payload type under `namespace Hightouch\Generated`). Other SDKs still return one string. `generate` / `check` already loop `artifacts.files` plus the lockfile.
 
 Markdown API docs are a **separate** renderer (not part of an SDK PR).
 

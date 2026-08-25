@@ -3,7 +3,7 @@ import { renderPhp } from './index';
 
 export const harness = {
   render: renderPhp,
-  generatedFile: 'test/harness/php/generated.php',
+  generatedFile: 'test/harness/php/generated',
   toolchain: {
     command: 'sh',
     args: ['test/harness/php/check-php.sh'],

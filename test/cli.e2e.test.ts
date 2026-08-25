@@ -40,6 +40,7 @@ const GENERATED_SNIPPETS = {
     'client.track(',
   ],
   php: [
+    'namespace Hightouch\\Generated;',
     'use Hightouch\\Client;',
     'function trackCartViewedDefault(',
     'function identifyDefault(',
@@ -87,7 +88,11 @@ const configFixtures = join(__dirname, 'fixtures', 'config');
 const domainFixtures = join(__dirname, 'fixtures', 'domains');
 
 function generatedPath(dir: string, sdk: SupportedSdk): string {
-  return join(dir, defaultOutputPath(sdk).replace(/^\.\//, ''));
+  const out = join(dir, defaultOutputPath(sdk).replace(/^\.\//, ''));
+  if (sdk === 'php') {
+    return join(out, 'HtEvents.php');
+  }
+  return out;
 }
 
 function runCli(args: string[], env?: NodeJS.ProcessEnv) {

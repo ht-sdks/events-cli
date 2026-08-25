@@ -5,11 +5,9 @@ import { normalize } from '../normalize';
 import type { NormalizedEvent } from '../normalize/types';
 import { LOCKFILE_NAME, buildLockfile, serializeLockfile } from '../lockfile';
 import { renderSdk } from '../render';
+import type { ArtifactFile } from '../render/shared/output';
 
-export type ArtifactFile = {
-  path: string;
-  contents: string;
-};
+export type { ArtifactFile } from '../render/shared/output';
 
 export type Artifacts = {
   events: NormalizedEvent[];
@@ -43,13 +41,23 @@ export async function buildArtifacts(
 
   const files: ArtifactFile[] = [];
   for (const output of resolvedConfig.config.outputs) {
-    const contents = await renderSdk(output.sdk, events, {
+    const rendered = await renderSdk(output.sdk, events, {
       outputPath: output.path,
     });
-    files.push({
-      path: resolve(dir, output.path),
-      contents,
-    });
+    if (typeof rendered === 'string') {
+      files.push({
+        path: resolve(dir, output.path),
+        contents: rendered,
+      });
+      continue;
+    }
+    const base = resolve(dir, output.path);
+    for (const file of rendered) {
+      files.push({
+        path: resolve(base, file.path),
+        contents: file.contents,
+      });
+    }
   }
 
   return {
