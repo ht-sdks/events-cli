@@ -47,6 +47,16 @@ test/harness/browser-ts/generated.ts
 test/harness/swift/Sources/Analytics/Generated.swift
 test/harness/swift/.build/
 test/harness/swift/.swiftpm/
+test/harness/android/src/main/java/analytics/HtEvents.java
+test/harness/android/.gradle/
+test/harness/android/build/
+test/harness/android/local.properties
+test/harness/kotlin/src/main/kotlin/analytics/HtEvents.kt
+test/harness/kotlin/.gradle/
+test/harness/kotlin/build/
+test/harness/java/src/main/java/analytics/HtEvents.java
+test/harness/java/.gradle/
+test/harness/java/build/
 
 # Dependency directories
 node_modules/

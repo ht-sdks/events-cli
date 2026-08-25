@@ -9,6 +9,9 @@ const DEFAULT_OUTPUT_PATHS = {
   'browser-ts': './src/analytics/generated.ts',
   go: './analytics/generated.go',
   swift: './Sources/Analytics/Generated.swift',
+  android: './src/main/java/analytics/HtEvents.java',
+  kotlin: './src/main/kotlin/analytics/HtEvents.kt',
+  java: './analytics/HtEvents.java',
 } as const satisfies Record<SupportedSdk, string>;
 
 describe('collectInitAnswers', () => {

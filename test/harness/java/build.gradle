@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+}
+
+group = 'analytics.harness'
+version = '1.0'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+dependencies {
+    implementation 'com.github.ht-sdks.events-sdk-java:analytics:0.0.2'
+    testImplementation 'junit:junit:4.13.2'
+}
+
+tasks.named('test', Test) {
+    useJUnit()
+}
+
+apply from: '../jvm-test-logging.gradle'

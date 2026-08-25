@@ -5,4 +5,7 @@ schemas/config.schema.json
 test/fixtures/config/malformed.json
 *.go
 test/harness/go/
+test/harness/android/
+test/harness/kotlin/
+test/harness/java/
 test/fixtures/git-sync/invalid-yaml/

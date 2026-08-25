@@ -40,6 +40,27 @@ const GENERATED_SNIPPETS = {
     'func trackOrderCompletedV2(',
     'self.track(name:',
   ],
+  android: [
+    'package analytics;',
+    'public final class HtEvents',
+    'trackCartViewedDefault',
+    'identifyDefault',
+    'analytics.track(',
+  ],
+  kotlin: [
+    'package analytics',
+    'class HtEvents',
+    'fun trackCartViewedDefault(',
+    'fun identifyDefault(',
+    'analytics.track(',
+  ],
+  java: [
+    'package analytics;',
+    'public final class HtEvents',
+    'trackCartViewedDefault',
+    'identifyDefault',
+    'analytics.enqueue(',
+  ],
 } as const satisfies Record<SupportedSdk, readonly string[]>;
 
 const CLI = join(__dirname, '..', 'dist', 'cli.js');

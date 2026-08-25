@@ -5,6 +5,7 @@ import {
   quicktype,
   type LanguageName,
   type RendererOptions,
+  type TargetLanguage,
 } from 'quicktype-core';
 import type { NormalizedEvent } from '../../normalize/types';
 
@@ -35,6 +36,8 @@ async function buildQuicktypeInput(
 export type RunQuicktypeOptions<Lang extends LanguageName> = {
   typeNameFor: (event: NormalizedEvent) => string;
   lang: Lang;
+  /** When set, used instead of `lang` so a subclassed renderer can run. */
+  language?: TargetLanguage;
   rendererOptions: Partial<RendererOptions<Lang>>;
   postprocess?: (source: string) => string;
 };
@@ -54,7 +57,7 @@ export async function runQuicktype<Lang extends LanguageName>(
   const inputData = await buildQuicktypeInput(events, opts.typeNameFor);
   const { lines } = await quicktype({
     inputData,
-    lang: opts.lang,
+    lang: opts.language ?? opts.lang,
     rendererOptions: opts.rendererOptions,
   });
   const source = lines.join('\n').trimEnd();
