@@ -34,14 +34,15 @@ namespace Analytics
         }
 
         [Fact]
-        public void TrackDoesNotInjectContextSchemaVersion()
+        public void TrackInjectsContextSchemaVersion()
         {
             var track = SendAndRead<TrackEvent>((_, events) =>
             {
                 events.TrackSignedUp(new TrackSignedUpDefault { plan = "pro" });
             });
             var ctx = AsMap(track.Context);
-            Assert.False(ctx.ContainsKey("protocols"));
+            var protocols = Assert.IsType<System.Collections.Generic.Dictionary<string, object>>(ctx["protocols"]);
+            Assert.Equal("default", AsString(protocols["schemaVersion"]));
             var props = AsMap(track.Properties);
             Assert.False(props.ContainsKey("apiVersion"));
         }
@@ -67,6 +68,17 @@ namespace Analytics
             });
             Assert.Equal("identify", identify.Type);
             Assert.Equal("user_1", identify.UserId);
+            Assert.Equal("a@b.c", AsString(AsMap(identify.Traits)["email"]));
+        }
+
+        [Fact]
+        public void IdentifyAcceptsTraitsWithoutUserId()
+        {
+            var identify = SendAndRead<IdentifyEvent>((_, events) =>
+            {
+                events.IdentifyDefault(new IdentifyDefault { email = "a@b.c" });
+            });
+            Assert.Equal("identify", identify.Type);
             Assert.Equal("a@b.c", AsString(AsMap(identify.Traits)["email"]));
         }
 
@@ -143,14 +155,16 @@ namespace Analytics
         }
 
         [Fact]
-        public void AliasDoesNotInjectContextSchemaVersion()
+        public void AliasInjectsContextSchemaVersion()
         {
             var alias = SendAndRead<AliasEvent>((analytics, events) =>
             {
                 IdentifyAndWait(analytics, "user_old");
                 events.AliasContextV1("user_new");
             });
-            Assert.False(AsMap(alias.Context).ContainsKey("protocols"));
+            var protocols = Assert.IsType<System.Collections.Generic.Dictionary<string, object>>(
+                AsMap(alias.Context)["protocols"]);
+            Assert.Equal("v1", AsString(protocols["schemaVersion"]));
         }
 
         [Fact]
@@ -179,6 +193,26 @@ namespace Analytics
             });
             var props = AsMap(track.Properties);
             Assert.Equal(3.0, Assert.IsType<double>(props["itemCount"]));
+        }
+
+        [Fact]
+        public void JsonKeyProbeRoundTripsLegalKeys()
+        {
+            var track = SendAndRead<TrackEvent>((_, events) =>
+            {
+                events.TrackJsonKeyProbeDefault(new TrackJsonKeyProbeDefault
+                {
+                    orderid = "hyphen",
+                    order_id = "snake",
+                    OrderId = "pascal",
+                    orderId = "camel",
+                });
+            });
+            var props = AsMap(track.Properties);
+            Assert.Equal("hyphen", AsString(props["order-id"]));
+            Assert.Equal("snake", AsString(props["order_id"]));
+            Assert.Equal("pascal", AsString(props["OrderId"]));
+            Assert.Equal("camel", AsString(props["orderId"]));
         }
     }
 }

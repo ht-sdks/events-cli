@@ -21,8 +21,8 @@ describe('renderCSharp', () => {
     expect(src).toContain(
       'using AnalyticsClient = Hightouch.Events.Analytics;',
     );
-    expect(src).toContain('public class TrackOrderCompletedDefault');
-    expect(src).toContain('public object orderId;');
+    expect(src).toContain('public partial class TrackOrderCompletedDefault');
+    expect(src).toContain('public string orderId { get; set; }');
     expect(src).toContain('void TrackOrderCompletedDefault(');
     expect(src).toContain('_analytics.Track(');
   });
@@ -70,5 +70,50 @@ describe('renderCSharp', () => {
     const src = await renderCSharp([page, screen]);
     expect(src).toContain('_analytics.Page("Home"');
     expect(src).toContain('_analytics.Screen("Home"');
+  });
+
+  it('annotates hyphenated keys so ToMap can restore them', async () => {
+    const src = await renderCSharp([
+      {
+        type: 'track',
+        name: 'Json Key Probe',
+        version: 'default',
+        domainName: 'Keys',
+        envelopeKey: 'properties',
+        schema: {
+          type: 'object',
+          properties: {
+            'order-id': { type: 'string' },
+            order_id: { type: 'string' },
+            OrderId: { type: 'string' },
+            orderId: { type: 'string' },
+          },
+        },
+        wrapperName: 'trackJsonKeyProbeDefault',
+      },
+    ]);
+    expect(src).toContain('[JsonPropertyName("order-id")]');
+    expect(src).toContain('public string? orderid { get; set; }');
+    expect(src).toContain('public string? order_id { get; set; }');
+    expect(src).toContain('public string? OrderId { get; set; }');
+    expect(src).toContain('public string? orderId { get; set; }');
+  });
+
+  it('fails when generated method names collide', async () => {
+    const events: NormalizedEvent[] = [
+      {
+        type: 'track',
+        name: 'Foo',
+        version: 'v1',
+        domainName: 'A',
+        envelopeKey: 'properties',
+        schema: { type: 'object' },
+        wrapperName: 'trackFoo',
+        latestAlias: 'trackFoo',
+      },
+    ];
+    await expect(renderCSharp(events)).rejects.toThrow(
+      /Identifier collision: "TrackFoo" is produced by both method trackFoo and latest alias trackFoo/,
+    );
   });
 });

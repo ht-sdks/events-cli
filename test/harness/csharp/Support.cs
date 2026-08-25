@@ -58,6 +58,10 @@ namespace Analytics
             {
                 if (capture.Events.TryDequeue(out var payload) && payload is T typed)
                 {
+                    if (typed is TrackEvent leftover && leftover.Event == "__ht_harness_ready")
+                    {
+                        continue;
+                    }
                     return typed;
                 }
                 Thread.Sleep(20);
