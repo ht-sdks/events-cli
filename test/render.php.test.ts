@@ -67,7 +67,12 @@ describe('renderPhp', () => {
       ]),
     );
     expect(src).toContain('@JsonName("order-id")');
-    expect(src).toMatch(/@JsonName\("order-id"\)[\s\S]*public \$/);
+    expect(src).toContain('@JsonName("order_id")');
+    expect(src).toContain('public $orderid;');
+    expect(src).toContain('public $trackJsonKeyProbeDefaultOrderid;');
+    expect(src).toMatch(
+      /\/\*\*[\s\S]*@JsonName\("order-id"\)[\s\S]*@var mixed[\s\S]*\*\/\s*public \$orderid;/,
+    );
   });
 
   it('fails when generated method names collide', async () => {

@@ -24,9 +24,13 @@ class JsonNamePhpRenderer extends PhpRenderer {
     this.emitBlock(['class ', className], () => {
       this.forEachClassProperty(c, 'none', (name, jsonName) => {
         if (this.sourcelikeToString(name) !== jsonName) {
-          this.emitLine(`/** @JsonName(${JSON.stringify(jsonName)}) */`);
+          this.emitLine('/**');
+          this.emitLine(` * @JsonName(${JSON.stringify(jsonName)})`);
+          this.emitLine(' * @var mixed');
+          this.emitLine(' */');
+        } else {
+          this.emitLine('/** @var mixed */');
         }
-        this.emitLine('/** @var mixed */');
         this.emitLine('public $', name, ';');
       });
     });

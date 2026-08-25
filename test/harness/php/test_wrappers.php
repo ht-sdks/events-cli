@@ -220,9 +220,9 @@ assert_eq($msg['properties']['itemCount'], 3);
 $msg = send_and_read(function (Client $client) {
     HtEvents::trackJsonKeyProbeDefault($client, 'user_1', props(TrackJsonKeyProbeDefault::class, [
         'orderid' => 'hyphen',
-        'order_id' => 'snake',
-        'OrderId' => 'pascal',
-        'orderId' => 'camel',
+        'trackJsonKeyProbeDefaultOrderid' => 'snake',
+        'orderId' => 'pascal',
+        'trackJsonKeyProbeDefaultOrderId' => 'camel',
     ]));
 });
 assert_eq($msg['properties']['order-id'], 'hyphen');
