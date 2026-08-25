@@ -7,7 +7,7 @@ export const harness = {
   generatedFile: 'test/harness/java/src/main/java/analytics/HtEvents.java',
   toolchain: {
     command: 'sh',
-    args: ['test/harness/java/check-java.sh'],
+    args: ['test/harness/check-java.sh'],
   },
   test: [
     {

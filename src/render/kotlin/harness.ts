@@ -7,7 +7,7 @@ export const harness = {
   generatedFile: 'test/harness/kotlin/src/main/kotlin/analytics/HtEvents.kt',
   toolchain: {
     command: 'sh',
-    args: ['test/harness/kotlin/check-java.sh'],
+    args: ['test/harness/check-java.sh'],
   },
   test: [
     {
