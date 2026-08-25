@@ -14,6 +14,10 @@ import com.hightouch.analytics.messages.MessageBuilder;
 import com.hightouch.analytics.messages.PageMessage;
 import com.hightouch.analytics.messages.ScreenMessage;
 import com.hightouch.analytics.messages.TrackMessage;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -40,6 +44,12 @@ public final class HtEvents {
 
         public Double getTotal() { return total; }
         public void setTotal(Double value) { this.total = value; }
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    @interface JsonName {
+        String value();
     }
 
     @SuppressWarnings("unchecked")
@@ -136,7 +146,10 @@ public final class HtEvents {
             if (fieldValue == null) {
                 continue;
             }
-            out.put(field.getName(), convertValue(fieldValue));
+            JsonName jsonName = field.getAnnotation(JsonName.class);
+            out.put(
+                    jsonName != null ? jsonName.value() : field.getName(),
+                    convertValue(fieldValue));
         }
         return out;
     }
@@ -246,6 +259,10 @@ import com.hightouch.analytics.messages.MessageBuilder;
 import com.hightouch.analytics.messages.PageMessage;
 import com.hightouch.analytics.messages.ScreenMessage;
 import com.hightouch.analytics.messages.TrackMessage;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -265,6 +282,12 @@ public final class HtEvents {
 
         public Double getTotal() { return total; }
         public void setTotal(Double value) { this.total = value; }
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    @interface JsonName {
+        String value();
     }
 
     @SuppressWarnings("unchecked")
@@ -361,7 +384,10 @@ public final class HtEvents {
             if (fieldValue == null) {
                 continue;
             }
-            out.put(field.getName(), convertValue(fieldValue));
+            JsonName jsonName = field.getAnnotation(JsonName.class);
+            out.put(
+                    jsonName != null ? jsonName.value() : field.getName(),
+                    convertValue(fieldValue));
         }
         return out;
     }
@@ -454,6 +480,10 @@ import com.hightouch.analytics.messages.MessageBuilder;
 import com.hightouch.analytics.messages.PageMessage;
 import com.hightouch.analytics.messages.ScreenMessage;
 import com.hightouch.analytics.messages.TrackMessage;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -484,6 +514,12 @@ public final class HtEvents {
 
         public Double getItemCount() { return itemCount; }
         public void setItemCount(Double value) { this.itemCount = value; }
+    }
+
+    @Retention(RetentionPolicy.RUNTIME)
+    @Target(ElementType.FIELD)
+    @interface JsonName {
+        String value();
     }
 
     @SuppressWarnings("unchecked")
@@ -580,7 +616,10 @@ public final class HtEvents {
             if (fieldValue == null) {
                 continue;
             }
-            out.put(field.getName(), convertValue(fieldValue));
+            JsonName jsonName = field.getAnnotation(JsonName.class);
+            out.put(
+                    jsonName != null ? jsonName.value() : field.getName(),
+                    convertValue(fieldValue));
         }
         return out;
     }

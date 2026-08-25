@@ -203,4 +203,24 @@ class WrappersTest {
         val props = asMap(track.properties)
         assertEquals(3.0, asDouble(props["itemCount"]))
     }
+
+    @Test
+    fun jsonKeySpellingsArePreservedOnTheWire() {
+        val track =
+            sendAndRead<TrackEvent> { _, events ->
+                events.trackJsonKeyProbeDefault(
+                    HtEvents.TrackJsonKeyProbeDefault(
+                        orderid = "hyphen",
+                        trackJsonKeyProbeDefaultOrderid = "snake",
+                        orderId = "pascal",
+                        trackJsonKeyProbeDefaultOrderId = "camel",
+                    ),
+                )
+            }
+        val props = asMap(track.properties)
+        assertEquals("hyphen", props["order-id"])
+        assertEquals("snake", props["order_id"])
+        assertEquals("pascal", props["OrderId"])
+        assertEquals("camel", props["orderId"])
+    }
 }

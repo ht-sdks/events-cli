@@ -1,4 +1,5 @@
 import type { NormalizedEvent } from '../../normalize/types';
+import { JsonNameJavaTargetLanguage } from './jvm-json-name-quicktype';
 import { runQuicktype } from './quicktype-input';
 
 const BOXED: Record<string, string> = {
@@ -29,8 +30,8 @@ function declaresType(source: string, name: string): boolean {
 /**
  * Flatten quicktype's per-class Java files into nested static classes, hoist
  * imports, and box primitive fields so optional numbers stay omitted instead
- * of serializing as 0. JSON property names are kept as field names
- * (`acronym-style: original`) so reflection can round-trip without Jackson/Gson.
+ * of serializing as 0. When a JSON key is not a valid identifier, `@JsonName`
+ * holds the original key so `toMap` can round-trip without Jackson/Gson.
  */
 export function nestQuicktypeJava(source: string): {
   imports: string[];
@@ -98,6 +99,7 @@ export async function renderNestedJavaTypes(
   const source = await runQuicktype(typed, {
     typeNameFor,
     lang: 'java',
+    language: new JsonNameJavaTargetLanguage(),
     rendererOptions: {
       'just-types': 'true',
       package: packageName,

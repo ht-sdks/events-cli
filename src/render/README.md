@@ -22,6 +22,7 @@ Check here before copying. Add to this list when you extract something:
 - `jvm-output.ts` — `jvmOutputLayout` / `indentBlock`
 - `jvm-names.ts` — `methodName` / `typeNameFor` / reserved-name sets / `assertNoReservedCollisions`
 - `java-types.ts` — `renderNestedJavaTypes` / `nestQuicktypeJava`
+- `jvm-json-name-quicktype.ts` — Java/Kotlin renderers that emit `@JsonName` when the JSON key is not a valid identifier
 
 Keep language syntax, peer-SDK call shapes, and generated injection helpers in `src/render/<sdk-id>/`. Do **not** move `setAtPath` / `withSchemaVersion` into `shared/` — those are emitted into the customer's file and must match that SDK. `wrappers-emit.ts` is per SDK on purpose (quicktype is types only).
 
@@ -32,7 +33,7 @@ Keep language syntax, peer-SDK call shapes, and generated injection helpers in `
 Wire tests against the peer SDK. Separate workflow files so PRs do not all edit `ci.yml`.
 
 - `test/harness/<id>/` — committed language tests; generated output gitignored
-- Shared extra contracts: `test/harness/extra-events.ts`
+- Shared extra contracts: `test/harness/extra-events.ts` (JVM hyphenated-key probe: `test/harness/jvm-extra-events.ts`)
 - `src/render/<id>/harness.ts` — emit path + how to run tests (discovered; do not edit a central list)
 - `.github/workflows/harness-<id>.yml` — reuse `.github/actions/setup-cli`; do not add this job to the Node 18–24 matrix
 
@@ -160,7 +161,7 @@ Keep the `default` / `never` branch. TypeScript will fail the build if `SUPPORTE
 Follow `src/render/browser-ts/types-emit.ts`:
 
 - `runQuicktype(events, { typeNameFor, lang, rendererOptions, postprocess })` — builds JSON Schema input (`schema.title` and `$schema`) then quicktype. Pass `lang` as the real quicktype language name. Do not skip aliases in the helper; filter before the call if the language has no payload type for alias (Swift). Empty-payload TypeScript fallbacks stay after the call.
-- Preserve JSON property names (`nice-property-names: false` in TypeScript; Go `json` tags).
+- Preserve JSON property names (`nice-property-names: false` in TypeScript; Go `json` tags; JVM `@JsonName` via `jvm-json-name-quicktype.ts` when the key is not a valid identifier).
 - Prefer `just-types: true` when the language can express types separately from marshaling. Swift is the exception: Typewriter forces full types + `Codable` because `just-types` breaks JSON compatibility. If you subclass a quicktype renderer, do it only for this kind of language constraint.
 
 `event.schema` is already flattened (`src/normalize/flatten.ts`) and envelope-unwrapped (`src/normalize/envelope.ts`). Nested `$ref`s to components will not appear. `FetchingJSONSchemaStore` is still required by `JSONSchemaInput`.
@@ -205,7 +206,7 @@ Jest snapshots prove **string drift**. They do not prove compile or SDK behavior
 
 - `test/render.<sdk-id>.test.ts` — same contract helper, then language asserts (imports, page→screen, collisions, …)
 - `test/harness/<id>/` — real client + HTTP capture; generated source gitignored
-- Fixture generator via `scripts/emit-harness.ts` (discovers `src/render/<id>/harness.ts`) — runs the renderer, not quicktype directly; extra event types live in `test/harness/extra-events.ts`
+- Fixture generator via `scripts/emit-harness.ts` (discovers `src/render/<id>/harness.ts`) — runs the renderer, not quicktype directly; extra event types live in `test/harness/extra-events.ts` plus JVM-only `test/harness/jvm-extra-events.ts`
 
 Snapshots: `defineRendererContractTests` in `test/helpers/renderer-contract.ts` (`simple-track.json`, `multi-version.json`, `with-refs.json`). Do not put page→screen in that helper.
 

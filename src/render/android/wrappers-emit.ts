@@ -19,6 +19,12 @@ function eventNameLiteral(event: NormalizedEvent): string {
 /** Generated helpers. Duplicate per SDK — see `src/render/README.md` §5. */
 function renderHelpers(className: string): string {
   return [
+    '    @Retention(RetentionPolicy.RUNTIME)',
+    '    @Target(ElementType.FIELD)',
+    '    @interface JsonName {',
+    '        String value();',
+    '    }',
+    '',
     '    @SuppressWarnings("unchecked")',
     '    private static Map<String, Object> cloneMap(Map<String, Object> map) {',
     '        Map<String, Object> out = new LinkedHashMap<>();',
@@ -115,7 +121,10 @@ function renderHelpers(className: string): string {
     '            if (fieldValue == null) {',
     '                continue;',
     '            }',
-    '            out.put(field.getName(), convertValue(fieldValue));',
+    '            JsonName jsonName = field.getAnnotation(JsonName.class);',
+    '            out.put(',
+    '                    jsonName != null ? jsonName.value() : field.getName(),',
+    '                    convertValue(fieldValue));',
     '        }',
     '        return out;',
     '    }',

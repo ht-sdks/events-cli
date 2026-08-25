@@ -29,6 +29,10 @@ class HtEvents {
         val total: Double? = null
     )
 
+    @Retention(AnnotationRetention.RUNTIME)
+    @Target(AnnotationTarget.FIELD)
+    annotation class JsonName(val value: String)
+
     private fun cloneMap(map: Map<String, Any?>?): MutableMap<String, Any?> {
         val out = linkedMapOf<String, Any?>()
         if (map == null) {
@@ -125,7 +129,8 @@ class HtEvents {
             if (fieldValue == null) {
                 continue
             }
-            out[field.name] = convertValue(fieldValue)
+            val jsonName = field.getAnnotation(JsonName::class.java)
+            out[jsonName?.value ?: field.name] = convertValue(fieldValue)
         }
         return out
     }
@@ -291,6 +296,10 @@ class HtEvents {
         val total: Double? = null
     )
 
+    @Retention(AnnotationRetention.RUNTIME)
+    @Target(AnnotationTarget.FIELD)
+    annotation class JsonName(val value: String)
+
     private fun cloneMap(map: Map<String, Any?>?): MutableMap<String, Any?> {
         val out = linkedMapOf<String, Any?>()
         if (map == null) {
@@ -387,7 +396,8 @@ class HtEvents {
             if (fieldValue == null) {
                 continue
             }
-            out[field.name] = convertValue(fieldValue)
+            val jsonName = field.getAnnotation(JsonName::class.java)
+            out[jsonName?.value ?: field.name] = convertValue(fieldValue)
         }
         return out
     }
@@ -547,6 +557,10 @@ class HtEvents {
         val itemCount: Double? = null
     )
 
+    @Retention(AnnotationRetention.RUNTIME)
+    @Target(AnnotationTarget.FIELD)
+    annotation class JsonName(val value: String)
+
     private fun cloneMap(map: Map<String, Any?>?): MutableMap<String, Any?> {
         val out = linkedMapOf<String, Any?>()
         if (map == null) {
@@ -643,7 +657,8 @@ class HtEvents {
             if (fieldValue == null) {
                 continue
             }
-            out[field.name] = convertValue(fieldValue)
+            val jsonName = field.getAnnotation(JsonName::class.java)
+            out[jsonName?.value ?: field.name] = convertValue(fieldValue)
         }
         return out
     }

@@ -110,7 +110,11 @@ export const KOTLIN_KEYWORDS = new Set([
 ]);
 
 /** Helper / peer names always present in generated JVM wrapper files. */
-export const JVM_WRAPPER_RESERVED = ['Injected', 'Analytics'] as const;
+export const JVM_WRAPPER_RESERVED = [
+  'Injected',
+  'Analytics',
+  'JsonName',
+] as const;
 
 /** Stdlib types referenced by all three JVM wrapper files. */
 export const JVM_STDLIB_RESERVED = ['String', 'List', 'Map'] as const;

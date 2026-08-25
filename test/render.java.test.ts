@@ -5,6 +5,7 @@ import {
 } from '../src/render/java';
 import { eventsFromFixture } from './helpers/fixtures';
 import { defineRendererContractTests } from './helpers/renderer-contract';
+import { jvmExtraHarnessEvents } from './harness/jvm-extra-events';
 import type { NormalizedEvent } from '../src/normalize/types';
 
 describe('renderJava', () => {
@@ -108,6 +109,23 @@ describe('renderJava', () => {
     expect(src).toContain(
       'trackOrderCompletedV2(userId, properties, context);',
     );
+  });
+
+  it('annotates order-id / order_id / OrderId / orderId so toMap can restore them', async () => {
+    const src = await renderJava(jvmExtraHarnessEvents());
+    expect(src).toContain('@JsonName("order-id")');
+    expect(src).toContain('private String orderid;');
+    expect(src).toContain('@JsonName("order_id")');
+    expect(src).toContain('private String trackJsonKeyProbeDefaultOrderid;');
+    expect(src).toContain('@JsonName("OrderId")');
+    expect(src).toContain('private String orderId;');
+    expect(src).toContain('@JsonName("orderId")');
+    expect(src).toContain('private String trackJsonKeyProbeDefaultOrderId;');
+    expect(src).toContain(
+      'jsonName != null ? jsonName.value() : field.getName()',
+    );
+    expect(src).not.toContain('com.fasterxml.jackson');
+    expect(src).not.toContain('com.google.gson');
   });
 
   it('fails when generated method names collide', async () => {

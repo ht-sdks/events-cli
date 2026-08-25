@@ -5,6 +5,7 @@ import {
 } from '../src/render/kotlin';
 import { eventsFromFixture } from './helpers/fixtures';
 import { defineRendererContractTests } from './helpers/renderer-contract';
+import { jvmExtraHarnessEvents } from './harness/jvm-extra-events';
 import type { NormalizedEvent } from '../src/normalize/types';
 
 describe('renderKotlin', () => {
@@ -107,6 +108,21 @@ describe('renderKotlin', () => {
       'fun trackOrderCompleted(properties: TrackOrderCompletedV2, context: Map<String, Any>? = null)',
     );
     expect(src).toContain('trackOrderCompletedV2(properties, context)');
+  });
+
+  it('annotates order-id / order_id / OrderId / orderId so toMap can restore them', async () => {
+    const src = await renderKotlin(jvmExtraHarnessEvents());
+    expect(src).toContain('@field:JsonName("order-id")');
+    expect(src).toMatch(/val orderid:/);
+    expect(src).toContain('@field:JsonName("order_id")');
+    expect(src).toMatch(/val trackJsonKeyProbeDefaultOrderid:/);
+    expect(src).toContain('@field:JsonName("OrderId")');
+    expect(src).toMatch(/val orderId:/);
+    expect(src).toContain('@field:JsonName("orderId")');
+    expect(src).toMatch(/val trackJsonKeyProbeDefaultOrderId:/);
+    expect(src).toContain('jsonName?.value ?: field.name');
+    expect(src).not.toContain('com.fasterxml.jackson');
+    expect(src).not.toContain('kotlinx.serialization.SerialName');
   });
 
   it('fails when generated method names collide', async () => {

@@ -18,6 +18,10 @@ function eventNameLiteral(event: NormalizedEvent): string {
 
 function renderHelpers(className: string): string {
   return [
+    '    @Retention(AnnotationRetention.RUNTIME)',
+    '    @Target(AnnotationTarget.FIELD)',
+    '    annotation class JsonName(val value: String)',
+    '',
     '    private fun cloneMap(map: Map<String, Any?>?): MutableMap<String, Any?> {',
     '        val out = linkedMapOf<String, Any?>()',
     '        if (map == null) {',
@@ -114,7 +118,8 @@ function renderHelpers(className: string): string {
     '            if (fieldValue == null) {',
     '                continue',
     '            }',
-    '            out[field.name] = convertValue(fieldValue)',
+    '            val jsonName = field.getAnnotation(JsonName::class.java)',
+    '            out[jsonName?.value ?: field.name] = convertValue(fieldValue)',
     '        }',
     '        return out',
     '    }',

@@ -1,4 +1,5 @@
 import type { NormalizedEvent } from '../../normalize/types';
+import { JsonNameKotlinTargetLanguage } from '../shared/jvm-json-name-quicktype';
 import { runQuicktype } from '../shared/quicktype-input';
 import { typeNameFor } from './names';
 
@@ -55,6 +56,7 @@ export async function renderTypes(
   const source = await runQuicktype(typed, {
     typeNameFor,
     lang: 'kotlin',
+    language: new JsonNameKotlinTargetLanguage(),
     rendererOptions: {
       'just-types': 'true',
       package: packageName,

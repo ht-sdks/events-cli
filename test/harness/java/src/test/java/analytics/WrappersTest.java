@@ -231,4 +231,24 @@ public class WrappersTest {
     Map<String, Object> props = Support.asMap(track.properties());
     assertEquals(3.0, Support.asDouble(props.get("itemCount")), 0.0);
   }
+
+  @Test
+  public void jsonKeySpellingsArePreservedOnTheWire() {
+    HtEvents.TrackJsonKeyProbeDefault properties = new HtEvents.TrackJsonKeyProbeDefault();
+    properties.setOrderid("hyphen");
+    properties.setTrackJsonKeyProbeDefaultOrderid("snake");
+    properties.setOrderId("pascal");
+    properties.setTrackJsonKeyProbeDefaultOrderId("camel");
+
+    TrackMessage track =
+        Support.sendAndRead(
+            TrackMessage.class,
+            (analytics, events) -> events.trackJsonKeyProbeDefault("user_1", properties));
+
+    Map<String, Object> props = Support.asMap(track.properties());
+    assertEquals("hyphen", props.get("order-id"));
+    assertEquals("snake", props.get("order_id"));
+    assertEquals("pascal", props.get("OrderId"));
+    assertEquals("camel", props.get("orderId"));
+  }
 }
