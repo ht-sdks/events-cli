@@ -56,12 +56,14 @@ test('track order completed posts event name and properties', async () => {
 
 test('latest alias hits the same path as the versioned wrapper', async () => {
   const versioned = await sendAndRead(() =>
-    generated.trackOrderCompletedV2('user_1', { orderId: '1' }),
+    generated.trackOrderCompletedPropsV1('user_1', { orderId: '1' }),
   );
   const aliased = await sendAndRead(() =>
-    generated.trackOrderCompleted('user_1', { orderId: '1' }),
+    generated.trackOrderCompletedProps('user_1', { orderId: '1' }),
   );
   assert.equal(versioned.event, aliased.event);
+  assert.equal(asMap(versioned.properties).apiVersion, 'v1');
+  assert.equal(asMap(aliased.properties).apiVersion, 'v1');
 });
 
 test('injects context.protocols.schemaVersion on track', async () => {

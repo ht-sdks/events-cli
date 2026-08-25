@@ -77,25 +77,51 @@ describe('generated node-ts SDK wrappers', () => {
       event: 'Order Completed',
       userId: 'user_1',
       properties: { orderId: 'ord_1' },
-      anonymousId: undefined,
       context: {
         ip: '1.1.1.1',
         protocols: { schemaVersion: 'default' },
       },
-      timestamp: undefined,
-      integrations: undefined,
     });
   });
 
   it('latest alias invokes the same wrapper as the versioned name', async () => {
-    const source = await renderNodeTs(eventsFromFixture('multi-version.json'));
+    const events: NormalizedEvent[] = [
+      {
+        type: 'track',
+        name: 'Order Completed',
+        version: 'v1',
+        domainName: 'Orders',
+        envelopeKey: 'properties',
+        schemaVersionPath: ['properties', 'apiVersion'],
+        schema: {
+          type: 'object',
+          properties: { orderId: { type: 'string' } },
+        },
+        wrapperName: 'trackOrderCompletedV1',
+      },
+      {
+        type: 'track',
+        name: 'Order Completed',
+        version: 'v2',
+        domainName: 'Orders',
+        envelopeKey: 'properties',
+        schemaVersionPath: ['properties', 'apiVersion'],
+        schema: {
+          type: 'object',
+          properties: { orderId: { type: 'string' } },
+        },
+        wrapperName: 'trackOrderCompletedV2',
+        latestAlias: 'trackOrderCompleted',
+      },
+    ];
+    const source = await renderNodeTs(events);
     const generated = loadGenerated(source);
     const analytics = mockAnalytics();
     (generated.setHtEvents as (instance: MockAnalytics) => void)(analytics);
 
     (generated.trackOrderCompleted as (userId: string, props: object) => void)(
       'user_1',
-      { orderId: '1', total: 2 },
+      { orderId: '1' },
     );
 
     expect(analytics.track).toHaveBeenCalledTimes(1);
@@ -103,7 +129,7 @@ describe('generated node-ts SDK wrappers', () => {
       expect.objectContaining({
         event: 'Order Completed',
         userId: 'user_1',
-        properties: { orderId: '1', total: 2 },
+        properties: { orderId: '1', apiVersion: 'v2' },
       }),
     );
   });
@@ -305,9 +331,6 @@ describe('generated node-ts SDK wrappers', () => {
     expect(analytics.alias).toHaveBeenCalledWith({
       userId: 'user_new',
       previousId: 'user_old',
-      context: undefined,
-      timestamp: undefined,
-      integrations: undefined,
     });
   });
 
@@ -338,8 +361,6 @@ describe('generated node-ts SDK wrappers', () => {
         ip: '1.1.1.1',
         protocols: { schemaVersion: 'v1' },
       },
-      timestamp: undefined,
-      integrations: undefined,
     });
   });
 
@@ -363,9 +384,6 @@ describe('generated node-ts SDK wrappers', () => {
     expect(analytics.alias).toHaveBeenCalledWith({
       userId: 'user_new',
       previousId: 'user_old',
-      context: undefined,
-      timestamp: undefined,
-      integrations: undefined,
     });
   });
 });

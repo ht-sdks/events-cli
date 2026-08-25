@@ -15,6 +15,7 @@ function compileGenerated(source: string): ts.Diagnostic[] {
     const program = ts.createProgram([file], {
       noEmit: true,
       strict: true,
+      exactOptionalPropertyTypes: true,
       target: ts.ScriptTarget.ES2022,
       module: ts.ModuleKind.Node16,
       moduleResolution: ts.ModuleResolutionKind.Node16,
@@ -73,6 +74,36 @@ describe('renderNodeTs compile harness', () => {
       wrapperName: 'trackUnscopedPingDefault',
     };
     expect(format(compileGenerated(await renderNodeTs([event])))).toBe('');
+  });
+
+  it('typechecks generated page and screen wrappers against the node SDK', async () => {
+    const events: NormalizedEvent[] = [
+      {
+        type: 'page',
+        name: 'Home',
+        version: 'default',
+        domainName: 'Web',
+        envelopeKey: 'properties',
+        schema: {
+          type: 'object',
+          properties: { path: { type: 'string' } },
+        },
+        wrapperName: 'pageHomeDefault',
+      },
+      {
+        type: 'screen',
+        name: 'Home',
+        version: 'default',
+        domainName: 'Mobile',
+        envelopeKey: 'properties',
+        schema: {
+          type: 'object',
+          properties: { path: { type: 'string' } },
+        },
+        wrapperName: 'screenHomeDefault',
+      },
+    ];
+    expect(format(compileGenerated(await renderNodeTs(events)))).toBe('');
   });
 
   it('typechecks generated alias wrappers against the node SDK', async () => {

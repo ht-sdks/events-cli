@@ -96,8 +96,30 @@ function withSchemaVersion<T extends Record<string, unknown>>(
   return { data, options };
 }
 
+function compactOptions(
+  options: CallOptions | undefined,
+): CallOptions {
+  if (options === undefined) {
+    return {};
+  }
+  const out: CallOptions = {};
+  if (options.anonymousId !== undefined) {
+    out.anonymousId = options.anonymousId;
+  }
+  if (options.context !== undefined) {
+    out.context = options.context;
+  }
+  if (options.timestamp !== undefined) {
+    out.timestamp = options.timestamp;
+  }
+  if (options.integrations !== undefined) {
+    out.integrations = options.integrations;
+  }
+  return out;
+}
+
 export function trackOrderCompletedV1(
-  userId: string,
+  userId: string | undefined,
   properties: TrackOrderCompletedV1,
   options?: CallOptions,
 ): void {
@@ -111,17 +133,14 @@ export function trackOrderCompletedV1(
   );
   htevents.track({
     event: "Order Completed",
-    userId,
+    ...(userId === undefined ? {} : { userId }),
     properties: injected.data,
-    anonymousId: injected.options?.anonymousId,
-    context: injected.options?.context,
-    timestamp: injected.options?.timestamp,
-    integrations: injected.options?.integrations,
-  });
+    ...compactOptions(injected.options),
+  } as Parameters<HtEvents['track']>[0]);
 }
 
 export function trackOrderCompletedV2(
-  userId: string,
+  userId: string | undefined,
   properties: TrackOrderCompletedV2,
   options?: CallOptions,
 ): void {
@@ -135,13 +154,10 @@ export function trackOrderCompletedV2(
   );
   htevents.track({
     event: "Order Completed",
-    userId,
+    ...(userId === undefined ? {} : { userId }),
     properties: injected.data,
-    anonymousId: injected.options?.anonymousId,
-    context: injected.options?.context,
-    timestamp: injected.options?.timestamp,
-    integrations: injected.options?.integrations,
-  });
+    ...compactOptions(injected.options),
+  } as Parameters<HtEvents['track']>[0]);
 }
 
 export const trackOrderCompleted = trackOrderCompletedV2;
@@ -239,8 +255,30 @@ function withSchemaVersion<T extends Record<string, unknown>>(
   return { data, options };
 }
 
+function compactOptions(
+  options: CallOptions | undefined,
+): CallOptions {
+  if (options === undefined) {
+    return {};
+  }
+  const out: CallOptions = {};
+  if (options.anonymousId !== undefined) {
+    out.anonymousId = options.anonymousId;
+  }
+  if (options.context !== undefined) {
+    out.context = options.context;
+  }
+  if (options.timestamp !== undefined) {
+    out.timestamp = options.timestamp;
+  }
+  if (options.integrations !== undefined) {
+    out.integrations = options.integrations;
+  }
+  return out;
+}
+
 export function trackOrderCompletedDefault(
-  userId: string,
+  userId: string | undefined,
   properties: TrackOrderCompletedDefault,
   options?: CallOptions,
 ): void {
@@ -254,13 +292,10 @@ export function trackOrderCompletedDefault(
   );
   htevents.track({
     event: "Order Completed",
-    userId,
+    ...(userId === undefined ? {} : { userId }),
     properties: injected.data,
-    anonymousId: injected.options?.anonymousId,
-    context: injected.options?.context,
-    timestamp: injected.options?.timestamp,
-    integrations: injected.options?.integrations,
-  });
+    ...compactOptions(injected.options),
+  } as Parameters<HtEvents['track']>[0]);
 }
 
 export const trackOrderCompleted = trackOrderCompletedDefault;
@@ -364,8 +399,30 @@ function withSchemaVersion<T extends Record<string, unknown>>(
   return { data, options };
 }
 
+function compactOptions(
+  options: CallOptions | undefined,
+): CallOptions {
+  if (options === undefined) {
+    return {};
+  }
+  const out: CallOptions = {};
+  if (options.anonymousId !== undefined) {
+    out.anonymousId = options.anonymousId;
+  }
+  if (options.context !== undefined) {
+    out.context = options.context;
+  }
+  if (options.timestamp !== undefined) {
+    out.timestamp = options.timestamp;
+  }
+  if (options.integrations !== undefined) {
+    out.integrations = options.integrations;
+  }
+  return out;
+}
+
 export function identifyDefault(
-  userId: string,
+  userId: string | undefined,
   traits?: IdentifyDefault,
   options?: CallOptions,
 ): void {
@@ -378,19 +435,16 @@ export function identifyDefault(
     "traits",
   );
   htevents.identify({
-    userId,
+    ...(userId === undefined ? {} : { userId }),
     traits: injected.data,
-    anonymousId: injected.options?.anonymousId,
-    context: injected.options?.context,
-    timestamp: injected.options?.timestamp,
-    integrations: injected.options?.integrations,
-  });
+    ...compactOptions(injected.options),
+  } as Parameters<HtEvents['identify']>[0]);
 }
 
 export const identify = identifyDefault;
 
 export function trackCartViewedDefault(
-  userId: string,
+  userId: string | undefined,
   properties: TrackCartViewedDefault,
   options?: CallOptions,
 ): void {
@@ -404,13 +458,10 @@ export function trackCartViewedDefault(
   );
   htevents.track({
     event: "Cart Viewed",
-    userId,
+    ...(userId === undefined ? {} : { userId }),
     properties: injected.data,
-    anonymousId: injected.options?.anonymousId,
-    context: injected.options?.context,
-    timestamp: injected.options?.timestamp,
-    integrations: injected.options?.integrations,
-  });
+    ...compactOptions(injected.options),
+  } as Parameters<HtEvents['track']>[0]);
 }
 
 export const trackCartViewed = trackCartViewedDefault;

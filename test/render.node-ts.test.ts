@@ -21,13 +21,13 @@ describe('renderNodeTs', () => {
     expect(ts).toMatch(/orderId/);
   });
 
-  it('emits params-object SDK calls with a required userId', async () => {
+  it('emits params-object SDK calls with an optional userId', async () => {
     const ts = await renderNodeTs(eventsFromFixture('simple-track.json'));
     expect(ts).toContain(
       "import type { HtEvents, TrackParams } from '@ht-sdks/events-sdk-js-node'",
     );
     expect(ts).toMatch(
-      /export function trackOrderCompletedDefault\(\n {2}userId: string,/,
+      /export function trackOrderCompletedDefault\(\n {2}userId: string \| undefined,/,
     );
     expect(ts).toContain('htevents.track({');
     expect(ts).toContain('event: "Order Completed"');
@@ -63,7 +63,7 @@ describe('renderNodeTs', () => {
     };
     const ts = await renderNodeTs([event]);
     expect(ts).toMatch(
-      /export function groupDefault\(\n {2}groupId: string,\n {2}userId: string,/,
+      /export function groupDefault\(\n {2}groupId: string,\n {2}userId: string \| undefined,/,
     );
     expect(ts).toContain('htevents.group({');
   });

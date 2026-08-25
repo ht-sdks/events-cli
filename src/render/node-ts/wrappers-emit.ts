@@ -101,6 +101,28 @@ export function renderWrappers(events: NormalizedEvent[]): string {
     '  }',
     '  return { data, options };',
     '}',
+    '',
+    'function compactOptions(',
+    '  options: CallOptions | undefined,',
+    '): CallOptions {',
+    '  if (options === undefined) {',
+    '    return {};',
+    '  }',
+    '  const out: CallOptions = {};',
+    '  if (options.anonymousId !== undefined) {',
+    '    out.anonymousId = options.anonymousId;',
+    '  }',
+    '  if (options.context !== undefined) {',
+    '    out.context = options.context;',
+    '  }',
+    '  if (options.timestamp !== undefined) {',
+    '    out.timestamp = options.timestamp;',
+    '  }',
+    '  if (options.integrations !== undefined) {',
+    '    out.integrations = options.integrations;',
+    '  }',
+    '  return out;',
+    '}',
   ];
 
   for (const event of events) {
@@ -164,15 +186,6 @@ function injectCall(
   ];
 }
 
-function identityFields(indent: string): string[] {
-  return [
-    `${indent}anonymousId: injected.options?.anonymousId,`,
-    `${indent}context: injected.options?.context,`,
-    `${indent}timestamp: injected.options?.timestamp,`,
-    `${indent}integrations: injected.options?.integrations,`,
-  ];
-}
-
 function renderDataWrappers(
   event: NormalizedEvent,
   typeName: string,
@@ -191,7 +204,7 @@ function renderDataWrappers(
 
   return [
     `export function ${event.wrapperName}(`,
-    '  userId: string,',
+    '  userId: string | undefined,',
     `  ${dataParam}: ${typeName},`,
     '  options?: CallOptions,',
     '): void {',
@@ -208,10 +221,10 @@ function renderDataWrappers(
     ...(payloadValue !== undefined
       ? [`    ${payloadField}: ${payloadValue},`]
       : []),
-    '    userId,',
+    '    ...(userId === undefined ? {} : { userId }),',
     `    ${dataParam}: injected.data,`,
-    ...identityFields('    '),
-    '  });',
+    '    ...compactOptions(injected.options),',
+    `  } as Parameters<HtEvents['${method}']>[0]);`,
     '}',
   ];
 }
@@ -224,7 +237,7 @@ function renderIdentifyWrappers(
 ): string[] {
   return [
     `export function ${event.wrapperName}(`,
-    '  userId: string,',
+    '  userId: string | undefined,',
     `  traits?: ${typeName},`,
     '  options?: CallOptions,',
     '): void {',
@@ -238,10 +251,10 @@ function renderIdentifyWrappers(
       envelopeLiteral,
     ),
     '  htevents.identify({',
-    '    userId,',
+    '    ...(userId === undefined ? {} : { userId }),',
     '    traits: injected.data,',
-    ...identityFields('    '),
-    '  });',
+    '    ...compactOptions(injected.options),',
+    "  } as Parameters<HtEvents['identify']>[0]);",
     '}',
   ];
 }
@@ -255,14 +268,14 @@ function renderGroupWrappers(
   return [
     `export function ${event.wrapperName}(`,
     '  groupId: string,',
-    '  userId: string,',
-    `  traits: ${typeName},`,
+    '  userId: string | undefined,',
+    `  traits?: ${typeName},`,
     '  options?: CallOptions,',
     '): void {',
     '  const htevents = requireAnalytics();',
     ...injectCall(
       '  ',
-      'traits as Record<string, unknown>',
+      '(traits ?? {}) as Record<string, unknown>',
       'options',
       pathLiteral,
       event.version,
@@ -270,10 +283,10 @@ function renderGroupWrappers(
     ),
     '  htevents.group({',
     '    groupId,',
-    '    userId,',
+    '    ...(userId === undefined ? {} : { userId }),',
     '    traits: injected.data,',
-    ...identityFields('    '),
-    '  });',
+    '    ...compactOptions(injected.options),',
+    "  } as Parameters<HtEvents['group']>[0]);",
     '}',
   ];
 }
@@ -287,7 +300,7 @@ function renderAliasWrappers(
     `export function ${event.wrapperName}(`,
     '  userId: string,',
     '  previousId: string,',
-    '  options?: CallOptions,',
+    '  options?: Omit<CallOptions, "anonymousId">,',
     '): void {',
     '  const htevents = requireAnalytics();',
     ...injectCall(
@@ -301,10 +314,8 @@ function renderAliasWrappers(
     '  htevents.alias({',
     '    userId,',
     '    previousId,',
-    '    context: injected.options?.context,',
-    '    timestamp: injected.options?.timestamp,',
-    '    integrations: injected.options?.integrations,',
-    '  });',
+    '    ...compactOptions(injected.options),',
+    "  } as Parameters<HtEvents['alias']>[0]);",
     '}',
   ];
 }
