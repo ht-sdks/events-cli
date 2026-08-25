@@ -1,0 +1,5 @@
+type: track
+name: Cart Viewed
+version: default
+schema:
+  type: object

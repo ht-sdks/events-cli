@@ -1,0 +1,8 @@
+type: track
+name: Mobile Ping
+version: default
+schema:
+  type: object
+  properties:
+    properties:
+      type: object

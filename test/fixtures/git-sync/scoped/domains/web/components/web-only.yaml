@@ -1,0 +1,8 @@
+name: Web Only
+sources:
+  - web-app
+schema:
+  type: object
+  properties:
+    webOnly:
+      type: string

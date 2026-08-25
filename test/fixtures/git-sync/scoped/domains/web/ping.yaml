@@ -1,0 +1,13 @@
+type: track
+name: Web Ping
+version: default
+schema:
+  type: object
+  properties:
+    properties:
+      type: object
+      allOf:
+        - $ref: '#/definitions/components/shared'
+        - $ref: '#/definitions/components/empty-sources'
+        - $ref: '#/definitions/components/web-only'
+        - $ref: '#/definitions/components/mobile-only'

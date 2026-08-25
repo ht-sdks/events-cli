@@ -1,0 +1,7 @@
+name: Empty Sources
+sources: []
+schema:
+  type: object
+  properties:
+    emptySources:
+      type: string
