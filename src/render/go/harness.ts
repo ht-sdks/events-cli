@@ -10,7 +10,7 @@ export const harness = {
     { command: 'go', args: ['vet', './...'], cwd: 'test/harness/go' },
     {
       command: 'go',
-      args: ['test', '-count=1', './...'],
+      args: ['test', '-v', '-count=1', './...'],
       cwd: 'test/harness/go',
     },
   ],

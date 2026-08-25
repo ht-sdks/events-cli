@@ -18,3 +18,5 @@ dependencies {
 tasks.named('test', Test) {
     useJUnit()
 }
+
+apply from: '../jvm-test-logging.gradle'

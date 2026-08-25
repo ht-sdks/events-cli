@@ -27,3 +27,5 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'org.robolectric:robolectric:4.11.1'
 }
+
+apply from: '../jvm-test-logging.gradle'
