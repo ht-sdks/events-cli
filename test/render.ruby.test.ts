@@ -74,7 +74,7 @@ describe('renderRuby', () => {
     expect(src).toContain('out[key.to_s] =');
   });
 
-  it('fails when a screen event has no name', async () => {
+  it('emits an unnamed screen wrapper without a name argument', async () => {
     const event: NormalizedEvent = {
       type: 'screen',
       name: '',
@@ -84,9 +84,12 @@ describe('renderRuby', () => {
       schema: { type: 'object' },
       wrapperName: 'screenDefault',
     };
-    await expect(renderRuby([event])).rejects.toThrow(
-      /screen events require a non-empty name/,
+    const src = await renderRuby([event]);
+    expect(src).toContain(
+      'def self.screen_default(client, user_id, properties = {}, **opts)',
     );
+    expect(src).toContain('client.screen(');
+    expect(src).not.toContain('    name:');
   });
 
   it('fails when generated method names collide', async () => {

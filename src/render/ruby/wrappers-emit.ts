@@ -1,4 +1,3 @@
-import { CliError } from '../../lib/errors';
 import type { NormalizedEvent } from '../../normalize/types';
 import { assertNoCollisions } from '../shared/collisions';
 import { isRubyKeyword, snakeName, toSnakeCase, typeNameFor } from './names';
@@ -166,14 +165,6 @@ function renderIdentifyWrapper(event: NormalizedEvent): string[] {
 }
 
 function renderDataWrapper(event: NormalizedEvent): string[] {
-  if (
-    event.type === 'screen' &&
-    (event.name === undefined || event.name.trim() === '')
-  ) {
-    throw new CliError(
-      'screen events require a non-empty name; unnamed screen wrappers are not emitted',
-    );
-  }
   const fn = snakeName(event.wrapperName);
   const typeName = typeNameFor(event);
   const pathLiteral = rbStringArray(event.schemaVersionPath);

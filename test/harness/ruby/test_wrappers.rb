@@ -138,6 +138,12 @@ end
 assert_eq(screen['type'], 'screen')
 assert_eq(screen['name'], 'Home')
 
+unnamed = send_and_read do |client|
+  HtEvents.screen_default(client, 'user_1')
+end
+assert_eq(unnamed['type'], 'screen')
+assert_eq(unnamed['name'], '')
+
 msg = send_and_read do |client|
   HtEvents.alias(client, 'user_new', 'user_old')
 end
