@@ -220,6 +220,7 @@ This repository is the CLI implementation. Generated wrappers live in the consum
 
 - Renderer playbook (for humans and agents): [`src/render/README.md`](src/render/README.md)
 - JSON Schema for `htevents.config.json`: [`schemas/config.schema.json`](schemas/config.schema.json)
+- Cutting a release: [`RELEASING.md`](RELEASING.md)
 
 ```sh
 pnpm install
