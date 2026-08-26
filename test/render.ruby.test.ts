@@ -85,7 +85,9 @@ describe('renderRuby', () => {
       wrapperName: 'screenDefault',
     };
     const src = await renderRuby([event]);
-    expect(src).toContain('def self.screen_default(client, user_id, properties = {}, **opts)');
+    expect(src).toContain(
+      'def self.screen_default(client, user_id, properties = {}, **opts)',
+    );
     expect(src).toContain('client.screen(');
     expect(src).not.toContain('    name:');
   });

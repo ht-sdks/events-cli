@@ -66,8 +66,11 @@ export function extraHarnessEvents(): NormalizedEvent[] {
       version: 'default',
       domainName: 'MobileUnnamed',
       envelopeKey: 'properties',
-      schema: { type: 'object' },
-      wrapperName: 'screenDefault',
+      schema: {
+        type: 'object',
+        properties: { path: { type: 'string' } },
+      },
+      wrapperName: 'screenUnnamedDefault',
     },
     {
       type: 'track',
