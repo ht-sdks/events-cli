@@ -2,4 +2,4 @@
 
 source 'https://rubygems.org'
 
-gem 'events-sdk-ruby', '0.0.2'
+gem 'events-sdk-ruby', '0.0.3'

@@ -62,6 +62,14 @@ export function extraHarnessEvents(): NormalizedEvent[] {
       latestAlias: 'screenHome',
     },
     {
+      type: 'screen',
+      version: 'default',
+      domainName: 'MobileUnnamed',
+      envelopeKey: 'properties',
+      schema: { type: 'object' },
+      wrapperName: 'screenDefault',
+    },
+    {
       type: 'track',
       name: 'Order Completed',
       version: 'v1',
