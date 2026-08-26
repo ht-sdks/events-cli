@@ -53,8 +53,18 @@ export async function loadHarnesses(): Promise<LoadedHarness[]> {
 
 export async function emitHarness(spec: LoadedHarness): Promise<void> {
   const out = join(ROOT, spec.generatedFile);
-  mkdirSync(dirname(out), { recursive: true });
-  writeFileSync(out, await spec.render(harnessEvents()));
+  const rendered = await spec.render(harnessEvents());
+  if (typeof rendered === 'string') {
+    mkdirSync(dirname(out), { recursive: true });
+    writeFileSync(out, rendered);
+  } else {
+    mkdirSync(out, { recursive: true });
+    for (const file of rendered) {
+      const dest = join(out, file.path);
+      mkdirSync(dirname(dest), { recursive: true });
+      writeFileSync(dest, file.contents);
+    }
+  }
   if (spec.format !== undefined) {
     const result = spawnSync(spec.format.command, [...spec.format.args, out], {
       encoding: 'utf-8',

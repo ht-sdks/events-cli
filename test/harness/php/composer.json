@@ -1,0 +1,20 @@
+{
+  "name": "ht-sdks/events-cli-php-harness",
+  "require": {
+    "ht-sdks/events-sdk-php": "0.0.1"
+  },
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/ht-sdks/events-sdk-php"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Hightouch\\Generated\\": "generated/"
+    }
+  },
+  "config": {
+    "secure-http": true
+  }
+}

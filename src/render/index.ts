@@ -6,9 +6,13 @@ import { renderGo } from './go';
 import { renderJava } from './java';
 import { renderKotlin } from './kotlin';
 import { renderNodeTs } from './node-ts';
+import { renderPhp } from './php';
 import { renderPython } from './python';
 import { renderRuby } from './ruby';
 import { renderSwift } from './swift';
+import type { RenderedSdk } from './shared/output';
+
+export type { ArtifactFile, RenderedSdk } from './shared/output';
 
 export type RenderOptions = {
   /** Config-relative `outputs[].path`. JVM uses this for package + class names. */
@@ -25,7 +29,7 @@ export async function renderSdk(
   sdk: SupportedSdk,
   events: NormalizedEvent[],
   options: RenderOptions = {},
-): Promise<string> {
+): Promise<RenderedSdk> {
   switch (sdk) {
     case 'browser-ts':
       return renderBrowserTs(events);
@@ -35,6 +39,8 @@ export async function renderSdk(
       return renderPython(events);
     case 'ruby':
       return renderRuby(events);
+    case 'php':
+      return renderPhp(events);
     case 'go':
       return renderGo(events);
     case 'swift':

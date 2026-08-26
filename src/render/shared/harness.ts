@@ -1,10 +1,11 @@
 import type { NormalizedEvent } from '../../normalize/types';
+import type { RenderedSdk } from './output';
 
 /** Declared in `src/render/<sdk-id>/harness.ts` and discovered by the scripts. */
 export type SdkHarness = {
   /** Produce generated source for the shared fixture events. */
-  render: (events: NormalizedEvent[]) => Promise<string>;
-  /** Repo-relative path of the gitignored generated file. */
+  render: (events: NormalizedEvent[]) => Promise<RenderedSdk>;
+  /** Repo-relative path of the gitignored generated file, or directory. */
   generatedFile: string;
   /**
    * Run as `command ...args generatedFile` after writing.

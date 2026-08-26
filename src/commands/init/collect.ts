@@ -30,6 +30,8 @@ export function defaultOutputPath(sdk: SupportedSdk): string {
       return './analytics/generated.py';
     case 'ruby':
       return './analytics/generated.rb';
+    case 'php':
+      return './src/Hightouch/Generated/';
     case 'go':
       return './analytics/generated.go';
     case 'swift':

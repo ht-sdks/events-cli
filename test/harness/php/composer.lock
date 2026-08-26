@@ -1,0 +1,99 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "894648adedb2891bb2794b12c3508ddf",
+    "packages": [
+        {
+            "name": "ht-sdks/events-sdk-php",
+            "version": "0.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ht-sdks/events-sdk-php.git",
+                "reference": "623294ba7a99052a47fd0459eb39c13c437730af"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ht-sdks/events-sdk-php/zipball/623294ba7a99052a47fd0459eb39c13c437730af",
+                "reference": "623294ba7a99052a47fd0459eb39c13c437730af",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "php": "^7.4 || ^8.0"
+            },
+            "require-dev": {
+                "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+                "phpunit/phpunit": "^9.0",
+                "slevomat/coding-standard": "^8.15",
+                "squizlabs/php_codesniffer": "^3.6"
+            },
+            "suggest": {
+                "ext-curl": "For using the curl HTTP client",
+                "ext-zlib": "For using compression"
+            },
+            "bin": [
+                "bin/htevents"
+            ],
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Hightouch\\": "lib/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Hightouch\\Test\\": "test/"
+                }
+            },
+            "scripts": {
+                "test": [
+                    "./vendor/bin/phpunit --no-coverage"
+                ],
+                "check": [
+                    "./vendor/bin/phpcs"
+                ],
+                "cf": [
+                    "./vendor/bin/phpcbf"
+                ],
+                "coverage": [
+                    "./vendor/bin/phpunit"
+                ]
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Hightouch <engineering@hightouch.com>",
+                    "homepage": "https://hightouch.com/"
+                }
+            ],
+            "description": "Hightouch Events SDK PHP",
+            "homepage": "https://github.com/ht-sdks/events-sdk-php",
+            "keywords": [
+                "analytics",
+                "events",
+                "hightouch",
+                "ht-sdks",
+                "htevents"
+            ],
+            "support": {
+                "source": "https://github.com/ht-sdks/events-sdk-php/tree/0.0.1",
+                "issues": "https://github.com/ht-sdks/events-sdk-php/issues"
+            },
+            "time": "2024-03-27T14:45:33+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {},
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": {},
+    "platform-dev": {},
+    "plugin-api-version": "2.9.0"
+}
