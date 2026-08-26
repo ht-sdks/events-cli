@@ -1,20 +1,11 @@
 import type { NormalizedEvent } from '../../src/normalize/types';
+import { JSON_KEY_PROBE_PROPERTIES } from './extra-events';
+
+export { JSON_KEY_PROBE_PROPERTIES } from './extra-events';
 
 /**
- * Four contract spellings of the same logical property. Quicktype legalizes
- * them to distinct Java/Kotlin fields (sometimes prefixed) and `@JsonName`
- * must send each original key.
- */
-export const JSON_KEY_PROBE_PROPERTIES = {
-  'order-id': { type: 'string' },
-  order_id: { type: 'string' },
-  OrderId: { type: 'string' },
-  orderId: { type: 'string' },
-} as const;
-
-/**
- * JVM-only extra contracts. Hyphenated keys are invalid identifiers in
- * PHP/C# type emitters, so they stay out of shared `extra-events.ts`.
+ * JVM unit tests still import this helper. The probe event now also lives in
+ * shared `extra-events.ts` so every language harness inherits it.
  */
 export function jvmExtraHarnessEvents(): NormalizedEvent[] {
   return [

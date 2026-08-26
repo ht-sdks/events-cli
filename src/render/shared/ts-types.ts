@@ -22,6 +22,7 @@ export async function renderTypescriptTypes(
     rendererOptions: {
       'just-types': 'true',
       'nice-property-names': 'false',
+      'acronym-style': 'original' as never,
     },
   });
   const fallbacks = events

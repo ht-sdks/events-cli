@@ -46,6 +46,27 @@ describe('renderGo', () => {
     expect(src).not.toMatch(/type WrongTitle struct/);
   });
 
+  it('keeps acronyms in payload type names as pascal case instead of rewriting to all caps', async () => {
+    const event: NormalizedEvent = {
+      type: 'track',
+      name: 'Json Key Probe',
+      version: 'default',
+      domainName: 'Probe',
+      envelopeKey: 'properties',
+      schema: {
+        type: 'object',
+        properties: { foo: { type: 'string' } },
+      },
+      wrapperName: 'trackJsonKeyProbeDefault',
+    };
+    const src = await renderGo([event]);
+    expect(src).toMatch(/type TrackJsonKeyProbeDefaultPayload struct/);
+    expect(src).toContain(
+      'func TrackJsonKeyProbeDefault(client htevents.Client, userID string, props TrackJsonKeyProbeDefaultPayload',
+    );
+    expect(src).not.toMatch(/TrackJSONKeyProbeDefault/);
+  });
+
   it('emits alias wrappers with userID and previousID, not a properties payload', async () => {
     const event: NormalizedEvent = {
       type: 'alias',

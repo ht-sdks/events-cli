@@ -27,6 +27,12 @@ const WRAPPER_NAMES = [
 const GENERATED_SNIPPETS = {
   'browser-ts': ['trackCartViewedDefault', 'identifyDefault'],
   'node-ts': ['trackCartViewedDefault', 'identifyDefault', 'htevents.track({'],
+  python: [
+    'from hightouch.htevents.client import Client',
+    'def track_cart_viewed_default(',
+    'def identify_default(',
+    'client.track(',
+  ],
   go: [
     'package analytics',
     'func TrackCartViewedDefault(',

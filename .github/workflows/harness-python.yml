@@ -1,0 +1,24 @@
+name: Python harness
+
+on:
+  push:
+
+jobs:
+  python-harness:
+    name: test generated wrappers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-cli
+        with:
+          node-version: '22'
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate wrappers and test against events-sdk-python
+        run: pnpm test:harness python
+        env:
+          RUN_HARNESS: '1'

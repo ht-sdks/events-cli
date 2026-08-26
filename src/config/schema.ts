@@ -3,6 +3,7 @@ import { z } from 'zod';
 export const SUPPORTED_SDKS = [
   'browser-ts',
   'node-ts',
+  'python',
   'go',
   'swift',
   'android',

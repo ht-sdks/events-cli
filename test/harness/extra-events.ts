@@ -1,5 +1,16 @@
 import type { NormalizedEvent } from '../../src/normalize/types';
 
+/**
+ * Four contract spellings of the same logical property. Legalized field names
+ * stay distinct; serialization must send each original JSON key.
+ */
+export const JSON_KEY_PROBE_PROPERTIES = {
+  'order-id': { type: 'string' },
+  order_id: { type: 'string' },
+  OrderId: { type: 'string' },
+  orderId: { type: 'string' },
+} as const;
+
 /** Extra contracts for language harnesses. Domain fixtures omit some event types. */
 export function extraHarnessEvents(): NormalizedEvent[] {
   return [
@@ -132,6 +143,18 @@ export function extraHarnessEvents(): NormalizedEvent[] {
       },
       wrapperName: 'trackSignedUpDefault',
       latestAlias: 'trackSignedUp',
+    },
+    {
+      type: 'track',
+      name: 'Json Key Probe',
+      version: 'default',
+      domainName: 'Keys',
+      envelopeKey: 'properties',
+      schema: {
+        type: 'object',
+        properties: { ...JSON_KEY_PROBE_PROPERTIES },
+      },
+      wrapperName: 'trackJsonKeyProbeDefault',
     },
   ];
 }

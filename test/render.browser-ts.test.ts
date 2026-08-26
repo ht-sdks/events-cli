@@ -40,6 +40,28 @@ describe('renderBrowserTs', () => {
     expect(ts).not.toMatch(/export interface WrongTitle/);
   });
 
+  it('keeps acronyms in payload type names as pascal case instead of rewriting to all caps', async () => {
+    const event: NormalizedEvent = {
+      type: 'track',
+      name: 'Json Key Probe',
+      version: 'default',
+      domainName: 'Probe',
+      envelopeKey: 'properties',
+      schema: {
+        type: 'object',
+        properties: { foo: { type: 'string' } },
+      },
+      wrapperName: 'trackJsonKeyProbeDefault',
+    };
+    const ts = await renderBrowserTs([event]);
+    expect(ts).toMatch(/export interface TrackJsonKeyProbeDefault/);
+    expect(ts).toContain('properties: TrackJsonKeyProbeDefault');
+    expect(ts).not.toMatch(
+      /export type TrackJsonKeyProbeDefault = Record<string, unknown>/,
+    );
+    expect(ts).not.toMatch(/TrackJSONKeyProbeDefault/);
+  });
+
   it('emits alias wrappers with to/from ids, not a properties payload', async () => {
     const event: NormalizedEvent = {
       type: 'alias',
