@@ -142,4 +142,23 @@ describe('renderKotlin', () => {
       /Identifier collision: "trackFoo" is produced by both method trackFoo and latest alias trackFoo/,
     );
   });
+
+  it('emits an unnamed empty screen as screenDefault, not a nested typealias', async () => {
+    const event: NormalizedEvent = {
+      type: 'screen',
+      version: 'default',
+      domainName: 'Mobile',
+      envelopeKey: 'properties',
+      schema: { type: 'object' },
+      wrapperName: 'screenDefault',
+      latestAlias: 'screen',
+    };
+    const src = await renderKotlin([event]);
+    expect(src).toContain('class ScreenDefault');
+    expect(src).not.toContain('typealias ScreenDefault');
+    expect(src).toContain(
+      'fun screenDefault(properties: ScreenDefault, context: Map<String, Any>? = null)',
+    );
+    expect(src).toContain('analytics.screen("screen"');
+  });
 });

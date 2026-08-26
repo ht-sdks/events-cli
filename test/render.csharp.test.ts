@@ -116,4 +116,20 @@ describe('renderCSharp', () => {
       /Identifier collision: "TrackFoo" is produced by both method trackFoo and latest alias trackFoo/,
     );
   });
+
+  it('emits an unnamed empty screen as ScreenDefault without a nested using', async () => {
+    const event: NormalizedEvent = {
+      type: 'screen',
+      version: 'default',
+      domainName: 'Mobile',
+      envelopeKey: 'properties',
+      schema: { type: 'object' },
+      wrapperName: 'screenDefault',
+      latestAlias: 'screen',
+    };
+    const src = await renderCSharp([event]);
+    expect(src).toContain('public class ScreenDefault');
+    expect(src).not.toMatch(/namespace Analytics[\s\S]*using /);
+    expect(src).toContain('_analytics.Screen("screen", ToJsonObject(data));');
+  });
 });

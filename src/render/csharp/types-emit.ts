@@ -19,7 +19,7 @@ function dedent(source: string): string {
 function extractTypes(source: string): string {
   const body = dedent(
     source
-      .replace(/^using .+;\s*/gm, '')
+      .replace(/^[ \t]*using .+;[ \t]*$/gm, '')
       .replace(/^\/\/ .+$/gm, '')
       .replace(/^namespace \w+\s*\{/, '')
       .replace(/\}\s*$/, ''),

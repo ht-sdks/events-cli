@@ -34,6 +34,8 @@ function nestQuicktypeKotlin(source: string): {
     .replace(/^import .+\s*/gm, '')
     .replace(/\/\*\*[\s\S]*?\*\/\s*/g, '')
     .trim();
+  // Nested typealiases are illegal; empty object schemas become empty classes.
+  body = body.replace(/^typealias (\w+) = .+$/gm, 'class $1');
   body = body.replace(/\n{3,}/g, '\n\n').trim();
   return { imports, body };
 }

@@ -139,11 +139,7 @@ assert_eq(screen['type'], 'screen')
 assert_eq(screen['name'], 'Home')
 
 unnamed = send_and_read do |client|
-  HtEvents.screen_unnamed_default(
-    client,
-    'user_1',
-    HtEvents::ScreenUnnamedDefault.new(path: '/')
-  )
+  HtEvents.screen_default(client, 'user_1')
 end
 assert_eq(unnamed['type'], 'screen')
 assert_eq(unnamed['name'], '')
