@@ -2,6 +2,7 @@ import type { SupportedSdk } from '../config/schema';
 import type { NormalizedEvent } from '../normalize/types';
 import { renderAndroid } from './android';
 import { renderBrowserTs } from './browser-ts';
+import { renderCSharp } from './csharp';
 import { renderGo } from './go';
 import { renderJava } from './java';
 import { renderKotlin } from './kotlin';
@@ -41,6 +42,8 @@ export async function renderSdk(
       return renderRuby(events);
     case 'php':
       return renderPhp(events);
+    case 'csharp':
+      return renderCSharp(events);
     case 'go':
       return renderGo(events);
     case 'swift':

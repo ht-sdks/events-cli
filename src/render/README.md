@@ -28,6 +28,7 @@ Check here before copying. Add to this list when you extract something:
 - `snake-names.ts` — `toSnakeCase` / `snakeName` / Python and Ruby keyword sets
 - `output.ts` — `ArtifactFile` / `RenderedSdk` / `flattenRender`
 - `php-json-name-quicktype.ts` — PHP renderer that emits `@JsonName` when the JSON key is not a valid identifier
+- `csharp-json-name-quicktype.ts` — C# renderer that emits `[JsonPropertyName]` when the JSON key is not a valid identifier
 
 Keep language syntax, peer-SDK call shapes, and generated injection helpers in `src/render/<sdk-id>/`. Do **not** move `setAtPath` / `withSchemaVersion` into `shared/` — those are emitted into the customer's file and must match that SDK. `wrappers-emit.ts` is per SDK on purpose (quicktype is types only).
 

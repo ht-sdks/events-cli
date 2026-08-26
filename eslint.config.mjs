@@ -14,6 +14,7 @@ export default tseslint.config(
       'test/harness/python/',
       'test/harness/ruby/',
       'test/harness/php/',
+      'test/harness/csharp/',
       'test/harness/android/',
       'test/harness/kotlin/',
       'test/harness/java/',

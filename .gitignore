@@ -52,6 +52,9 @@ test/harness/ruby/generated.rb
 test/harness/ruby/vendor/
 test/harness/php/generated/
 test/harness/php/vendor/
+test/harness/csharp/Analytics/HtEvents.cs
+test/harness/csharp/bin/
+test/harness/csharp/obj/
 test/harness/swift/Sources/Analytics/Generated.swift
 test/harness/swift/.build/
 test/harness/swift/.swiftpm/
