@@ -33,6 +33,12 @@ const GENERATED_SNIPPETS = {
     'def identify_default(',
     'client.track(',
   ],
+  ruby: [
+    "require 'hightouch/analytics'",
+    'def self.track_cart_viewed_default(',
+    'def self.identify_default(',
+    'client.track(',
+  ],
   go: [
     'package analytics',
     'func TrackCartViewedDefault(',

@@ -24,6 +24,8 @@ Check here before copying. Add to this list when you extract something:
 - `java-types.ts` — `renderNestedJavaTypes` / `nestQuicktypeJava`
 - `jvm-json-name-quicktype.ts` — Java/Kotlin renderers that emit `@JsonName` when the JSON key is not a valid identifier
 - `ts-types.ts` — `typeNameFor` / `renderTypescriptTypes`
+- `json-fields.ts` — `walkSchemaKeys` / `legalizeIdentifier` / `assignFieldNames`
+- `snake-names.ts` — `toSnakeCase` / `snakeName` / Python and Ruby keyword sets
 
 Keep language syntax, peer-SDK call shapes, and generated injection helpers in `src/render/<sdk-id>/`. Do **not** move `setAtPath` / `withSchemaVersion` into `shared/` — those are emitted into the customer's file and must match that SDK. `wrappers-emit.ts` is per SDK on purpose (quicktype is types only).
 
@@ -34,7 +36,7 @@ Keep language syntax, peer-SDK call shapes, and generated injection helpers in `
 Wire tests against the peer SDK. Separate workflow files so PRs do not all edit `ci.yml`.
 
 - `test/harness/<id>/` — committed language tests; generated output gitignored
-- Shared extra contracts: `test/harness/extra-events.ts` (JVM hyphenated-key probe: `test/harness/jvm-extra-events.ts`)
+- Shared extra contracts: `test/harness/extra-events.ts` (includes the hyphenated-key probe)
 - `src/render/<id>/harness.ts` — emit path + how to run tests (discovered; do not edit a central list)
 - `.github/workflows/harness-<id>.yml` — reuse `.github/actions/setup-cli`; do not add this job to the Node 18–24 matrix
 

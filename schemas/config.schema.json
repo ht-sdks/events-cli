@@ -57,6 +57,7 @@
                   "browser-ts",
                   "node-ts",
                   "python",
+                  "ruby",
                   "go",
                   "swift",
                   "android",

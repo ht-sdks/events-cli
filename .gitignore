@@ -48,6 +48,8 @@ test/harness/node-ts/generated.ts
 test/harness/python/generated.py
 test/harness/python/__pycache__/
 test/harness/python/.venv/
+test/harness/ruby/generated.rb
+test/harness/ruby/vendor/
 test/harness/swift/Sources/Analytics/Generated.swift
 test/harness/swift/.build/
 test/harness/swift/.swiftpm/

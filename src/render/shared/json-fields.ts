@@ -1,5 +1,6 @@
 import { CliError } from '../../lib/errors';
 import type { NormalizedEvent } from '../../normalize/types';
+import { PYTHON_KEYWORDS } from './snake-names';
 
 export type JsonFieldLang = 'python' | 'ruby' | 'php' | 'csharp';
 
@@ -11,44 +12,6 @@ function isKeyword(name: string, lang: JsonFieldLang): boolean {
   }
   return false;
 }
-
-const PYTHON_KEYWORDS = new Set([
-  'and',
-  'as',
-  'assert',
-  'async',
-  'await',
-  'break',
-  'class',
-  'continue',
-  'def',
-  'del',
-  'elif',
-  'else',
-  'except',
-  'false',
-  'finally',
-  'for',
-  'from',
-  'global',
-  'if',
-  'import',
-  'in',
-  'is',
-  'lambda',
-  'none',
-  'nonlocal',
-  'not',
-  'or',
-  'pass',
-  'raise',
-  'return',
-  'true',
-  'try',
-  'while',
-  'with',
-  'yield',
-]);
 
 export function schemaProperties(
   schema: unknown,

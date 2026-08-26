@@ -1,0 +1,26 @@
+name: Ruby harness
+
+on:
+  push:
+
+jobs:
+  ruby-harness:
+    name: test generated wrappers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-cli
+        with:
+          node-version: '22'
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          working-directory: test/harness/ruby
+
+      - name: Generate wrappers and test against events-sdk-ruby
+        run: pnpm test:harness ruby
+        env:
+          RUN_HARNESS: '1'

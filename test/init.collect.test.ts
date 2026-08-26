@@ -9,6 +9,7 @@ const DEFAULT_OUTPUT_PATHS = {
   'browser-ts': './src/analytics/generated.ts',
   'node-ts': './src/analytics/generated.ts',
   python: './analytics/generated.py',
+  ruby: './analytics/generated.rb',
   go: './analytics/generated.go',
   swift: './Sources/Analytics/Generated.swift',
   android: './src/main/java/analytics/HtEvents.java',
