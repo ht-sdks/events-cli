@@ -21,6 +21,28 @@ describe('renderNodeTs', () => {
     expect(ts).toMatch(/orderId/);
   });
 
+  it('keeps acronyms in payload type names as pascal case instead of rewriting to all caps', async () => {
+    const event: NormalizedEvent = {
+      type: 'track',
+      name: 'Json Key Probe',
+      version: 'default',
+      domainName: 'Probe',
+      envelopeKey: 'properties',
+      schema: {
+        type: 'object',
+        properties: { foo: { type: 'string' } },
+      },
+      wrapperName: 'trackJsonKeyProbeDefault',
+    };
+    const ts = await renderNodeTs([event]);
+    expect(ts).toMatch(/export interface TrackJsonKeyProbeDefault/);
+    expect(ts).toContain('properties: TrackJsonKeyProbeDefault');
+    expect(ts).not.toMatch(
+      /export type TrackJsonKeyProbeDefault = Record<string, unknown>/,
+    );
+    expect(ts).not.toMatch(/TrackJSONKeyProbeDefault/);
+  });
+
   it('emits params-object SDK calls with an optional userId', async () => {
     const ts = await renderNodeTs(eventsFromFixture('simple-track.json'));
     expect(ts).toContain(
