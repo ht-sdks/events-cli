@@ -58,6 +58,39 @@ describe('collectInitAnswers', () => {
     expect(answers.source).toBe('prompted-key');
     expect(answers.inputType).toBe('git-sync');
     expect(answers.gitSyncPath).toBe('./events');
+    expect(prompter.select).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'SDK to generate for' }),
+    );
+  });
+
+  it('does not prompt for SDK on TTY when --sdk is passed', async () => {
+    const prompter = {
+      input: jest.fn(),
+      select: jest.fn(),
+      confirm: jest.fn(),
+    };
+    const answers = await collectInitAnswers(
+      {
+        source: 'key',
+        input: 'api',
+        output: './out.ts',
+        sdk: 'python',
+      },
+      prompter as never,
+      true,
+    );
+    expect(answers.sdk).toBe('python');
+    expect(prompter.select).not.toHaveBeenCalled();
+  });
+
+  it('errors in non-TTY when --sdk is omitted', async () => {
+    await expect(
+      collectInitAnswers(
+        { source: 'key', input: 'api', output: './out.ts' },
+        undefined,
+        false,
+      ),
+    ).rejects.toThrow(/--sdk/);
   });
 
   it.each(SUPPORTED_SDKS)(

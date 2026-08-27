@@ -14,11 +14,7 @@ export function initCommand(): Command {
     .option('--source <slug>', 'event source slug')
     .option('--input <type>', 'api | git-sync')
     .option('--git-sync-path <path>', 'local git-sync directory (for git-sync)')
-    .option(
-      '--sdk <sdk>',
-      `target SDK (${SUPPORTED_SDKS.join(', ')})`,
-      'browser-ts',
-    )
+    .option('--sdk <sdk>', `target SDK (${SUPPORTED_SDKS.join(', ')})`)
     .option('--output <path>', 'path for generated code')
     .option('--force', 'overwrite an existing config file')
     .action(async (opts, command: Command) => {
