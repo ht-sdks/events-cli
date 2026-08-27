@@ -391,6 +391,8 @@ describe('htevents cli (e2e)', () => {
       'git-sync',
       '--git-sync-path',
       './events',
+      '--sdk',
+      'browser-ts',
       '--output',
       './generated.ts',
     ]);
@@ -446,6 +448,8 @@ describe('htevents cli (e2e)', () => {
       'a',
       '--input',
       'api',
+      '--sdk',
+      'browser-ts',
       '--output',
       './out.ts',
     ];
