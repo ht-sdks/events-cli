@@ -16,6 +16,7 @@
   "exclude": [
     "test/harness/go",
     "test/harness/browser-ts",
-    "test/harness/swift"
+    "test/harness/swift",
+    "test/harness/react-native"
   ]
 }

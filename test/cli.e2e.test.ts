@@ -87,6 +87,11 @@ const GENERATED_SNIPPETS = {
     'identifyDefault',
     'analytics.enqueue(',
   ],
+  'react-native': [
+    'trackCartViewedDefault',
+    'identifyDefault',
+    'htevents.track(',
+  ],
 } as const satisfies Record<SupportedSdk, readonly string[]>;
 
 const CLI = join(__dirname, '..', 'dist', 'cli.js');

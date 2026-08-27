@@ -9,6 +9,7 @@ import { renderKotlin } from './kotlin';
 import { renderNodeTs } from './node-ts';
 import { renderPhp } from './php';
 import { renderPython } from './python';
+import { renderReactNative } from './react-native';
 import { renderRuby } from './ruby';
 import { renderSwift } from './swift';
 import type { RenderedSdk } from './shared/output';
@@ -54,6 +55,8 @@ export async function renderSdk(
       return renderKotlin(events, options.outputPath);
     case 'java':
       return renderJava(events, options.outputPath);
+    case 'react-native':
+      return renderReactNative(events);
     default: {
       const exhaustive: never = sdk;
       throw new Error(`Unsupported SDK: ${String(exhaustive)}`);

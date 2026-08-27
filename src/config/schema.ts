@@ -12,6 +12,7 @@ export const SUPPORTED_SDKS = [
   'android',
   'kotlin',
   'java',
+  'react-native',
 ] as const;
 export type SupportedSdk = (typeof SUPPORTED_SDKS)[number];
 

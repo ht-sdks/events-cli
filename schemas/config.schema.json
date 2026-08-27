@@ -64,7 +64,8 @@
                   "swift",
                   "android",
                   "kotlin",
-                  "java"
+                  "java",
+                  "react-native"
                 ]
               },
               "path": {
