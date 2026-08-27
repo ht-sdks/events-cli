@@ -51,16 +51,10 @@ export function defaultOutputPath(sdk: SupportedSdk): string {
   }
 }
 
-function hasAllFlags(flags: InitFlags): boolean {
-  if (!flags.source || !flags.input || !flags.output) return false;
-  if (flags.input === 'git-sync' && !flags.gitSyncPath) return false;
-  return true;
-}
-
 function fromFlags(flags: InitFlags): InitAnswers {
-  if (!flags.source || !flags.input || !flags.output) {
+  if (!flags.source || !flags.input || !flags.sdk || !flags.output) {
     throw new CliError(
-      'Non-interactive init requires --source, --input, and --output' +
+      'Non-interactive init requires --source, --input, --sdk, and --output' +
         (flags.input === 'git-sync' ? ', plus --git-sync-path' : '') +
         '.',
     );
@@ -72,7 +66,7 @@ function fromFlags(flags: InitFlags): InitAnswers {
     source: flags.source,
     inputType: flags.input,
     gitSyncPath: flags.gitSyncPath,
-    sdk: flags.sdk ?? 'browser-ts',
+    sdk: flags.sdk,
     outputPath: flags.output,
     force: Boolean(flags.force),
   };
@@ -83,7 +77,7 @@ export async function collectInitAnswers(
   prompter?: Prompter,
   isTTY: boolean = Boolean(process.stdin.isTTY),
 ): Promise<InitAnswers> {
-  if (hasAllFlags(flags) || !isTTY) {
+  if (!isTTY) {
     return fromFlags(flags);
   }
 
