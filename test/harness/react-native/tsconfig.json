@@ -6,7 +6,8 @@
     "target": "ES2022",
     "module": "Node16",
     "moduleResolution": "Node16",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "allowImportingTsExtensions": true
   },
-  "files": ["generated.ts"]
+  "files": ["generated.ts", "wrappers.test.ts"]
 }

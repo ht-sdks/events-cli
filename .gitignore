@@ -70,7 +70,6 @@ test/harness/java/.gradle/
 test/harness/java/build/
 test/harness/react-native/generated.ts
 test/harness/react-native/node_modules/
-test/harness/react-native/package-lock.json
 
 # Dependency directories
 node_modules/
