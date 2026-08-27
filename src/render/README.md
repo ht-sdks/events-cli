@@ -105,7 +105,7 @@ htevents.config.json
 | `wrapperName`       | Canonical function id, already version-suffixed, e.g. `trackOrderCompletedV2`. **Stable identity** (also stored in the lockfile). Transliterate for the target language; do not rename from `type`+`name`+`version` yourself. |
 | `latestAlias`       | Unsuffixed name for the latest version only, e.g. `trackOrderCompleted`. Emit as an alias of `wrapperName`.                                                                                                                   |
 
-Latest-version policy lives in `src/normalize/index.ts`: prefer `version === "default"` if present, else last in input order. Renderers must not re-decide latest.
+Latest-version policy lives in `src/normalize/index.ts`: lexicographically greatest version string (same as Event Studio `event_version: desc`). Renderers must not re-decide latest.
 
 ---
 

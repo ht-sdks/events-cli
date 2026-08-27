@@ -23,9 +23,9 @@ describe('names', () => {
   });
 
   /**
-   * Latest policy: prefer version === "default" (last such); else last in order.
+   * Latest policy: lexicographically greatest version (event_version desc).
    */
-  it('picks latest by default-preferring policy', () => {
+  it('picks latest by lexicographic version desc', () => {
     expect(pickLatestIndex([{ version: 'v1' }, { version: 'v2' }])).toBe(1);
     expect(
       pickLatestIndex([
@@ -33,14 +33,17 @@ describe('names', () => {
         { version: 'default' },
         { version: 'v2' },
       ]),
-    ).toBe(1);
+    ).toBe(2);
     expect(
       pickLatestIndex([
         { version: 'default' },
         { version: 'v2' },
         { version: 'default' },
       ]),
-    ).toBe(2);
+    ).toBe(1);
+    expect(pickLatestIndex([{ version: 'v2' }, { version: 'default' }])).toBe(
+      0,
+    );
   });
 
   it('detects wrapper collisions', () => {

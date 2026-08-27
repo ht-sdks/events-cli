@@ -36,7 +36,7 @@ describe('normalize', () => {
     });
   });
 
-  it('emits all versions with default-preferring latest alias', () => {
+  it('emits all versions with lexicographic-latest alias', () => {
     const bundle: ContractBundle = {
       source: 'wk',
       domains: [domainFixture('multi-version.json')],
