@@ -11,7 +11,7 @@ function needsPayloadType(event: NormalizedEvent): boolean {
 function cleanQuicktypeDart(source: string): string {
   return source
     .replace(/^\/\/ To parse this JSON data, do\n\/\/\n(?:\/\/.+\n)+/, '')
-    .replace(/^import 'dart:convert';\n*/, '')
+    .replace(/^import 'dart:convert';\n*/m, '')
     .replace(/^[A-Za-z0-9_<>, ]+ \w+FromMap\(String str\).+\n*/gm, '')
     .replace(/^String \w+ToMap\(.+\n*/gm, '')
     .replace(/\n{3,}/g, '\n\n')

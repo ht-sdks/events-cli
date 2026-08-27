@@ -47,6 +47,13 @@ void main() {
     expect(schemaVersion(track), 'default');
   });
 
+  test('merges enrichment when the event context is initially absent', () async {
+    final track = await sendAndRead<TrackEvent>(
+      (events) => events.trackSignedUp(TrackSignedUpDefault(plan: 'pro')),
+    );
+    expect(schemaVersion(track), 'default');
+  });
+
   test('injects properties.apiVersion on track', () async {
     final track = await sendAndRead<TrackEvent>(
       (events) => events.trackOrderCompletedPropsV1(

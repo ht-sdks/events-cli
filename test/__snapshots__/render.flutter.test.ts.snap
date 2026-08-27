@@ -7,8 +7,6 @@ exports[`renderFlutter matches the snapshot for multi-version.json 1`] = `
 import 'package:hightouch_events/analytics.dart';
 import 'package:hightouch_events/event.dart';
 
-import 'dart:convert';
-
 class TrackOrderCompletedV1 {
     final String? orderId;
 
@@ -144,10 +142,8 @@ class HtEvents {
         }
         return (event) {
             final existing = event.context;
-            if (existing == null) {
-                return event;
-            }
-            event.context = Context.fromJson(_deepMerge(existing.toJson(), extra));
+            final base = existing == null ? <String, dynamic>{} : existing.toJson();
+            event.context = Context.fromJson(_deepMerge(base, extra));
             return event;
         };
     }
@@ -219,8 +215,6 @@ exports[`renderFlutter matches the snapshot for simple-track.json 1`] = `
 
 import 'package:hightouch_events/analytics.dart';
 import 'package:hightouch_events/event.dart';
-
-import 'dart:convert';
 
 class TrackOrderCompletedDefault {
     final String orderId;
@@ -341,10 +335,8 @@ class HtEvents {
         }
         return (event) {
             final existing = event.context;
-            if (existing == null) {
-                return event;
-            }
-            event.context = Context.fromJson(_deepMerge(existing.toJson(), extra));
+            final base = existing == null ? <String, dynamic>{} : existing.toJson();
+            event.context = Context.fromJson(_deepMerge(base, extra));
             return event;
         };
     }
@@ -401,8 +393,6 @@ exports[`renderFlutter matches the snapshot for with-refs.json 1`] = `
 
 import 'package:hightouch_events/analytics.dart';
 import 'package:hightouch_events/event.dart';
-
-import 'dart:convert';
 
 class IdentifyDefault {
     final String? email;
@@ -543,10 +533,8 @@ class HtEvents {
         }
         return (event) {
             final existing = event.context;
-            if (existing == null) {
-                return event;
-            }
-            event.context = Context.fromJson(_deepMerge(existing.toJson(), extra));
+            final base = existing == null ? <String, dynamic>{} : existing.toJson();
+            event.context = Context.fromJson(_deepMerge(base, extra));
             return event;
         };
     }

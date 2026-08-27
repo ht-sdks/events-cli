@@ -2,7 +2,7 @@ import type { NormalizedEvent } from '../../normalize/types';
 import { assertNoMethodCollisions, methodName, typeNameFor } from './names';
 
 function dartString(value: string): string {
-  return JSON.stringify(value);
+  return JSON.stringify(value).replace(/\$/g, '\\$');
 }
 
 function dartStringList(values: readonly string[] | undefined): string {
@@ -115,10 +115,8 @@ function renderHelpers(): string {
     '        }',
     '        return (event) {',
     '            final existing = event.context;',
-    '            if (existing == null) {',
-    '                return event;',
-    '            }',
-    '            event.context = Context.fromJson(_deepMerge(existing.toJson(), extra));',
+    '            final base = existing == null ? <String, dynamic>{} : existing.toJson();',
+    '            event.context = Context.fromJson(_deepMerge(base, extra));',
     '            return event;',
     '        };',
     '    }',

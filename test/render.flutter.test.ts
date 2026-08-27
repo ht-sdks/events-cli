@@ -24,6 +24,18 @@ describe('renderFlutter', () => {
     expect(src).toContain('HtEvents(this._analytics);');
   });
 
+  it('does not emit an unused dart:convert import', async () => {
+    for (const fixture of [
+      'simple-track.json',
+      'multi-version.json',
+      'with-refs.json',
+    ]) {
+      expect(await renderFlutter(eventsFromFixture(fixture))).not.toContain(
+        'dart:convert',
+      );
+    }
+  });
+
   it('emits camelCase methods and PascalCase payload types with toMap', async () => {
     const src = await renderFlutter(eventsFromFixture('simple-track.json'));
     expect(src).toMatch(/class TrackOrderCompletedDefault/);
@@ -100,6 +112,23 @@ describe('renderFlutter', () => {
     );
     expect(src).toContain('UserTraits.fromJson');
     expect(src).toContain('_analytics.identify(');
+  });
+
+  it('escapes dollar signs in generated Dart string literals', async () => {
+    const event: NormalizedEvent = {
+      type: 'track',
+      name: 'Total $USD',
+      version: 'default',
+      domainName: 'Billing',
+      envelopeKey: 'properties',
+      schema: {
+        type: 'object',
+        properties: { amount: { type: 'number' } },
+      },
+      wrapperName: 'trackTotalUsdDefault',
+    };
+    const src = await renderFlutter([event]);
+    expect(src).toContain('"Total \\$USD"');
   });
 
   it('maps page events to screen', async () => {
