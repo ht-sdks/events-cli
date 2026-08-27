@@ -71,6 +71,12 @@ test/harness/java/build/
 test/harness/react-native/generated.ts
 test/harness/react-native/node_modules/
 test/harness/react-native/package-lock.json
+test/harness/flutter/lib/analytics/generated.dart
+test/harness/flutter/.dart_tool/
+test/harness/flutter/build/
+test/harness/flutter/.flutter-plugins
+test/harness/flutter/.flutter-plugins-dependencies
+test/harness/flutter/pubspec.lock
 
 # Dependency directories
 node_modules/

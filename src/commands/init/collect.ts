@@ -46,6 +46,8 @@ export function defaultOutputPath(sdk: SupportedSdk): string {
       return './analytics/HtEvents.java';
     case 'react-native':
       return './src/analytics/react-native/generated.ts';
+    case 'flutter':
+      return './lib/analytics/generated.dart';
     default: {
       const exhaustive: never = sdk;
       return exhaustive;

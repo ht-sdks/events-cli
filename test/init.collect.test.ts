@@ -18,6 +18,7 @@ const DEFAULT_OUTPUT_PATHS = {
   kotlin: './src/main/kotlin/analytics/HtEvents.kt',
   java: './analytics/HtEvents.java',
   'react-native': './src/analytics/react-native/generated.ts',
+  flutter: './lib/analytics/generated.dart',
 } as const satisfies Record<SupportedSdk, string>;
 
 describe('collectInitAnswers', () => {

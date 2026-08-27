@@ -13,6 +13,7 @@ export const SUPPORTED_SDKS = [
   'kotlin',
   'java',
   'react-native',
+  'flutter',
 ] as const;
 export type SupportedSdk = (typeof SUPPORTED_SDKS)[number];
 

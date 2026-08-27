@@ -12,4 +12,5 @@ test/harness/python/
 test/harness/ruby/
 test/harness/php/
 test/harness/csharp/
+test/harness/flutter/
 test/fixtures/git-sync/invalid-yaml/
