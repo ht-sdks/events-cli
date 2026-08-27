@@ -43,16 +43,16 @@ export type NamedEventRef = {
 };
 
 /**
- * Latest within a (type, name) group:
- * 1. Prefer version === "default" if present (last such wins).
- * 2. Otherwise the last event in input order.
+ * Latest within a (type, name) group: lexicographically greatest version,
+ * matching Event Studio `order_by: { event_version: desc }`. `"default"`
+ * sorts before named versions such as `v1` / `v2`.
  */
 export function pickLatestIndex(
   versions: ReadonlyArray<{ version: string }>,
 ): number {
-  let latest = versions.length - 1;
-  for (let i = 0; i < versions.length; i += 1) {
-    if (versions[i].version === 'default') {
+  let latest = 0;
+  for (let i = 1; i < versions.length; i += 1) {
+    if (versions[i].version > versions[latest].version) {
       latest = i;
     }
   }

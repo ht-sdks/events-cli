@@ -53,10 +53,10 @@ function normalizeEventSchema(event: DomainEvent, domain: Domain): JsonSchema {
  * Normalize a raw ContractBundle into emitable events.
  *
  * Latest-version policy (documented for tests): within each
- * (domain, type, name) group, prefer `version === "default"` if present
- * (last such wins); otherwise the last event in input order is latest.
- * Every version gets a suffixed `wrapperName`; only the latest also gets
- * an unsuffixed `latestAlias`.
+ * (domain, type, name) group, the lexicographically greatest `version`
+ * is latest (same as Event Studio `event_version: desc`). Every version
+ * gets a suffixed `wrapperName`; only the latest also gets an unsuffixed
+ * `latestAlias`.
  */
 export function normalize(bundle: ContractBundle): NormalizedEvent[] {
   type Draft = Omit<NormalizedEvent, 'latestAlias'> & {
