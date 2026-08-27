@@ -2,20 +2,28 @@
 
 Generate typed wrappers from [Hightouch event contracts](https://hightouch.com/docs/events/contracts/management) so your instrumentation is checked in the editor, not after events reach Hightouch.
 
-The CLI (`htevents`) fetches contracts for an event source and emits wrappers around a [Hightouch Events SDK](https://hightouch.com/docs/events/sdks/browser). You call those wrappers instead of untyped `track` / `identify` methods. Generated code never installs or constructs the SDK — you keep using the SDK you already have.
-
-Requires Node.js 18 or later.
+The CLI (`htevents`) fetches contracts for an event source and emits wrappers around supported Hightouch Events SDKs ([Browser](https://hightouch.com/docs/events/sdks/browser), [Swift](https://hightouch.com/docs/events/sdks/swift), etc.). You call those wrappers instead of untyped `track` / `identify` methods. Generated code never installs or constructs the SDK — you keep using the SDK you already have.
 
 ## Install
+
+Requires [Node.js](https://nodejs.org/) 18 or later, which includes `npm` and `npx`.
 
 ```sh
 npm install --save-dev @ht-sdks/events-cli
 ```
 
-The binary is `htevents`. You can also run it with `npx`:
+Run it from the project directory with `npx`:
 
 ```sh
 npx htevents --help
+```
+
+A local install does not put `htevents` on your `PATH`; `npx` resolves the copy in `node_modules`. To put it on your `PATH`, install globally with `npm install -g @ht-sdks/events-cli`. Prefer the local install above so the CLI version stays pinned in CI and shared project environments.
+
+If your repo has no `package.json` (for example, a Swift or Android app), `npm install --save-dev` will create one. You can also run the CLI without adding a dependency using:
+
+```sh
+npx @ht-sdks/events-cli --help
 ```
 
 Install the Events SDK for your platform separately. Generated files declare the peer package they wrap.
