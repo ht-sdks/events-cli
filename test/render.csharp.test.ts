@@ -38,7 +38,9 @@ describe('renderCSharp', () => {
     };
     const src = await renderCSharp([event]);
     expect(src).toContain('void AliasDefault(string newId)');
-    expect(src).toContain('_analytics.Alias(newId);');
+    expect(src).toContain(
+      '_analytics.Alias(newId, ContextEnrichment(injected.Context));',
+    );
     expect(src).not.toMatch(/void AliasDefault\(.*previousId/);
   });
 
@@ -130,6 +132,8 @@ describe('renderCSharp', () => {
     const src = await renderCSharp([event]);
     expect(src).toContain('public class ScreenDefault');
     expect(src).not.toMatch(/namespace Analytics[\s\S]*using /);
-    expect(src).toContain('_analytics.Screen("screen", ToJsonObject(data));');
+    expect(src).toContain(
+      '_analytics.Screen("screen", ToJsonObject(injected.Data), enrichment: ContextEnrichment(injected.Context));',
+    );
   });
 });

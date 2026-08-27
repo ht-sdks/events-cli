@@ -15,7 +15,6 @@ export async function renderCSharp(events: NormalizedEvent[]): Promise<string> {
     renderHeader(MIN_SDK_PACKAGE, MIN_SDK_VERSION),
     'using System;',
     'using System.Collections;',
-    'using System.Collections.Concurrent;',
     'using System.Collections.Generic;',
     'using System.Reflection;',
     'using Hightouch.Events;',

@@ -198,84 +198,42 @@ function renderHelpers(): string {
     '            return new Injected { Data = data, Context = context };',
     '        }',
     '',
-    '        private sealed class ContextStampPlugin : Plugin',
+    '        private static void MergeContext(RawEvent incomingEvent, Dictionary<string, object> extra)',
     '        {',
-    '            public override PluginType Type => PluginType.Enrichment;',
-    '            private readonly ConcurrentDictionary<string, Dictionary<string, object>> _pending = new ConcurrentDictionary<string, Dictionary<string, object>>();',
-    '            private readonly ConcurrentQueue<Dictionary<string, object>> _alias = new ConcurrentQueue<Dictionary<string, object>>();',
-    '',
-    '            public string Register(Dictionary<string, object> context)',
+    '            if (incomingEvent.Context == null)',
     '            {',
-    '                var token = Guid.NewGuid().ToString("N");',
-    '                _pending[token] = context;',
-    '                return token;',
+    '                incomingEvent.Context = ToJsonObject(extra);',
+    '                return;',
     '            }',
-    '',
-    '            public void RegisterAlias(Dictionary<string, object> context)',
+    '            foreach (var entry in extra)',
     '            {',
-    '                _alias.Enqueue(context);',
-    '            }',
-    '',
-    '            public override RawEvent Execute(RawEvent incomingEvent)',
-    '            {',
-    '                if (incomingEvent is AliasEvent)',
+    '                var existing = incomingEvent.Context.ContainsKey(entry.Key) ? incomingEvent.Context[entry.Key] : null;',
+    '                var incoming = ToJsonElement(entry.Value);',
+    '                if (existing is JsonObject existingObj && incoming is JsonObject incomingObj)',
     '                {',
-    '                    Dictionary<string, object> aliasCtx;',
-    '                    if (_alias.TryDequeue(out aliasCtx))',
+    '                    foreach (var nested in incomingObj)',
     '                    {',
-    '                        MergeContext(incomingEvent, aliasCtx);',
-    '                    }',
-    '                    return incomingEvent;',
-    '                }',
-    '                var bag = EnvelopeOf(incomingEvent);',
-    '                if (bag != null && bag.ContainsKey("__ht_sv"))',
-    '                {',
-    '                    var tokenEl = bag["__ht_sv"];',
-    '                    var token = tokenEl is JsonPrimitive prim ? prim.Content : tokenEl.ToString();',
-    '                    bag.Remove("__ht_sv");',
-    '                    Dictionary<string, object> ctx;',
-    '                    if (_pending.TryRemove(token, out ctx))',
-    '                    {',
-    '                        MergeContext(incomingEvent, ctx);',
+    '                        existingObj[nested.Key] = nested.Value;',
     '                    }',
     '                }',
-    '                return incomingEvent;',
+    '                else',
+    '                {',
+    '                    incomingEvent.Context[entry.Key] = incoming;',
+    '                }',
     '            }',
+    '        }',
     '',
-    '            private static JsonObject EnvelopeOf(RawEvent incomingEvent)',
+    '        private static Func<RawEvent, RawEvent> ContextEnrichment(Dictionary<string, object> context)',
+    '        {',
+    '            if (context == null || context.Count == 0)',
     '            {',
-    '                if (incomingEvent is TrackEvent track) { return track.Properties; }',
-    '                if (incomingEvent is PageEvent page) { return page.Properties; }',
-    '                if (incomingEvent is ScreenEvent screen) { return screen.Properties; }',
-    '                if (incomingEvent is IdentifyEvent identify) { return identify.Traits; }',
-    '                if (incomingEvent is GroupEvent group) { return group.Traits; }',
     '                return null;',
     '            }',
-    '',
-    '            private static void MergeContext(RawEvent incomingEvent, Dictionary<string, object> extra)',
+    '            return incomingEvent =>',
     '            {',
-    '                if (incomingEvent.Context == null)',
-    '                {',
-    '                    incomingEvent.Context = ToJsonObject(extra);',
-    '                    return;',
-    '                }',
-    '                foreach (var entry in extra)',
-    '                {',
-    '                    var existing = incomingEvent.Context.ContainsKey(entry.Key) ? incomingEvent.Context[entry.Key] : null;',
-    '                    var incoming = ToJsonElement(entry.Value);',
-    '                    if (existing is JsonObject existingObj && incoming is JsonObject incomingObj)',
-    '                    {',
-    '                        foreach (var nested in incomingObj)',
-    '                        {',
-    '                            existingObj[nested.Key] = nested.Value;',
-    '                        }',
-    '                    }',
-    '                    else',
-    '                    {',
-    '                        incomingEvent.Context[entry.Key] = incoming;',
-    '                    }',
-    '                }',
-    '            }',
+    '                MergeContext(incomingEvent, context);',
+    '                return incomingEvent;',
+    '            };',
     '        }',
   ].join('\n');
 }
@@ -283,21 +241,7 @@ function renderHelpers(): string {
 function injectCall(dataExpr: string, event: NormalizedEvent): string[] {
   return [
     `            var injected = WithSchemaVersion(${dataExpr}, null, ${csStringArray(event.schemaVersionPath)}, ${csString(event.version)}, ${csString(event.envelopeKey)});`,
-    '            var data = StampContext(injected);',
   ];
-}
-
-function stampContextHelper(): string {
-  return [
-    '        private Dictionary<string, object> StampContext(Injected injected)',
-    '        {',
-    '            if (injected.Context != null && injected.Context.Count > 0)',
-    '            {',
-    '                injected.Data["__ht_sv"] = _stamps.Register(injected.Context);',
-    '            }',
-    '            return injected.Data;',
-    '        }',
-  ].join('\n');
 }
 
 function renderAliasWrapper(event: NormalizedEvent): string[] {
@@ -306,11 +250,7 @@ function renderAliasWrapper(event: NormalizedEvent): string[] {
     `        public void ${fn}(string newId)`,
     '        {',
     `            var injected = WithSchemaVersion(new Dictionary<string, object>(), null, ${csStringArray(event.schemaVersionPath)}, ${csString(event.version)}, ${csString(event.envelopeKey)});`,
-    '            if (injected.Context != null && injected.Context.Count > 0)',
-    '            {',
-    '                _stamps.RegisterAlias(injected.Context);',
-    '            }',
-    '            _analytics.Alias(newId);',
+    '            _analytics.Alias(newId, ContextEnrichment(injected.Context));',
     '        }',
   ];
   if (event.latestAlias !== undefined) {
@@ -332,7 +272,7 @@ function renderGroupWrapper(event: NormalizedEvent): string[] {
     `        public void ${fn}(string groupId, ${typeName} traits)`,
     '        {',
     ...injectCall('ToMap(traits)', event),
-    '            _analytics.Group(groupId, ToJsonObject(data));',
+    '            _analytics.Group(groupId, ToJsonObject(injected.Data), ContextEnrichment(injected.Context));',
     '        }',
   ];
   if (event.latestAlias !== undefined) {
@@ -355,13 +295,13 @@ function renderIdentifyWrapper(event: NormalizedEvent): string[] {
     `        public void ${fn}(${typeName} traits)`,
     '        {',
     ...inject,
-    '            _analytics.Identify(ToJsonObject(data));',
+    '            _analytics.Identify(ToJsonObject(injected.Data), ContextEnrichment(injected.Context));',
     '        }',
     '',
     `        public void ${fn}(string userId, ${typeName} traits)`,
     '        {',
     ...inject,
-    '            _analytics.Identify(userId, ToJsonObject(data));',
+    '            _analytics.Identify(userId, ToJsonObject(injected.Data), ContextEnrichment(injected.Context));',
     '        }',
   ];
   if (event.latestAlias !== undefined) {
@@ -387,10 +327,10 @@ function renderDataWrapper(event: NormalizedEvent): string[] {
   const typeName = typeNameFor(event);
   const sdkCall =
     event.type === 'page'
-      ? `_analytics.Page(${csString(event.name ?? event.type)}, ToJsonObject(data));`
+      ? `_analytics.Page(${csString(event.name ?? event.type)}, ToJsonObject(injected.Data), enrichment: ContextEnrichment(injected.Context));`
       : event.type === 'screen'
-        ? `_analytics.Screen(${csString(event.name ?? event.type)}, ToJsonObject(data));`
-        : `_analytics.Track(${csString(event.name ?? event.type)}, ToJsonObject(data));`;
+        ? `_analytics.Screen(${csString(event.name ?? event.type)}, ToJsonObject(injected.Data), enrichment: ContextEnrichment(injected.Context));`
+        : `_analytics.Track(${csString(event.name ?? event.type)}, ToJsonObject(injected.Data), ContextEnrichment(injected.Context));`;
   const lines = [
     `        public void ${fn}(${typeName} properties)`,
     '        {',
@@ -429,17 +369,13 @@ export function renderWrappers(events: NormalizedEvent[]): string {
   });
   const body = [
     '        private readonly AnalyticsClient _analytics;',
-    '        private readonly ContextStampPlugin _stamps;',
     '',
     '        public HtEvents(AnalyticsClient analytics)',
     '        {',
     '            _analytics = analytics;',
-    '            _stamps = new ContextStampPlugin();',
-    '            _analytics.Add(_stamps);',
     '        }',
     '',
     renderHelpers(),
-    stampContextHelper(),
     ...events.map((e) => renderEventWrappers(e).join('\n')),
   ].join('\n\n');
   return `    public sealed class HtEvents\n    {\n${body}\n    }`;
