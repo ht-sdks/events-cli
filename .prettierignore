@@ -13,4 +13,5 @@ test/harness/ruby/
 test/harness/php/
 test/harness/csharp/
 test/harness/flutter/
+test/harness/react-native/package-lock.json
 test/fixtures/git-sync/invalid-yaml/

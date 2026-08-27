@@ -15,14 +15,44 @@ describe('renderReactNative', () => {
     sortedWrapperSnippet: (wrapperName) => wrapperName,
   });
 
-  it('imports HightouchClient types from the peer SDK', async () => {
-    const ts = await renderReactNative(eventsFromFixture('simple-track.json'));
-    expect(ts).toContain(
-      "import type { EnrichmentClosure, GroupTraits, HightouchClient, HightouchEvent, JsonMap, UserTraits } from '@ht-sdks/events-sdk-react-native'",
+  it('imports only the peer SDK types the wrappers use', async () => {
+    const trackOnly = await renderReactNative(
+      eventsFromFixture('simple-track.json'),
     );
-    expect(ts).toContain(
+    expect(trackOnly).toContain(
+      "import type { EnrichmentClosure, HightouchClient, HightouchEvent, JsonMap } from '@ht-sdks/events-sdk-react-native'",
+    );
+    expect(trackOnly).not.toContain('GroupTraits');
+    expect(trackOnly).not.toContain('UserTraits');
+    expect(trackOnly).toContain(
       'export function setHtEvents(instance: HightouchClient)',
     );
+
+    const withIdentify = await renderReactNative(
+      eventsFromFixture('with-refs.json'),
+    );
+    expect(withIdentify).toContain(
+      "import type { EnrichmentClosure, HightouchClient, HightouchEvent, JsonMap, UserTraits } from '@ht-sdks/events-sdk-react-native'",
+    );
+    expect(withIdentify).not.toContain('GroupTraits');
+
+    const withGroup = await renderReactNative([
+      {
+        type: 'group',
+        version: 'default',
+        domainName: 'Accounts',
+        envelopeKey: 'traits',
+        schema: {
+          type: 'object',
+          properties: { name: { type: 'string' } },
+        },
+        wrapperName: 'groupDefault',
+      },
+    ]);
+    expect(withGroup).toContain(
+      "import type { EnrichmentClosure, GroupTraits, HightouchClient, HightouchEvent, JsonMap } from '@ht-sdks/events-sdk-react-native'",
+    );
+    expect(withGroup).not.toContain('UserTraits');
   });
 
   it('emits PascalCase interfaces named after wrapper names', async () => {

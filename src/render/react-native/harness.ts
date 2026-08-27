@@ -12,7 +12,7 @@ export const harness = {
     {
       command: 'npm',
       args: [
-        'install',
+        'ci',
         '--no-fund',
         '--no-audit',
         '--legacy-peer-deps',

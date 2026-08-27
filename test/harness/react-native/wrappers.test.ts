@@ -75,7 +75,9 @@ function mockClient(captured: Captured[]) {
 
 async function sendAndRead(run: () => Promise<unknown>): Promise<Captured> {
   const captured: Captured[] = [];
-  generated.setHtEvents(mockClient(captured));
+  generated.setHtEvents(
+    mockClient(captured) as Parameters<typeof generated.setHtEvents>[0],
+  );
   await run();
   assert.equal(captured.length, 1);
   return captured[0];

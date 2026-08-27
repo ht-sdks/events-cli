@@ -6,7 +6,7 @@ exports[`renderReactNative matches the snapshot for multi-version.json 1`] = `
  * Requires peer @ht-sdks/events-sdk-react-native v2.22.0 or later.
  */
 
-import type { EnrichmentClosure, GroupTraits, HightouchClient, HightouchEvent, JsonMap, UserTraits } from '@ht-sdks/events-sdk-react-native';
+import type { EnrichmentClosure, HightouchClient, HightouchEvent, JsonMap } from '@ht-sdks/events-sdk-react-native';
 
 export interface TrackOrderCompletedV1 {
     orderId?: string;
@@ -174,7 +174,7 @@ exports[`renderReactNative matches the snapshot for simple-track.json 1`] = `
  * Requires peer @ht-sdks/events-sdk-react-native v2.22.0 or later.
  */
 
-import type { EnrichmentClosure, GroupTraits, HightouchClient, HightouchEvent, JsonMap, UserTraits } from '@ht-sdks/events-sdk-react-native';
+import type { EnrichmentClosure, HightouchClient, HightouchEvent, JsonMap } from '@ht-sdks/events-sdk-react-native';
 
 export interface TrackOrderCompletedDefault {
     orderId: string;
@@ -318,7 +318,7 @@ exports[`renderReactNative matches the snapshot for with-refs.json 1`] = `
  * Requires peer @ht-sdks/events-sdk-react-native v2.22.0 or later.
  */
 
-import type { EnrichmentClosure, GroupTraits, HightouchClient, HightouchEvent, JsonMap, UserTraits } from '@ht-sdks/events-sdk-react-native';
+import type { EnrichmentClosure, HightouchClient, HightouchEvent, JsonMap, UserTraits } from '@ht-sdks/events-sdk-react-native';
 
 export interface IdentifyDefault {
     email?: string;
