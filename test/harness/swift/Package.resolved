@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ht-sdks/events-sdk-swift.git",
       "state" : {
-        "revision" : "de1a5e345f09c978f3e010a33f4c11687b536573",
-        "version" : "0.1.1"
+        "revision" : "1be12d05cc1cbbc9ae6e1e6a5531c4040f801c2d",
+        "version" : "0.2.0"
       }
     },
     {

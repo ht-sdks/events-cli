@@ -1,3 +1,3 @@
 /** Peer SDK documented in generated file headers. Not installed by the CLI. */
 export const MIN_SDK_PACKAGE = 'https://github.com/ht-sdks/events-sdk-swift';
-export const MIN_SDK_VERSION = '0.1.1';
+export const MIN_SDK_VERSION = '0.2.0';
