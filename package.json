@@ -2,8 +2,18 @@
   "name": "@ht-sdks/events-cli",
   "version": "0.1.0",
   "description": "Codegen CLI for Hightouch Events",
-  "private": true,
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ht-sdks/events-cli.git"
+  },
+  "homepage": "https://github.com/ht-sdks/events-cli#readme",
+  "bugs": {
+    "url": "https://github.com/ht-sdks/events-cli/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=18"
   },
@@ -15,6 +25,7 @@
     "schemas"
   ],
   "scripts": {
+    "prepublishOnly": "pnpm run build",
     "build": "tsc -p tsconfig.build.json",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
