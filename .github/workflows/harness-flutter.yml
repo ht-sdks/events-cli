@@ -1,0 +1,24 @@
+name: Flutter harness
+
+on:
+  push:
+
+jobs:
+  flutter-harness:
+    name: test generated wrappers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-cli
+        with:
+          node-version: '22'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Generate wrappers and test against hightouch_events
+        run: pnpm test:harness flutter
+        env:
+          RUN_HARNESS: '1'

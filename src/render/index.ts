@@ -3,6 +3,7 @@ import type { NormalizedEvent } from '../normalize/types';
 import { renderAndroid } from './android';
 import { renderBrowserTs } from './browser-ts';
 import { renderCSharp } from './csharp';
+import { renderFlutter } from './flutter';
 import { renderGo } from './go';
 import { renderJava } from './java';
 import { renderKotlin } from './kotlin';
@@ -57,6 +58,8 @@ export async function renderSdk(
       return renderJava(events, options.outputPath);
     case 'react-native':
       return renderReactNative(events);
+    case 'flutter':
+      return renderFlutter(events);
     default: {
       const exhaustive: never = sdk;
       throw new Error(`Unsupported SDK: ${String(exhaustive)}`);

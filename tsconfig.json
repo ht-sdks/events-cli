@@ -17,6 +17,7 @@
     "test/harness/go",
     "test/harness/browser-ts",
     "test/harness/swift",
-    "test/harness/react-native"
+    "test/harness/react-native",
+    "test/harness/flutter"
   ]
 }

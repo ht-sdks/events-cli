@@ -65,7 +65,8 @@
                   "android",
                   "kotlin",
                   "java",
-                  "react-native"
+                  "react-native",
+                  "flutter"
                 ]
               },
               "path": {

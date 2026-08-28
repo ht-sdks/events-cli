@@ -92,6 +92,12 @@ const GENERATED_SNIPPETS = {
     'identifyDefault',
     'htevents.track(',
   ],
+  flutter: [
+    'class HtEvents',
+    'trackCartViewedDefault',
+    'identifyDefault',
+    '_analytics.track(',
+  ],
 } as const satisfies Record<SupportedSdk, readonly string[]>;
 
 const CLI = join(__dirname, '..', 'dist', 'cli.js');

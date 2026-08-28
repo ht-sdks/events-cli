@@ -1,0 +1,19 @@
+name: analytics_harness
+description: Generated wrapper harness for hightouch_events
+publish_to: none
+
+environment:
+  sdk: ">=2.19.2 <4.0.0"
+  flutter: ">=2.5.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  hightouch_events: 1.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: false
