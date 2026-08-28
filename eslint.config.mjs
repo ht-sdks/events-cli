@@ -18,6 +18,7 @@ export default tseslint.config(
       'test/harness/android/',
       'test/harness/kotlin/',
       'test/harness/java/',
+      'test/harness/react-native/generated.ts',
     ],
   },
   ...tseslint.configs.recommended,

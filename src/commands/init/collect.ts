@@ -44,6 +44,8 @@ export function defaultOutputPath(sdk: SupportedSdk): string {
       return './src/main/kotlin/analytics/HtEvents.kt';
     case 'java':
       return './analytics/HtEvents.java';
+    case 'react-native':
+      return './src/analytics/react-native/generated.ts';
     default: {
       const exhaustive: never = sdk;
       return exhaustive;

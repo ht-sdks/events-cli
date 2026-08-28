@@ -68,6 +68,8 @@ test/harness/kotlin/build/
 test/harness/java/src/main/java/analytics/HtEvents.java
 test/harness/java/.gradle/
 test/harness/java/build/
+test/harness/react-native/generated.ts
+test/harness/react-native/node_modules/
 
 # Dependency directories
 node_modules/

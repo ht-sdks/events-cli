@@ -1,0 +1,20 @@
+name: React Native harness
+
+on:
+  push:
+
+jobs:
+  react-native-harness:
+    name: test generated wrappers
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/setup-cli
+        with:
+          node-version: '22'
+
+      - name: Generate wrappers and typecheck against events-sdk-react-native
+        run: pnpm test:harness react-native
+        env:
+          RUN_HARNESS: '1'
