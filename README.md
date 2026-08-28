@@ -196,19 +196,21 @@ npx htevents check
 
 ## Supported SDKs
 
-| `outputs[].sdk` | Peer SDK                                                                                      | Default output path                       |
-| --------------- | --------------------------------------------------------------------------------------------- | ----------------------------------------- |
-| `browser-ts`    | [`@ht-sdks/events-sdk-js-browser`](https://hightouch.com/docs/events/sdks/browser)            | `./src/analytics/generated.ts`            |
-| `node-ts`       | [`@ht-sdks/events-sdk-js-node`](https://hightouch.com/docs/events/sdks/nodejs)                | `./src/analytics/generated.ts`            |
-| `python`        | [`events-sdk-python`](https://hightouch.com/docs/events/sdks/python)                          | `./analytics/generated.py`                |
-| `ruby`          | [`events-sdk-ruby`](https://hightouch.com/docs/events/sdks/ruby)                              | `./analytics/generated.rb`                |
-| `php`           | [`ht-sdks/events-sdk-php`](https://hightouch.com/docs/events/sdks/php)                        | `./src/Hightouch/Generated/`              |
-| `csharp`        | [`Hightouch.Events.CSharp`](https://hightouch.com/docs/events/sdks/csharp)                    | `./Analytics/HtEvents.cs`                 |
-| `go`            | [`github.com/ht-sdks/events-sdk-go`](https://hightouch.com/docs/events/sdks/go)               | `./analytics/generated.go`                |
-| `swift`         | [`events-sdk-swift`](https://hightouch.com/docs/events/sdks/ios)                              | `./Sources/Analytics/Generated.swift`     |
-| `android`       | [`com.hightouch.analytics.android:analytics`](https://hightouch.com/docs/events/sdks/android) | `./src/main/java/analytics/HtEvents.java` |
-| `kotlin`        | `com.github.ht-sdks.events-sdk-kotlin:core`                                                   | `./src/main/kotlin/analytics/HtEvents.kt` |
-| `java`          | [`com.github.ht-sdks.events-sdk-java:analytics`](https://hightouch.com/docs/events/sdks/java) | `./analytics/HtEvents.java`               |
+| `outputs[].sdk` | Peer SDK                                                                                      | Default output path                         |
+| --------------- | --------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| `browser-ts`    | [`@ht-sdks/events-sdk-js-browser`](https://hightouch.com/docs/events/sdks/browser)            | `./src/analytics/generated.ts`              |
+| `node-ts`       | [`@ht-sdks/events-sdk-js-node`](https://hightouch.com/docs/events/sdks/nodejs)                | `./src/analytics/generated.ts`              |
+| `python`        | [`events-sdk-python`](https://hightouch.com/docs/events/sdks/python)                          | `./analytics/generated.py`                  |
+| `ruby`          | [`events-sdk-ruby`](https://hightouch.com/docs/events/sdks/ruby)                              | `./analytics/generated.rb`                  |
+| `php`           | [`ht-sdks/events-sdk-php`](https://hightouch.com/docs/events/sdks/php)                        | `./src/Hightouch/Generated/`                |
+| `csharp`        | [`Hightouch.Events.CSharp`](https://hightouch.com/docs/events/sdks/csharp)                    | `./Analytics/HtEvents.cs`                   |
+| `go`            | [`github.com/ht-sdks/events-sdk-go`](https://hightouch.com/docs/events/sdks/go)               | `./analytics/generated.go`                  |
+| `swift`         | [`events-sdk-swift`](https://hightouch.com/docs/events/sdks/ios)                              | `./Sources/Analytics/Generated.swift`       |
+| `android`       | [`com.hightouch.analytics.android:analytics`](https://hightouch.com/docs/events/sdks/android) | `./src/main/java/analytics/HtEvents.java`   |
+| `kotlin`        | `com.github.ht-sdks.events-sdk-kotlin:core`                                                   | `./src/main/kotlin/analytics/HtEvents.kt`   |
+| `java`          | [`com.github.ht-sdks.events-sdk-java:analytics`](https://hightouch.com/docs/events/sdks/java) | `./analytics/HtEvents.java`                 |
+| `react-native`  | [`@ht-sdks/events-sdk-react-native`](https://hightouch.com/docs/events/sdks/react-native)     | `./src/analytics/react-native/generated.ts` |
+| `flutter`       | [`hightouch_events`](https://hightouch.com/docs/events/sdks/flutter)                          | `./lib/analytics/generated.dart`            |
 
 Generated files record the minimum peer SDK version they were tested against.
 
