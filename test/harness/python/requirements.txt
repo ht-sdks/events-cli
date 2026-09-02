@@ -1,1 +1,15 @@
+# Peer SDK plus resolved runtime tree. requests and PyJWT override
+# events-sdk-python's loose ranges (requests~=2.7, PyJWT>=2.0,<3.0).
 events-sdk-python==0.0.3
+PyJWT==2.13.0
+backoff==2.2.1
+certifi==2026.7.22
+cffi==2.1.1
+charset-normalizer==3.5.1
+cryptography==50.0.1
+idna==3.19
+pycparser==3.0
+python-dateutil==2.9.0.post0
+requests==2.34.2
+six==1.17.0
+urllib3==2.7.0
