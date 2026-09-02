@@ -8,13 +8,13 @@ jobs:
     name: test generated wrappers
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - uses: ./.github/actions/setup-cli
         with:
           node-version: '22'
 
-      - uses: sersoft-gmbh/swifty-linux-action@v3
+      - uses: sersoft-gmbh/swifty-linux-action@577251f82ce4f38e1ae770530f0b64305502a5fa # v3.0.1
         with:
           release-version: '5.10.1'
 
