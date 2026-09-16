@@ -28,8 +28,8 @@ importers:
         specifier: 1.6.0
         version: 1.6.0
       '@ht-sdks/events-sdk-js-node':
-        specifier: 1.1.0
-        version: 1.1.0
+        specifier: 2.0.0
+        version: 2.0.0
       '@types/jest':
         specifier: ^30.0.0
         version: 30.0.0
@@ -435,9 +435,9 @@ packages:
   '@ht-sdks/events-sdk-js-core@1.1.1':
     resolution: {integrity: sha512-g6/SMvPgCZ3HNk3E4ppCqcgOUIj/PQ5wEa70AGZdpwroPprucF8cmVTI91mJgOrN2MG9/TwNpkNrM4/ieNr5/Q==}
 
-  '@ht-sdks/events-sdk-js-node@1.1.0':
-    resolution: {integrity: sha512-x3u0Wv6no05eKCoiYYjowPmCWlwe30quf3UUJS6MHvQu3WdU6BNPM8o7Yaxt18tRcupeWRDZSdD1NyDMSMNXLg==}
-    engines: {node: '>=18'}
+  '@ht-sdks/events-sdk-js-node@2.0.0':
+    resolution: {integrity: sha512-fGBn18qWPNdk4gpJlZkya31bIngYusBiFPqiBhBAcsmjJaQKsxCRUZxu9Ftn2kQKP2mLs+jXJl8eu/AKBI1Z7g==}
+    engines: {node: '>=22'}
 
   '@humanfs/core@0.19.2':
     resolution: {integrity: sha512-UhXNm+CFMWcbChXywFwkmhqjs3PRCmcSa/hfBgLIb7oQ5HNb1wS0icWsGtSAUNgefHeI+eBrA8I1fxmbHsGdvA==}
@@ -1764,15 +1764,6 @@ packages:
   new-date@1.0.3:
     resolution: {integrity: sha512-0fsVvQPbo2I18DT2zVHpezmeeNYV2JaJSrseiHLc17GNOxJzUdx5mvSigPu8LtIfZSij5i1wXnXFspEs2CD6hA==}
 
-  node-fetch@2.7.0:
-    resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
-    engines: {node: 4.x || >=6.0.0}
-    peerDependencies:
-      encoding: ^0.1.0
-    peerDependenciesMeta:
-      encoding:
-        optional: true
-
   node-int64@0.4.0:
     resolution: {integrity: sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==}
 
@@ -2036,9 +2027,6 @@ packages:
   tmpl@1.0.5:
     resolution: {integrity: sha512-3f0uOEAQwIqGuWW2MVzYg8fV/QNnc/IpuJNG837rLuczAaLVHslWHZQj4IGiEl5Hs3kkbhwL9Ab7Hrsmuj+Smw==}
 
-  tr46@0.0.3:
-    resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
-
   ts-api-utils@2.5.0:
     resolution: {integrity: sha512-OJ/ibxhPlqrMM0UiNHJ/0CKQkoKF243/AEmplt3qpRgkW8VG7IfOS41h7V8TjITqdByHzrjcS/2si+y4lIh8NA==}
     engines: {node: '>=18.12'}
@@ -2149,12 +2137,6 @@ packages:
 
   walker@1.0.8:
     resolution: {integrity: sha512-ts/8E8l5b7kY0vlWLewOkDXMmPdLcVV4GmOQLyxuSswIJsweeFZtAsMF7k1Nszz+TYBQrlYRmzOnr398y1JemQ==}
-
-  webidl-conversions@3.0.1:
-    resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
-
-  whatwg-url@5.0.0:
-    resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}
 
   which@2.0.2:
     resolution: {integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==}
@@ -2552,15 +2534,12 @@ snapshots:
       dset: 3.1.4
       tslib: 2.8.1
 
-  '@ht-sdks/events-sdk-js-node@1.1.0':
+  '@ht-sdks/events-sdk-js-node@2.0.0':
     dependencies:
       '@ht-sdks/events-sdk-js-core': 1.1.1
       '@lukeed/uuid': 2.0.1
       buffer: 6.0.3
-      node-fetch: 2.7.0
       tslib: 2.8.1
-    transitivePeerDependencies:
-      - encoding
 
   '@humanfs/core@0.19.2':
     dependencies:
@@ -4132,10 +4111,6 @@ snapshots:
     dependencies:
       '@segment/isodate': 1.0.3
 
-  node-fetch@2.7.0:
-    dependencies:
-      whatwg-url: 5.0.0
-
   node-int64@0.4.0: {}
 
   node-releases@2.0.53: {}
@@ -4371,8 +4346,6 @@ snapshots:
 
   tmpl@1.0.5: {}
 
-  tr46@0.0.3: {}
-
   ts-api-utils@2.5.0(typescript@5.9.3):
     dependencies:
       typescript: 5.9.3
@@ -4495,13 +4468,6 @@ snapshots:
   walker@1.0.8:
     dependencies:
       makeerror: 1.0.12
-
-  webidl-conversions@3.0.1: {}
-
-  whatwg-url@5.0.0:
-    dependencies:
-      tr46: 0.0.3
-      webidl-conversions: 3.0.1
 
   which@2.0.2:
     dependencies:
