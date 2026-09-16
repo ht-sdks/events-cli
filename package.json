@@ -45,7 +45,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
-    "@ht-sdks/events-sdk-js-browser": "1.4.0",
+    "@ht-sdks/events-sdk-js-browser": "1.6.0",
     "@ht-sdks/events-sdk-js-node": "1.1.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.2.0",
